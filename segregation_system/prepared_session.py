@@ -9,6 +9,9 @@ class PreparedSession:
         sessionID (int): The unique ID of the session.
         features (List[Features]): A list of `Features` objects representing the characteristics of the session.
         labels (List[str]): A list of labels associated with the session.
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self, sessionID: int, features: List[Features], labels: List[str]):

@@ -1,3 +1,8 @@
+"""
+Author: Saverio Mosti
+Creation Date: 2024-12-06
+"""
+
 class SegregationSystemConfiguration:
     """
     Represents the configuration for the segregation system, including settings
@@ -9,6 +14,10 @@ class SegregationSystemConfiguration:
         training_set_percentage (float): The percentage of data allocated to the training set.
         validation_set_percentage (float): The percentage of data allocated to the validation set.
         number_of_training_sessions (int): The number of training sessions configured.
+
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self,

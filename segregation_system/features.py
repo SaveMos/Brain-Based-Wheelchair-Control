@@ -9,6 +9,10 @@ class Features:
         PSD_theta_band (float): Power spectral density (PSD) for the theta band.
         activity_plus_small_scatter (float): Activity data combined with small scatter values.
         environment_plus_small_scatter (float): Environmental data combined with small scatter values.
+
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self,

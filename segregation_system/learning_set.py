@@ -10,6 +10,10 @@ class LearningSet:
         training_set (List[PreparedSession]): A list of `PreparedSession` objects used for training.
         validation_set (List[PreparedSession]): A list of `PreparedSession` objects used for validation.
         test_set (List[PreparedSession]): A list of `PreparedSession` objects used for testing.
+
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self,

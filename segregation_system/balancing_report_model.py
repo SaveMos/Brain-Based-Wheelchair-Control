@@ -1,3 +1,8 @@
+"""
+Author: Saverio Mosti
+Creation Date: 2024-12-06
+"""
+
 import os
 import matplotlib.pyplot as plt
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
@@ -11,6 +16,10 @@ class BalancingReportModel:
     Attributes:
         balancing_report (BalancingReport): The report to generate the histogram from.
         segregation_config (SegregationSystemConfiguration): The configuration to get the tolerance value.
+
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self, balancing_report: BalancingReport, segregation_config: SegregationSystemConfiguration):

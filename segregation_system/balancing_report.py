@@ -1,3 +1,8 @@
+"""
+Author: Saverio Mosti
+Creation Date: 2024-12-06
+"""
+
 class BalancingReport:
     """
     Represents a report on balancing actions, including the counts for moves,
@@ -7,6 +12,10 @@ class BalancingReport:
         move (int): The number of moves in the balancing process.
         turn_left (int): The number of times a turn to the left occurred.
         turn_right (int): The number of times a turn to the right occurred.
+
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self, move: int, turn_left: int, turn_right: int):
