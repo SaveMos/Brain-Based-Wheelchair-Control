@@ -1,73 +1,97 @@
 from flask import Flask, request, jsonify
-from threading import Thread
 import requests
-from typing import Dict
+import threading
 
 class MessageBroker:
-    """
-    A class to facilitate message exchange between Python systems on the same network using Flask.
+    """A message broker implemented using Flask for sending and receiving messages."""
 
-    Attributes:
-        ip_address (str): The IP address of the local host.
-        port (int): The port number for the Flask server.
-    """
-
-    def __init__(self, ip_address: str, port: int) -> None:
-        """
-        Initializes the MessageBroker with the given IP address and port.
-
-        Args:
-            ip_address (str): The IP address of the local host.
-            port (int): The port number for the Flask server.
-        """
-        self.ip_address = ip_address
-        self.port = port
+    def __init__(self):
+        """Initialize the Flask app and the message storage."""
         self.app = Flask(__name__)
+        self.message = None  # Store the last received message
 
-        # Set up Flask route for receiving messages
-        @self.app.route('/receive_message', methods=['POST'])
-        def receive_message() -> Dict[str, str]:
-            """
-            Flask route to handle incoming messages.
+        # Define a route for receiving messages
+        @self.app.route('/receive', methods=['POST'])
+        def receive_message():
+            """Handle receiving messages via POST requests."""
+            data = request.get_json()
+            sender_ip = request.remote_addr
+            self.message = {
+                'sender': sender_ip,
+                'content': data.get('message')
+            }
+            return jsonify({'status': 'Message received', 'message': self.message}), 200
 
-            Returns:
-                dict: A dictionary containing the sender's address and the received message.
-            """
-            data = request.json
-            sender = request.remote_addr
-            message = data.get("message", "")
-            return jsonify({'sender': sender, 'message': message})
+        # Define a route for retrieving the last received message
+        @self.app.route('/receiveMessage', methods=['GET'])
+        def get_message():
+            """Retrieve the last received message."""
+            if not self.message:
+                return jsonify({'error': 'No messages received yet'}), 404
+            return jsonify(self.message), 200
 
-    def start_server(self) -> None:
-        """
-        Starts the Flask server in a separate thread.
-        """
-        server_thread = Thread(target=self.app.run, kwargs={
-            'host': self.ip_address,
-            'port': self.port,
-            'debug': False,
-            'use_reloader': False
-        })
-        server_thread.daemon = True
-        server_thread.start()
-
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Dict[str, str]:
-        """
-        Sends a message to the target host via HTTP POST.
+    def sendMessage(self, ip, port, message):
+        """Send a message to a given IP and port.
 
         Args:
-            target_ip (str): The IP address of the recipient.
-            target_port (int): The port number of the recipient.
+            ip (str): The recipient's IP address.
+            port (int): The recipient's port number.
             message (str): The message to send.
 
         Returns:
             dict: The response from the recipient.
         """
-        url = f"http://{target_ip}:{target_port}/receive_message"
+        url = f'http://{ip}:{port}/receive'
         payload = {'message': message}
-        try:
-            response = requests.post(url, json=payload)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as error:
-            return {'error': str(error)}
+        response = requests.post(url, json=payload)
+        return response.json()
+
+    def receiveMessage(self, ip, port):
+        """Retrieve the latest received message from another system.
+
+        Args:
+            ip (str): The sender's IP address.
+            port (int): The sender's port number.
+
+        Returns:
+            dict: The message content and sender details.
+        """
+        url = f'http://{ip}:{port}/receiveMessage'
+        response = requests.get(url)
+        return response.json()
+
+    def start_server(self, port):
+        """Start the Flask server in a separate thread.
+
+        Args:
+            port (int): The port number to run the server on.
+        """
+        threading.Thread(target=self.app.run, kwargs={'port': port, 'debug': False}).start()
+
+# Example usage
+if __name__ == '__main__':
+    # Create two message brokers for two systems
+    development_system = MessageBroker()
+    ingestion_system = MessageBroker()
+
+    # Start servers on different ports
+    development_system.start_server(port=5001)
+    ingestion_system.start_server(port=5002)
+
+    # Let the servers initialize (you may need to add a short delay in real cases)
+    import time
+    time.sleep(1)
+
+    # Send a message from development_system to ingestion_system
+    response = development_system.sendMessage('127.0.0.1', 5002, 'Hello from Development System!')
+    print('Response from development system:', response)
+
+    # Send a message from ingestion_system to development_system
+    response = ingestion_system.sendMessage('127.0.0.1', 5001, 'Hello from Ingestion System!')
+    print('Response from ingestion system:', response)
+
+    # Retrieve messages on both systems
+    print('Message received by development system:',
+          development_system.receiveMessage('127.0.0.1', 5001))
+    print('Message received by ingestion system:',
+          ingestion_system.receiveMessage('127.0.0.1', 5002))
