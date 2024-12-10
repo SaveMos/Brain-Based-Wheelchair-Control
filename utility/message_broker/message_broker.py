@@ -1,97 +1,112 @@
 from flask import Flask, request, jsonify
-import requests
 import threading
+import requests
+from typing import Optional, Dict
 
 class MessageBroker:
-    """A message broker implemented using Flask for sending and receiving messages."""
+    """
+    A utility class to enable inter-module communication using Flask.
 
-    def __init__(self):
-        """Initialize the Flask app and the message storage."""
+    This class supports sending and receiving messages in a blocking manner.
+    """
+    def __init__(self, host: str = '0.0.0.0', port: int = 5000):
+        """
+        Initialize the Flask communication server.
+
+        :param host: The host address for the Flask server.
+        :param port: The port number for the Flask server.
+        """
         self.app = Flask(__name__)
-        self.message = None  # Store the last received message
+        self.host = host
+        self.port = port
+        self.last_message = None
 
-        # Define a route for receiving messages
-        @self.app.route('/receive', methods=['POST'])
+        # Define a route to receive messages
+        @self.app.route('/send', methods=['POST'])
         def receive_message():
-            """Handle receiving messages via POST requests."""
-            data = request.get_json()
+            data = request.json
             sender_ip = request.remote_addr
-            self.message = {
-                'sender': sender_ip,
-                'content': data.get('message')
+            sender_port = data.get('port')
+            message = data.get('message')
+
+            self.last_message = {
+                'ip': sender_ip,
+                'port': sender_port,
+                'message': message
             }
-            return jsonify({'status': 'Message received', 'message': self.message}), 200
+            return jsonify({"status": "received"}), 200
 
-        # Define a route for retrieving the last received message
-        @self.app.route('/receiveMessage', methods=['GET'])
-        def get_message():
-            """Retrieve the last received message."""
-            if not self.message:
-                return jsonify({'error': 'No messages received yet'}), 404
-            return jsonify(self.message), 200
-
-    def sendMessage(self, ip, port, message):
-        """Send a message to a given IP and port.
-
-        Args:
-            ip (str): The recipient's IP address.
-            port (int): The recipient's port number.
-            message (str): The message to send.
-
-        Returns:
-            dict: The response from the recipient.
+    def start_server(self):
         """
-        url = f'http://{ip}:{port}/receive'
-        payload = {'message': message}
-        response = requests.post(url, json=payload)
-        return response.json()
-
-    def receiveMessage(self, ip, port):
-        """Retrieve the latest received message from another system.
-
-        Args:
-            ip (str): The sender's IP address.
-            port (int): The sender's port number.
-
-        Returns:
-            dict: The message content and sender details.
+        Start the Flask server in a separate thread.
         """
-        url = f'http://{ip}:{port}/receiveMessage'
-        response = requests.get(url)
-        return response.json()
+        thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
+        thread.start()
 
-    def start_server(self, port):
-        """Start the Flask server in a separate thread.
-
-        Args:
-            port (int): The port number to run the server on.
+    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
         """
-        threading.Thread(target=self.app.run, kwargs={'port': port, 'debug': False}).start()
+        Send a message to a target module.
 
-# Example usage
-if __name__ == '__main__':
-    # Create two message brokers for two systems
-    development_system = MessageBroker()
-    ingestion_system = MessageBroker()
+        :param target_ip: The IP address of the target module.
+        :param target_port: The port of the target module.
+        :param message: The message to send (typically a JSON string).
+        :return: The response from the target, if any.
+        """
+        url = f"http://{target_ip}:{target_port}/send"
+        payload = {
+            "port": self.port,
+            "message": message
+        }
+        try:
+            response = requests.post(url, json=payload)
+            if response.status_code == 200:
+                return response.json()
+        except requests.RequestException as e:
+            print(f"Error sending message: {e}")
+        return None
 
-    # Start servers on different ports
-    development_system.start_server(port=5001)
-    ingestion_system.start_server(port=5002)
+    def get_last_message(self) -> Optional[Dict]:
+        """
+        Get the last message received by the server.
 
-    # Let the servers initialize (you may need to add a short delay in real cases)
-    import time
-    time.sleep(1)
+        :return: A dictionary containing the sender's IP, port, and the message content.
+        """
+        return self.last_message
 
-    # Send a message from development_system to ingestion_system
-    response = development_system.sendMessage('127.0.0.1', 5002, 'Hello from Development System!')
-    print('Response from development system:', response)
 
-    # Send a message from ingestion_system to development_system
-    response = ingestion_system.sendMessage('127.0.0.1', 5001, 'Hello from Ingestion System!')
-    print('Response from ingestion system:', response)
+if __name__ == "__main__":
 
-    # Retrieve messages on both systems
-    print('Message received by development system:',
-          development_system.receiveMessage('127.0.0.1', 5001))
-    print('Message received by ingestion system:',
-          ingestion_system.receiveMessage('127.0.0.1', 5002))
+    # Module A (Sender)
+    from time import sleep
+
+    # Create a FlaskComm instance and start the server
+    module_a = FlaskComm(host='0.0.0.0', port=5001)
+    module_a.start_server()
+
+    # Send a message to Module B
+    response = module_a.send_message(target_ip='127.0.0.1', target_port=5002, message='{"action": "test"}')
+    print("Response from Module B:", response)
+
+    # Keep the server running
+    while True:
+        sleep(1)
+
+    ########################################################
+
+    # Module B (Receiver)
+    from time import sleep
+
+    # Create a FlaskComm instance and start the server
+    module_b = FlaskComm(host='0.0.0.0', port=5002)
+    module_b.start_server()
+
+    # Keep the server running and print messages received
+    while True:
+        message = module_b.get_last_message()
+        if message:
+            print("Message received:", message)
+            # Reset last message to avoid printing repeatedly
+            module_b.last_message = None
+        sleep(1)
+
+
