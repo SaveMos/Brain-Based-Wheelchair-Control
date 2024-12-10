@@ -79,8 +79,8 @@ if __name__ == "__main__":
     # Module A (Sender)
     from time import sleep
 
-    # Create a FlaskComm instance and start the server
-    module_a = FlaskComm(host='0.0.0.0', port=5001)
+    # Create a MessageBroker instance and start the server
+    module_a = MessageBroker(host='0.0.0.0', port=5001)
     module_a.start_server()
 
     # Send a message to Module B
@@ -96,8 +96,8 @@ if __name__ == "__main__":
     # Module B (Receiver)
     from time import sleep
 
-    # Create a FlaskComm instance and start the server
-    module_b = FlaskComm(host='0.0.0.0', port=5002)
+    # Create a MessageBroker instance and start the server
+    module_b = MessageBroker(host='0.0.0.0', port=5002)
     module_b.start_server()
 
     # Keep the server running and print messages received
