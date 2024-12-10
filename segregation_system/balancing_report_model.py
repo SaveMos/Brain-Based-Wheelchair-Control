@@ -35,41 +35,46 @@ class BalancingReportModel:
 
     def generateBalancingReport(self):
         """
-        Generates and saves a histogram for the balancing report, with a tolerance line above the median bar.
-        The histogram is saved as 'BalancingReport.png' in a 'plots' directory.
+        Generates and saves a histogram for the balancing report, with two tolerance lines at 5%
+        above and below the median bar. The histogram is saved as 'BalancingReport.png' in a 'plots' directory.
+
+        This method does the following:
+        - Creates a histogram with three bars (Move, Turn Left, Turn Right).
+        - Adds two tolerance lines (upper and lower) at 5% above and below the median value.
+        - Saves the histogram image in a 'plots' folder as 'BalancingReport.png'.
+
+        Author: Saverio Mosti
+
+        Creation Date: 2024-12-10
+
         """
         # Extract the data from the balancing report
         data = [self.balancing_report.move, self.balancing_report.turn_left, self.balancing_report.turn_right]
-        labels = ['Move', 'Turn Left', 'Turn Right']
+        labels = ['Move', 'Turn Left', 'Turn Right'] # The labels of the plot.
 
-        # Create a figure and axis for the plot
         fig, ax = plt.subplots()
 
-        # Create the histogram
         ax.bar(labels, data, color=['blue', 'green', 'red'])
 
-        # Calculate the median value
+        # Calculate the median value, where to place the tolerance lines.
         median_value = sorted(data)[1]
 
-        # Get the tolerance value from the configuration
-        tolerance = self.segregation_config.tolerance_interval
+        # Calculate the tolerance intervals.
+        tolerance = self.segregation_config.tolerance_interval / 100
+        lower_tolerance = median_value * (1 - tolerance)
+        upper_tolerance = median_value * (1 + tolerance)
 
-        # Add the tolerance line at the median value + tolerance
-        ax.axhline(median_value + tolerance, color='purple', linestyle='--', label=f'Tolerance: {tolerance}')
+        # Add the two tolerance lines to the plot.
+        ax.axhline(lower_tolerance, color='orange', linestyle='--', label=f'Lower Tolerance: {lower_tolerance:.2f}')
+        ax.axhline(upper_tolerance, color='purple', linestyle='--', label=f'Upper Tolerance: {upper_tolerance:.2f}')
 
-        # Add labels and title
+        # Add the labels and the title to the plot.
         ax.set_xlabel('Actions')
         ax.set_ylabel('Frequency')
         ax.set_title('Balancing Report Histogram')
 
-        # Add a legend
-        ax.legend()
+        ax.legend()  # Add a legend to the plot.
 
-        # Create the 'plots' directory if it does not exist
-        os.makedirs('plots', exist_ok=True)
+        os.makedirs('plots', exist_ok=True) # Create the 'plots' directory if it does not exist
 
-        # Save the plot as an image
-        plt.savefig('plots/BalancingReport.png')
-
-        # Show the plot (optional)
-        plt.show()
+        plt.savefig('plots/BalancingReport.png') # Save the plot as a '.png' image

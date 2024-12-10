@@ -1,3 +1,8 @@
+"""
+Author: Saverio Mosti
+Creation Date: 2024-12-06
+"""
+
 from typing import List
 from segregation_system.prepared_session import PreparedSession
 
@@ -7,6 +12,10 @@ class CoverageReport:
 
     Attributes:
         prepared_sessions (List[PreparedSession]): A list of `PreparedSession` objects used in the coverage report.
+
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
     def __init__(self, prepared_sessions: List[PreparedSession]):

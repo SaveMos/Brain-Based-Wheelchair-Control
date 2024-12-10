@@ -3,6 +3,7 @@ Author: Saverio Mosti
 Creation Date: 2024-12-06
 """
 
+
 class SegregationSystemConfiguration:
     """
     Represents the configuration for the segregation system, including settings
