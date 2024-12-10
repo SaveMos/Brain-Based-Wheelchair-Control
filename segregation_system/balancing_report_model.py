@@ -2,9 +2,11 @@
 Author: Saverio Mosti
 Creation Date: 2024-12-06
 """
-
+from typing import List
 import os
 import matplotlib.pyplot as plt
+
+from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.balancing_report import BalancingReport
 
@@ -22,15 +24,28 @@ class BalancingReportModel:
     Creation Date: 2024-12-06
     """
 
-    def __init__(self, balancing_report: BalancingReport, segregation_config: SegregationSystemConfiguration):
+    def __init__(self, sessions: List[PreparedSession], segregation_config: SegregationSystemConfiguration):
         """
         Initializes the BalancingReportModel with the provided balancing report and configuration.
 
         Args:
-            balancing_report (BalancingReport): The balancing report object containing move, turn_left, and turn_right values.
+            sessions (List[PreparedSession]): The PreparedSessions.
             segregation_config (SegregationSystemConfiguration): The segregation system configuration to access tolerance.
         """
-        self.balancing_report = balancing_report
+
+        num_move = 0
+        num_turn_left = 0
+        num_turn_right = 0
+
+        for session in sessions:
+            if session.label == "move":
+                num_move += 1
+            if session.label == "turn_left":
+                num_turn_left += 1
+            if session.label == "turn_right":
+                num_turn_right += 1
+
+        self.balancing_report = BalancingReport(num_move , num_turn_left , num_turn_right)
         self.segregation_config = segregation_config
 
     def generateBalancingReport(self):

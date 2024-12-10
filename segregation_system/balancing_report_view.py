@@ -33,7 +33,7 @@ class BalancingReportView:
             FileNotFoundError: If the 'BalancingReport.png' file does not exist.
             RuntimeError: If the system platform is not supported.
         """
-        image_path = os.path.join('plots', 'BalancingReport.png')
+        image_path = 'plots\BalancingReport.png'
 
         # Check if the file exists
         if not os.path.exists(image_path):

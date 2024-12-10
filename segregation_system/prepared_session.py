@@ -12,7 +12,7 @@ class PreparedSession:
     Attributes:
         sessionID (int): The unique ID of the session.
         features (List[Features]): A list of `Features` objects representing the characteristics of the session.
-        labels (List[str]): A list of labels associated with the session.
+        labels (str): The label associated with the prepared session.
     Author: Saverio Mosti
 
     Creation Date: 2024-12-06
@@ -59,11 +59,11 @@ class PreparedSession:
 
     # Getter and setter for labels
     @property
-    def labels(self) -> str:
+    def label(self) -> str:
         """Returns the list of labels for the session."""
         return self._labels
 
-    @labels.setter
-    def labels(self, value: str):
+    @label.setter
+    def label(self, value: str):
         """Sets a new list of labels for the session."""
         self._labels = value

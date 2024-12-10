@@ -29,17 +29,17 @@ class CoverageReportView:
             FileNotFoundError: If the 'CoverageReport.png' file does not exist.
             RuntimeError: If the system platform is not supported.
         """
-        image_path = os.path.join('plots', 'CoverageReport.png')
+        image_path = 'plots\CoverageReport.png'
 
         # Check if the file exists
         if not os.path.exists(image_path):
-            raise FileNotFoundError(f"The file '{image_path}' does not exist.")
+            print(f"'CoverageReport.png' file does not exist.")
 
         # Determine the platform and open the file with the default viewer
         system_platform = platform.system()
         try:
             if system_platform == "Windows":
-                os.startfile(image_path)  # Windows-specific
+                os.startfile(image_path)  # Windows-specific.
             elif system_platform == "Darwin":  # macOS
                 subprocess.run(["open", image_path], check=True)
             elif system_platform == "Linux":  # Linux systems
