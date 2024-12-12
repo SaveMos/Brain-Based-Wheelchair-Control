@@ -7,16 +7,13 @@ class Label:
     Data Object class to represent a Label created in Production System.
     """
 
-    def __init__(self, uuid: str, movements: int):
+    def __init__(self):
         """
         Initialize the Label with uuid and movements fields.
 
-        Args:
-            uuid (str): The unique identifier for the label.
-            movements (int): Integer label associated to the movements.
         """
-        self._uuid = uuid
-        self._movements = movements
+        self._uuid = None
+        self._movements = None
 
     @property
     def uuid(self) -> str:

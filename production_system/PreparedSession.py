@@ -5,10 +5,10 @@ from typing import List
 
 
 class PreparedSession:
+    """
+        Data object class to represent the prepared session used by production system
+    """
     def __init__(self, uuid: str, features: List[float]):
-        """
-
-        """
         self._uuid = uuid
         self._features = features
 
@@ -48,6 +48,6 @@ class PreparedSession:
         Set the movements label.
 
         Args:
-            value List[float]: The new list of features.
+            value (List[float]): The new list of features.
         """
         self._features = value
