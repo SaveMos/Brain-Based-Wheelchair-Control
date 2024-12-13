@@ -1,9 +1,9 @@
-# production_system_json.py
-class ProductionSystemJsonIO:
+from utility.json_handler.json_handler import JsonHandler
+class ProductionSystemJSONIO:
     """
         Author: Alessandro Ascani
 
-        this class manage all
+        this class manage all sended/received json file
     """
     def send_label(self, label):
         """
@@ -11,7 +11,7 @@ class ProductionSystemJsonIO:
         """
 
 
-    def receive_prepared_session(self, prepared_session):
+    def receive_prepared_session(self):
         """
             method to receive prepared session from Preparation System
         """
@@ -22,4 +22,15 @@ class ProductionSystemJsonIO:
         """
 
         """
+
+    def receive_classifier(self):
+        """
+        Receive a classifier from Development System
+
+        Returns:
+            the received classifier
+
+        """
+
+
 
