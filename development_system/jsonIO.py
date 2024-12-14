@@ -23,6 +23,41 @@ class JsonHandler:
             print("Error to read file at path " + filepath + ": " + e)
             return None
 
+    def read_configuration_parameters(self, filepath):
+        """
+        Read a json file.
+
+        Returns:
+            filecontent: content of json file.
+
+        """
+        """
+            dictionary that contains all the values of the configutation parameters
+        """
+        params = {}
+        try:
+            with open(filepath, "r") as f:
+                filecontent = json.load(f)
+
+            layers = filecontent.get('layers', {})
+            neurons = filecontent.get('neurons', {})
+            tolerance = filecontent.get('tolerance', {})
+
+            params["min_layers"] = layers.get('min_layers')
+            params["max_layers"] = layers.get('max_layers')
+            params["step_layers"] = layers.get('step_layers')
+            params["min_neurons"] = neurons.get('min_neurons')
+            params["max_neurons"] = neurons.get('max_neurons')
+            params["step_neurons"] = neurons.get('step_neurons')
+            params["overfitting_tolerance"] = tolerance.get('overfitting_tolerance')
+            params["generalization_tolerance"] = tolerance.get('generalization_tolerance')
+
+            return params
+
+        except Exception as e:
+            print("Error to read file at path " + filepath + ": " + e)
+            return None
+
     def write_json_file(self, data, filepath):
         """
             Args:

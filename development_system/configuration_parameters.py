@@ -1,3 +1,6 @@
+from development_system.jsonIO import JsonHandler
+
+
 class ConfigurationParameters:
     """Class representing configuration parameters."""
 
@@ -11,10 +14,7 @@ class ConfigurationParameters:
         self.step_neurons = None
         self.overfitting_tolerance = None
         self.generalization_tolerance = None
-
-    def load_configuration(self):
-        """Load configuration parameters."""
-        pass  # Logic to load configurations would go here.
+        self.read_conf = JsonHandler()  # instance of JsonHandler class
 
     # Setters and Getters
     def set_min_layers(self, value):
@@ -78,3 +78,19 @@ class ConfigurationParameters:
     def get_generalization_tolerance(self):
         """Get the minimum number of layers."""
         return self.generalization_tolerance
+
+    def load_configuration(self):
+        """Load configuration parameters from a JSON file."""
+        filepath = "development_parameters.json"
+        params = {}
+        params = self.read_conf.read_configuration_parameters(filepath)
+
+        self.min_layers = params["min_layers"]
+        self.max_layers = params["max_layers"]
+        self.step_layers = params['step_layers']
+        self.min_neurons = params['min_neurons']
+        self.max_neurons = params['max_neurons']
+        self.step_neurons = params['step_neurons']
+        self.overfitting_tolerance = params['overfitting_tolerance']
+        self.generalization_tolerance = params['generalization_tolerance']
+
