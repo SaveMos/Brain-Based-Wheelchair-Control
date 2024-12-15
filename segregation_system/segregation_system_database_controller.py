@@ -11,7 +11,7 @@ class SegregationSystemDatabaseController:
 
     def __init__(self, db_name: str):
         """
-        Initialize the SegregationSystemDatabaseController with a given database name.
+        Initialize the DatabaseManager with a given database name.
 
         :param db_name: The name of the SQLite database file.
         """
@@ -136,35 +136,5 @@ class SegregationSystemDatabaseController:
         """
         query = f"SELECT * FROM {table_name} WHERE {condition}"
         return self.fetch_query(query, condition_params)
-
-
-# To Test the DatabaseManager class
-if __name__ == "__main__":
-    # Initialize the database manager
-    db = SegregationSystemDatabaseController('example.db')
-
-    # Create a table
-    db.create_table('users', {
-        'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
-        'name': 'TEXT NOT NULL',
-        'age': 'INTEGER',
-        'email': 'TEXT'
-    })
-
-    # Insert a record
-    db.insert('users', {'name': 'John Doe', 'age': 30, 'email': 'john@example.com'})
-
-    # Fetch records
-    users = db.fetch_all('users')
-    print(users)
-
-    # Update a record
-    db.update('users', {'age': 31}, 'name = ?', ('John Doe',))
-
-    # Delete a record
-    db.delete('users', 'name = ?', ('John Doe',))
-
-
-
 
 
