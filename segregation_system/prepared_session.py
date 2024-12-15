@@ -1,5 +1,9 @@
+"""
+Author: Saverio Mosti
+Creation Date: 2024-12-06
+"""
+
 from typing import List
-from segregation_system.features import Features
 
 class PreparedSession:
     """
@@ -8,21 +12,24 @@ class PreparedSession:
     Attributes:
         sessionID (int): The unique ID of the session.
         features (List[Features]): A list of `Features` objects representing the characteristics of the session.
-        labels (List[str]): A list of labels associated with the session.
+        labels (str): The label associated with the prepared session.
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-06
     """
 
-    def __init__(self, sessionID: int, features: List[Features], labels: List[str]):
+    def __init__(self, sessionID: int, features: List[float], label : str):
         """
         Initializes a new instance of the `PreparedSession` class.
 
         Args:
             sessionID (int): The unique ID of the session.
             features (List[Features]): A list of features associated with the session.
-            labels (List[str]): A list of labels associated with the session.
+            label (str): A label associated with the session.
         """
         self._sessionID = sessionID
         self._features = features
-        self._labels = labels
+        self._labels = label
 
     # Getter and setter for sessionID
     @property
@@ -39,12 +46,12 @@ class PreparedSession:
 
     # Getter and setter for features
     @property
-    def features(self) -> List[Features]:
+    def features(self) -> List[float]:
         """Returns the list of features for the session."""
         return self._features
 
     @features.setter
-    def features(self, value: List[Features]):
+    def features(self, value: List[float]):
         """Sets a new list of features for the session."""
         if not isinstance(value, list):
             raise ValueError("features must be a list.")
@@ -52,15 +59,11 @@ class PreparedSession:
 
     # Getter and setter for labels
     @property
-    def labels(self) -> List[str]:
+    def label(self) -> str:
         """Returns the list of labels for the session."""
         return self._labels
 
-    @labels.setter
-    def labels(self, value: List[str]):
+    @label.setter
+    def label(self, value: str):
         """Sets a new list of labels for the session."""
-        if not isinstance(value, list):
-            raise ValueError("labels must be a list of strings.")
-        if not all(isinstance(label, str) for label in value):
-            raise ValueError("All elements of labels must be strings.")
         self._labels = value
