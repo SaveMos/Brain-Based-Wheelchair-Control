@@ -1,7 +1,6 @@
-from evaluationsystem.evaluation_json_io import EvaluationJsonIO
 
 
-class ConfigurationParameters:
+class EvaluationSystemParameters:
     """
     This class is used to represent the configuration parameters of the Evaluation System.
     """
@@ -15,6 +14,11 @@ class ConfigurationParameters:
     MESSAGING_PORT = None
     SERVICE_IP = None
     SERVICE_PORT = None
+
+    # Inserire anche Indirizzi IP e porte di Ingestion e Production Systems
+    # TODO
+    INGESTION_SYSTEM_IP = None
+    PRODUCTION_SYSTEM_IP = None
 
     @staticmethod
     def initialize_config_params():
