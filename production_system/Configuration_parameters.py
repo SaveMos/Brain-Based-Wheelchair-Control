@@ -35,7 +35,7 @@ class ConfigurationParameters:
         Get the configuration parameter from json file
 
         """
-        # l'inizializzazione tramite file json deve passare per il production JSON IO?
+        # l'inizializzazione tramite file json deve passare per il production JSON IO o posso farlo direttamente qui?
         path = "configuration/prod_sys_conf.json"
         prod_sys_conf = JsonHandler.read_json_file(path)
 

@@ -143,5 +143,11 @@ class Classifier:
         """
         self._training_error = value
 
+    def get_error_difference(self):
+        """
+        Calculate the error difference between validation and training.
+        """
+        return abs(self._validation_error - self._training_error)
+
 
 

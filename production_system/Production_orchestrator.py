@@ -35,11 +35,10 @@ class ProductionOrchestrator:
         #if evaluation phase parameter is true label is sent also to Evaluation System
         if configuration.evaluation_phase:
             configuration.evaluation_phase = False
-
             ProductionSystemJSONIO.send_label(label) #da sistemare
 
         # Send label to client
-            ProductionSystemJSONIO.send_label(label) # da sistemare
+        ProductionSystemJSONIO.send_label(label) # da sistemare
 
 
 

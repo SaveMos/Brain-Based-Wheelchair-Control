@@ -1,7 +1,6 @@
 from utility.json_handler.json_handler import JsonHandler
 class ProductionSystemJSONIO:
     """
-        Author: Alessandro Ascani
 
         this class manage all sended/received json file
     """
@@ -15,7 +14,6 @@ class ProductionSystemJSONIO:
         """
             method to receive prepared session from Preparation System
         """
-
 
 
     def send_configuration(self, config):
