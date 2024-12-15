@@ -1,0 +1,16 @@
+{
+  "layers": {
+    "min_layers": 1,
+    "max_layers": 10,
+    "step_layers": 2
+    },
+  "neurons": {
+    "min_neurons": 10,
+    "max_neurons": 100,
+    "step_neurons": 10
+  },
+  "tolerance": {
+    "overfitting_tolerance": 0.01,
+    "generalization_tolerance": 0.05
+  }
+}
