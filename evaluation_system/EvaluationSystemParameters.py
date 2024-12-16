@@ -1,37 +1,54 @@
-from evaluationsystem.evaluation_json_io import EvaluationJsonIO
+"""
+Author: Giovanni Ligato
+"""
 
 
-class ConfigurationParameters:
+import json
+
+class EvaluationSystemParameters:
     """
-    This class is used to represent the configuration parameters of the Evaluation System.
+    This class is used to store the parameters of the Evaluation System.
     """
+
+    # Local parameters
+    LOCAL_PARAMETERS_PATH = "parameters/evaluation_system_parameters.json"
+    MINIMUM_NUMBER_LABELS = None
+    TOTAL_ERRORS = None
     MAX_CONSECUTIVE_ERRORS = None
-    MAX_ERRORS = None
-    MIN_LABELS = None
-    SERVICE_FLAG = None
-    EVALUATION_IP = None
-    EVALUATION_PORT = None
-    MESSAGING_IP = None
-    MESSAGING_PORT = None
-    SERVICE_IP = None
-    SERVICE_PORT = None
+    TESTING = None
+
+    # Global parameters
+    GLOBAL_PARAMETERS_PATH = "../global_netconf.json"
+    INGESTION_SYSTEM_IP = None
+    PRODUCTION_SYSTEM_IP = None
+    MESSAGING_SYSTEM_IP = None
+    MESSAGING_SYSTEM_PORT = None
+    TESTING_SYSTEM_IP = None
+    TESTING_SYSTEM_PORT = None
+
 
     @staticmethod
-    def initialize_config_params():
+    def loadParameters():
         """
-        This method is used to initialize the configuration parameters. It's a static method
-        and all the attributes initialized are static.
+        This method is used to load the parameters of the Evaluation System.
         """
-        eval_sys_io = EvaluationJsonIO.get_instance()
-        json_params, json_global_params = eval_sys_io.recv_config_params()
 
-        ConfigurationParameters.MAX_ERRORS = json_params['MAX_ERRORS']
-        ConfigurationParameters.MAX_CONSECUTIVE_ERRORS = json_params['MAX_CONSECUTIVE_ERRORS']
-        ConfigurationParameters.MIN_LABELS = json_params['MIN_LABELS']
-        ConfigurationParameters.SERVICE_FLAG = json_params['SERVICE_FLAG']
-        ConfigurationParameters.EVALUATION_IP = json_global_params['Evaluation System']['ip']
-        ConfigurationParameters.EVALUATION_PORT = json_global_params['Evaluation System']['port']
-        ConfigurationParameters.MESSAGING_IP = json_global_params['Messaging System']['ip']
-        ConfigurationParameters.MESSAGING_PORT = json_global_params['Messaging System']['port']
-        ConfigurationParameters.SERVICE_IP = json_global_params['Service Class']['ip']
-        ConfigurationParameters.SERVICE_PORT = json_global_params['Service Class']['port']
+        try:
+            with open(EvaluationSystemParameters.LOCAL_PARAMETERS_PATH, "r") as local_parameters:
+                data = json.load(local_parameters)
+                EvaluationSystemParameters.MINIMUM_NUMBER_LABELS = data["minimum_number_labels"]
+                EvaluationSystemParameters.TOTAL_ERRORS = data["total_errors"]
+                EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS = data["max_consecutive_errors"]
+                EvaluationSystemParameters.TESTING = data["testing"]
+
+            with open(EvaluationSystemParameters.GLOBAL_PARAMETERS_PATH, "r") as global_parameters:
+                data = json.load(global_parameters)
+                EvaluationSystemParameters.INGESTION_SYSTEM_IP = data["Ingestion System"]["ip"]
+                EvaluationSystemParameters.PRODUCTION_SYSTEM_IP = data["Production System"]["ip"]
+                EvaluationSystemParameters.MESSAGING_SYSTEM_IP = data["Messaging System"]["ip"]
+                EvaluationSystemParameters.MESSAGING_SYSTEM_PORT = data["Messaging System"]["port"]
+                EvaluationSystemParameters.TESTING_SYSTEM_IP = data["Testing System"]["ip"]
+                EvaluationSystemParameters.TESTING_SYSTEM_PORT = data["Testing System"]["port"]
+        except Exception as e:
+            print(f"Error loading parameters: {e}")
+

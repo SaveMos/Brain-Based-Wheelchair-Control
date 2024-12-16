@@ -1,4 +1,5 @@
 from development_system.configuration_parameters import ConfigurationParameters
+from development_system.development_system_message_broker import DevelopmentSystemMessageBroker
 
 
 class DevelopmentSystemOrchestrator:
@@ -9,6 +10,7 @@ class DevelopmentSystemOrchestrator:
         self.testing = None
         self.develop = None
         self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
+        #self.dev_mess_broker = DevelopmentSystemMessageBroker()  # instance of DevelopmentSystemMessageBroker class
 
     def set_testing(self, value):
         """Set the minimum number of layers."""
@@ -36,3 +38,11 @@ if __name__ == "__main__":
     #print("Step Neurons:", orchestrator.config_params.step_neurons)
     #print("Overfitting Tolerance:", orchestrator.config_params.overfitting_tolerance)
     #print("Generalization Tolerance:", orchestrator.config_params.generalization_tolerance)
+
+    # Create a MessageBroker instance and start the server
+    dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
+    dev_mess_broker.start_server()
+
+    message = dev_mess_broker.rcv_learning_set()
+    if message:
+        print("Message received:", message)

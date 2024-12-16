@@ -24,19 +24,26 @@ class DevelopmentSystemMessageBroker:
         self.port = port
         self.last_message = None
 
+        # Lock and condition for blocking behavior
+        self.message_condition = threading.Condition()
+
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
-        def rcv_learning_set():
+        def receive_message():
             data = request.json
             sender_ip = request.remote_addr
             sender_port = data.get('port')
             message = data.get('message')
 
-            self.last_message = {
-                'ip': sender_ip,
-                'port': sender_port,
-                'message': message
-            }
+            with self.message_condition:
+                self.last_message = {
+                    'ip': sender_ip,
+                    'port': sender_port,
+                    'message': message
+                }
+                # Notify any threads waiting for a message
+                self.message_condition.notify_all()
+
             return jsonify("Development System: learning set received"), 200
 
     def start_server(self):
@@ -68,13 +75,21 @@ class DevelopmentSystemMessageBroker:
             print(f"Error sending message: {e}")
         return None
 
-    def get_last_message(self) -> Optional[Dict]:
+    def rcv_learning_set(self) -> Optional[Dict]:
         """
-        Get the last message received by the server.
+        Wait for a message to be received and return it.
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        return self.last_message
+        with self.message_condition:
+            # Wait until a message is received
+            while self.last_message is None:
+                self.message_condition.wait()
+
+            # Retrieve and clear the last message
+            message = self.last_message
+            self.last_message = None
+            return message
 
 
     def send_classifier(self):
