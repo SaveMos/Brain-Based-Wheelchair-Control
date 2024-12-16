@@ -1,3 +1,8 @@
+"""
+Author: Giovanni Ligato
+"""
+
+
 from flask import Flask, request, jsonify
 import threading
 import requests
@@ -61,7 +66,12 @@ class LabelReceiver_and_ConfigurationSender:
                 # JSON label is invalid
                 return jsonify({"status": "error", "message": "Invalid JSON label"}), 400
 
-    #
+    def start_server(self):
+        """
+        Start the Flask server in a separate thread.
+        """
+        thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
+        thread.start()
 
     def _validate_json_label(self, json_label: Dict) -> bool:
         """
@@ -76,47 +86,63 @@ class LabelReceiver_and_ConfigurationSender:
             print(f"Invalid JSON label: {e}")
             return False
 
-
-    def start_server(self):
+    def send_configuration(self) -> bool:
         """
-        Start the Flask server in a separate thread.
+        Send the configuration "restart" message to the Messaging System.
+
+        :return: True if the message was sent successfully, False otherwise.
         """
-        thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
-        thread.start()
 
+        url = f"http://{EvaluationSystemParameters.MESSAGING_SYSTEM_IP}:\
+              {EvaluationSystemParameters.MESSAGING_SYSTEM_PORT}/MessagingSystem"
 
-
-
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
-        """
-        Send a message to a target module.
-
-        :param target_ip: The IP address of the target module.
-        :param target_port: The port of the target module.
-        :param message: The message to send (typically a JSON string).
-        :return: The response from the target, if any.
-        """
-        url = f"http://{target_ip}:{target_port}/send"
-        payload = {
-            "port": self.port,
-            "message": message
+        configuration = {
+            "configuration": "restart"
         }
+
         try:
-            response = requests.post(url, json=payload)
+            response = requests.post(url, json=configuration)
             if response.status_code == 200:
-                return response.json()
+                return True
         except requests.RequestException as e:
-            print(f"Error sending message: {e}")
-        return None
+            print(f"Error sending configuration: {e}")
+        return False
 
-    def get_last_message(self) -> Optional[Dict]:
+
+    def get_label(self) -> Optional[Label]:
         """
-        Get the last message received by the server.
+        Get the last label received by the server. Blocks until a label is available.
 
-        :return: A dictionary containing the sender's IP, port, and the message content.
+        :return: A Label object containing the UUID, movements, and expert fields.
         """
-        return self.last_message
+        return self.label_queue.get(block=True)
 
+
+    # Testing method
+    def send_timestamp(self, timestamp: int, phase: str) -> bool:
+        """
+        Send the timestamp to the Messaging System.
+
+        :param timestamp: The timestamp to send.
+        :param phase: The phase of the timestamp
+        :return: True if the timestamp was sent successfully, False otherwise.
+        """
+        url = f"http://{EvaluationSystemParameters.TESTING_SYSTEM_IP}:\
+              {EvaluationSystemParameters.TESTING_SYSTEM_PORT}/TestingSystem"
+
+        timestamp_message = {
+            "system": "Evaluation System",
+            "timestamp": timestamp,
+            "phase": phase
+        }
+
+        try:
+            response = requests.post(url, json=timestamp_message)
+            if response.status_code == 200:
+                return True
+        except requests.RequestException as e:
+            print(f"Error sending timestamp: {e}")
+        return False
 
 
 

@@ -4,7 +4,7 @@ Author: Giovanni Ligato
 
 import sqlite3
 from typing import List, Tuple, Dict, Any
-from evaluation_system.Label import Label
+from Label import Label
 
 class LabelsBuffer:
     """
@@ -87,7 +87,7 @@ class LabelsBuffer:
 
         :return: A list of Label instances.
         """
-        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 0"
+        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 0 ORDER BY uuid"
         rows = self.fetch_query(query)
         return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
 
@@ -97,7 +97,7 @@ class LabelsBuffer:
 
         :return: A list of Label instances.
         """
-        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 1"
+        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 1 ORDER BY uuid"
         rows = self.fetch_query(query)
         return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
 
