@@ -3,15 +3,14 @@ Module: raw_session_preparation
 Handles the preparation of raw sessions from records.
 """
 
-from raw_session import RawSession
+from .raw_session import RawSession
 
 class RawSessionPreparation:
     """
     Prepares raw sessions and marks missing samples in the records.
     """
 
-    @staticmethod
-    def create_raw_session(records):
+    def create_raw_session(self, records: list):
         """
         Create a raw session from the given records.
 
@@ -21,15 +20,15 @@ class RawSessionPreparation:
         Returns:
             RawSession: A new raw session instance.
         """
-        uuid = "session_" + str(len(records))  # Simulated UUID
-        eeg_data = [record["data"] for record in records]
-        activity = records[0]["activity"]
-        environment = records[0]["environment"]
+        uuid = records[0]
+        environment = records[1]
+        label = records[2]
+        eeg_data = records[3]
+        activity = records[4]
 
-        return RawSession(uuid, eeg_data, activity, environment)
+        return RawSession(uuid, environment, eeg_data, activity, label)
 
-    @staticmethod
-    def mark_missing_samples(raw_session):
+    def mark_missing_samples(self, raw_session):
         """
         Mark missing samples in the raw session's EEG data.
 
@@ -37,5 +36,5 @@ class RawSessionPreparation:
             raw_session (RawSession): The raw session to process.
         """
         for i, sample in enumerate(raw_session.eeg_data):
-            if not sample:  # Example: Empty sample
+            if not sample:
                 raw_session.eeg_data[i] = "MISSING"

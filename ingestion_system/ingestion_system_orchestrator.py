@@ -1,47 +1,67 @@
 """
 Module: ingestion_system_orchestrator
-This module orchestrates the ingestion system workflow by interacting with other components.
+Orchestrates the ingestion system workflow.
 """
 
-from record_buffer_controller import RecordBufferController
-from raw_session_preparation import RawSessionPreparation
-from ingestion_system_parameters import IngestionSystemParameters
-from ingestion_system_json_io import IngestionSystemJSONIO
+#import classes
+from .record_buffer_controller import RecordBufferController
+from .raw_session_preparation import RawSessionPreparation
+from .ingestion_system_parameters import IngestionSystemParameters
+from .ingestion_system_json_io import IngestionSystemJSONIO
+
 
 class IngestionSystemOrchestrator:
     """
-    Orchestrator for the ingestion system workflow. Acts as a controller to call other components.
+    Orchestrator for the ingestion system workflow.
+    Manages instances of system components.
     """
 
-    @staticmethod
-    def ingestion(record):
+    def __init__(self, testing: bool):
+        """
+        Initializes the IngestionSystemOrchestrator object.
+
+        Args:
+            testing (bool): A flag to specify if the system is in testing mode.
+
+        Example:
+            orchestrator = IngestionSystemOrchestrator(testing=True)
+        """
+
+        print("INGESTION ORCHESTRATOR INITIALIZATION")
+
+        #parameters class configuration
+        self.parameters = IngestionSystemParameters()
+
+        #buffer class configuration
+        self.buffer_controller = RecordBufferController()
+
+        #raw session configuration
+        self.session_preparation = RawSessionPreparation()
+
+        self.json_io = IngestionSystemJSONIO()
+
+        #testing or not?
+        self.testing = testing
+
+        print("INGESTION ORCHESTRATOR INITIALIZED")
+
+
+    def ingestion(self, record):
         """
         Process a record through the ingestion workflow.
 
         Args:
             record (dict): Record to process.
         """
-        # Load parameters from the configuration json
-        IngestionSystemParameters.load_parameters()
+        self.buffer_controller.store_record(record)
+        records = self.buffer_controller.get_records()
 
-        # Store record in buffer
-        RecordBufferController.store_record(record)
+        if len(records) >= self.parameters.number_of_records_to_store:
+            raw_session = self.session_preparation.create_raw_session(records)
+            self.buffer_controller.remove_records()
+            self.session_preparation.mark_missing_samples(raw_session)
 
-        # Check if sufficient records are available
-        records = RecordBufferController.get_records()
-        if len(records) >= IngestionSystemParameters.number_of_records_to_store:
-            # Create a raw session
-            raw_session = RawSessionPreparation.create_raw_session(records)
-
-            # Remove processed records
-            RecordBufferController.remove_records()
-
-            # Mark missing samples
-            RawSessionPreparation.mark_missing_samples(raw_session)
-
-            # Handle raw session based on its validity and evaluation phase
-            if raw_session is not None:
-                if IngestionSystemParameters.evaluation_phase:
-                    IngestionSystemJSONIO.send_label_to_evaluation_system(raw_session)
-                else:
-                    IngestionSystemJSONIO.send_raw_session(raw_session)
+            if self.parameters.evaluation_phase:
+                self.json_io.send_label_to_evaluation_system(raw_session)
+            else:
+                self.json_io.send_raw_session(raw_session)

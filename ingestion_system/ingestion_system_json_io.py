@@ -8,30 +8,25 @@ class IngestionSystemJSONIO:
     Provides methods for sending and receiving JSON data.
     """
 
-    @staticmethod
-    def send_raw_session(raw_session):
+    def send_raw_session(self, raw_session):
         """
         Send the raw session to the preparation system.
 
         Args:
             raw_session (RawSession): The raw session to send.
         """
-        # Simulate sending the raw session
-        print(f"Raw session sent: {raw_session}")
+        print(f"Raw session sent: {raw_session.uuid}")
 
-    @staticmethod
-    def send_label_to_evaluation_system(raw_session):
+    def send_label_to_evaluation_system(self, raw_session):
         """
         Send the label to the evaluation system.
 
         Args:
             raw_session (RawSession): The raw session with a label.
         """
-        # Simulate sending the label
         print(f"Label sent: {raw_session.label}")
 
-    @staticmethod
-    def receive_record():
+    def receive_record(self):
         """
         Simulate receiving a record.
         Returns:
