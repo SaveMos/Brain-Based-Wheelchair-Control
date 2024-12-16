@@ -21,6 +21,9 @@ class MessageBroker:
         self.port = port
         self.last_message = None
 
+        # Lock and condition for blocking behavior
+        self.message_condition = threading.Condition()
+
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
         def receive_message():
@@ -29,11 +32,15 @@ class MessageBroker:
             sender_port = data.get('port')
             message = data.get('message')
 
-            self.last_message = {
-                'ip': sender_ip,
-                'port': sender_port,
-                'message': message
-            }
+            with self.message_condition:
+                self.last_message = {
+                    'ip': sender_ip,
+                    'port': sender_port,
+                    'message': message
+                }
+                # Notify any threads waiting for a message
+                self.message_condition.notify_all()
+
             return jsonify({"status": "received"}), 200
 
     def start_server(self):
@@ -67,11 +74,19 @@ class MessageBroker:
 
     def get_last_message(self) -> Optional[Dict]:
         """
-        Get the last message received by the server.
+       Wait for a message to be received and return it.
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        return self.last_message
+        with self.message_condition:
+            # Wait until a message is received
+            while self.last_message is None:
+                self.message_condition.wait()
+
+            # Retrieve and clear the last message
+            message = self.last_message
+            self.last_message = None
+            return message
 
 
 if __name__ == "__main__":
@@ -94,19 +109,11 @@ if __name__ == "__main__":
     ########################################################
 
     # Module B (Receiver)
-    from time import sleep
 
     # Create a MessageBroker instance and start the server
     module_b = MessageBroker(host='0.0.0.0', port=5002)
     module_b.start_server()
 
-    # Keep the server running and print messages received
-    while True:
-        message = module_b.get_last_message()
-        if message:
-            print("Message received:", message)
-            # Reset last message to avoid printing repeatedly
-            module_b.last_message = None
-        sleep(1)
-
-
+    message = module_b.get_last_message()
+    if message:
+        print("Message received:", message)

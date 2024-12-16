@@ -79,3 +79,16 @@ class Label:
             value (bool): The new expert status of the label. True if the label is from an expert, False otherwise.
         """
         self._expert = value
+
+    def to_dict(self) -> dict:
+        """
+        Convert the Label object to a dictionary.
+
+        Returns:
+            dict: A dictionary representing the Label object.
+        """
+        return {
+            "uuid": self.uuid,
+            "movements": self.movements,
+            "expert": self.expert
+        }
