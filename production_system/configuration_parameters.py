@@ -1,4 +1,4 @@
-from production_system.Production_system_JSONIO import ProductionSystemJSONIO
+from production_system.production_system_jsonio import ProductionSystemJSONIO
 from utility.json_handler.json_handler import JsonHandler
 class ConfigurationParameters:
     """
