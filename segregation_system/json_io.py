@@ -3,7 +3,7 @@ import threading
 import requests
 from typing import Optional, Dict
 
-class SegregationSystemJsonIo:
+class JsonIO:
     """
     A utility class to enable inter-module communication using Flask.
 
