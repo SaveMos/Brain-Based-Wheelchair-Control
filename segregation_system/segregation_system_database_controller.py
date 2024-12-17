@@ -1,5 +1,8 @@
 import sqlite3
-from typing import List, Tuple, Any, Dict, Optional
+from typing import List, Tuple, Any, Dict
+
+from segregation_system.prepared_session import PreparedSession
+
 
 class SegregationSystemDatabaseController:
     """
@@ -11,7 +14,7 @@ class SegregationSystemDatabaseController:
 
     def __init__(self, db_name: str):
         """
-        Initialize the SegregationSystemDatabaseController with a given database name.
+        Initialize the DatabaseManager with a given database name.
 
         :param db_name: The name of the SQLite database file.
         """
@@ -125,6 +128,39 @@ class SegregationSystemDatabaseController:
         query = f"SELECT * FROM {table_name}"
         return self.fetch_query(query)
 
+    def get_all_prepared_sessions(self , table_name : str):
+        # Get all the prepared sessions from the database.
+        raw_prepared_sessions = self.fetch_all(table_name)
+
+        # Convert them into PreparedSession objects.
+        all_prepared_sessions = [
+            PreparedSession(
+                sessionID=session['sessionID'],  # Assuming 'sessionID' is a key in the dict.
+                features=session['features'],  # Assuming 'features' is a list of float values.
+                label=session['label']  # Assuming 'label' is a string.
+            )
+            for session in raw_prepared_sessions
+        ]
+        return all_prepared_sessions
+
+    def number_of_tuples(self, table_name: str) -> int:
+        """
+        Returns the number of records in the specified table.
+
+        Args:
+            table_name (str): The name of the table to count records from.
+
+        Returns:
+            int: The total number of records in the table.
+        """
+        query = f"SELECT COUNT(*) FROM {table_name}"
+
+        # Fetch the result of the query and extract the first value from the first row
+        result = self.fetch_query(query)
+
+        # Extract and return the first value (COUNT) from the first row (tuple)
+        return result[0][0] if result else 0  # Return 0 if no result is found
+
     def fetch_where(self, table_name: str, condition: str, condition_params: Tuple) -> List[Tuple]:
         """
         Fetch records from a table based on a condition.
@@ -136,35 +172,5 @@ class SegregationSystemDatabaseController:
         """
         query = f"SELECT * FROM {table_name} WHERE {condition}"
         return self.fetch_query(query, condition_params)
-
-
-# To Test the DatabaseManager class
-if __name__ == "__main__":
-    # Initialize the database manager
-    db = SegregationSystemDatabaseController('example.db')
-
-    # Create a table
-    db.create_table('users', {
-        'id': 'INTEGER PRIMARY KEY AUTOINCREMENT',
-        'name': 'TEXT NOT NULL',
-        'age': 'INTEGER',
-        'email': 'TEXT'
-    })
-
-    # Insert a record
-    db.insert('users', {'name': 'John Doe', 'age': 30, 'email': 'john@example.com'})
-
-    # Fetch records
-    users = db.fetch_all('users')
-    print(users)
-
-    # Update a record
-    db.update('users', {'age': 31}, 'name = ?', ('John Doe',))
-
-    # Delete a record
-    db.delete('users', 'name = ?', ('John Doe',))
-
-
-
 
 

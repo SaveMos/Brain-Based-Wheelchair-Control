@@ -67,3 +67,47 @@ class PreparedSession:
     def label(self, value: str):
         """Sets a new list of labels for the session."""
         self._labels = value
+
+    def from_dict(self, data: dict):
+        """
+        Take the values from a dictionary and put them into the Object.
+
+        Args:
+            data (dict): A dictionary containing keys `sessionID`, `features`, and `label`.
+
+        Returns:
+            Nothing.
+
+        Raises:
+            KeyError: If required keys are missing in the dictionary.
+            ValueError: If the data types of values do not match the expected types.
+        """
+        try:
+            self._sessionID = data['sessionID']
+            self._features = data['features']
+            self._labels = data['label']
+        except KeyError as e:
+            raise KeyError(f"Missing key in input dictionary: {e}")
+
+        # Validate the types
+        if not isinstance(self._session_id, int):
+            raise ValueError("sessionID must be an integer.")
+        if not isinstance(self._features, list) or not all(isinstance(f, (float, int)) for f in self._features):
+            raise ValueError("features must be a list of numbers.")
+        if not isinstance(self._label, str):
+            raise ValueError("label must be a string.")
+
+    def to_dictionary(self) -> dict:
+        """
+        Converts the `PreparedSession` object into a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the `PreparedSession` object,
+            with keys `sessionID`, `features`, and `label`.
+        """
+        return {
+            'sessionID': self._sessionID,
+            'features': self._features,
+            'label': self._labels
+        }
+

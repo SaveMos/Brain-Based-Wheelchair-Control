@@ -1,27 +1,44 @@
 import json
+from segregation_system.prepared_session import PreparedSession
+from segregation_system.learning_set import LearningSet
 
 class JsonHandler:
     """
         A class to read and save file json
     """
 
-    def read_json_file(self, filepath):
+    def create_learning_set_from_json(self, json_data: str) -> LearningSet:
         """
-        Read a json file.
+        Convert a JSON file in a LearningSet obgect.
+
+        Args:
+            json_data (str): The content of the JSON file as string.
 
         Returns:
-            filecontent: content of json file.
-
+            LearningSet: A LearningSet instance created from JSON data.
         """
+        # Parsing of the JSON
+        data = json.loads(json_data)
 
-        try:
-            with open(filepath, "r") as f:
-                filecontent = json.load(f)
-            return filecontent
+        # Helper function to create a list of PreparedSession
+        def parse_sessions(session_list):
+            return [PreparedSession(**session_data) for session_data in session_list]
 
-        except Exception as e:
-            print("Error to read file at path " + filepath + ": " + e)
-            return None
+        # Parsing of the dataset
+        training_set = parse_sessions(data.get("training_set", []))
+        validation_set = parse_sessions(data.get("validation_set", []))
+        test_set = parse_sessions(data.get("test_set", []))
+
+        # Creation of the LearningSet
+        learning_set = LearningSet(
+            training_set=training_set,
+            validation_set=validation_set,
+            test_set=test_set
+        )
+
+        return learning_set
+
+
 
     def read_configuration_parameters(self, filepath):
         """
@@ -57,6 +74,11 @@ class JsonHandler:
         except Exception as e:
             print("Error to read file at path " + filepath + ": " + e)
             return None
+
+    def read_user_responses(self, filepath):
+        """Load the status from the JSON file."""
+        with open(filepath, 'r') as f:
+            return json.load(f)
 
     def write_json_file(self, data, filepath):
         """
