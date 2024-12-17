@@ -52,7 +52,6 @@ class RecordBufferController:
         """
               stores a record in the IngestionSystem.db.
               :param record: record to store
-              :return: True if success, False otherwise
         """
 
         # each record has uuid
