@@ -92,7 +92,7 @@ class PreparedSession:
         # Validate the types
         if not isinstance(self._session_id, int):
             raise ValueError("sessionID must be an integer.")
-        if not isinstance(self._features, list) or not all(isinstance(f, (float, int)) for f in features):
+        if not isinstance(self._features, list) or not all(isinstance(f, (float, int)) for f in self._features):
             raise ValueError("features must be a list of numbers.")
         if not isinstance(self._label, str):
             raise ValueError("label must be a string.")
