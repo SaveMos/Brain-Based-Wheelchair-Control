@@ -1,4 +1,5 @@
 from development_system.configuration_parameters import ConfigurationParameters
+from development_system.jsonIO import JsonHandler
 from development_system.development_system_message_broker import DevelopmentSystemMessageBroker
 
 
@@ -31,18 +32,23 @@ if __name__ == "__main__":
     orchestrator.config_params.load_configuration()
     # Test the access to loaded configuration parameters
     #print("Min Layers:", orchestrator.config_params.min_layers)
-    #print("Max Layers:", orchestrator.config_params.max_layers)
-    #print("Step Layers:", orchestrator.config_params.step_layers)
-    #print("Min Neurons:", orchestrator.config_params.min_neurons)
-    #print("Max Neurons:", orchestrator.config_params.max_neurons)
-    #print("Step Neurons:", orchestrator.config_params.step_neurons)
-    #print("Overfitting Tolerance:", orchestrator.config_params.overfitting_tolerance)
-    #print("Generalization Tolerance:", orchestrator.config_params.generalization_tolerance)
+
 
     # Create a MessageBroker instance and start the server
-    dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
-    dev_mess_broker.start_server()
+    #dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
+    #dev_mess_broker.start_server()
 
-    message = dev_mess_broker.rcv_learning_set()
-    if message:
-        print("Message received:", message)
+    #message = dev_mess_broker.rcv_learning_set()
+    #if message:
+        #print("Message received:", message)
+
+    #Simulation of the reception of the learning set, to change in future
+    json_handler = JsonHandler()
+    with open("dataset_split.json", 'r') as f:
+        json_content = f.read()
+
+    learning_set =  json_handler.create_learning_set_from_json(json_content)
+
+    #Read the responses of the user for the stop and go
+    user_responses = json_handler.read_user_responses("responses/user_responses.json")
+    print("ItertionOK: ", user_responses["IterationOK"])

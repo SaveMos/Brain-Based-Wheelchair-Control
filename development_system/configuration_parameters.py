@@ -81,7 +81,7 @@ class ConfigurationParameters:
 
     def load_configuration(self):
         """Load configuration parameters from a JSON file."""
-        filepath = "development_parameters.json"
+        filepath = "conf/development_parameters.json"
         params = {}
         params = self.read_conf.read_configuration_parameters(filepath)
 
