@@ -82,7 +82,7 @@ class SegregationSystemOrchestrator:
                 number_of_prepared_sessions_stored = config.minimum_number_of_collected_sessions
             else:
                 # Get the number of stored prepared sessions in the database.
-                number_of_prepared_sessions_stored = db.number_of_tuples(table_name)
+                number_of_prepared_sessions_stored = db.get_number_of_prepared_session_stored(table_name)
 
             if number_of_prepared_sessions_stored >= config.minimum_number_of_collected_sessions or self.get_testing():
                 # The number is sufficient, we can continue.

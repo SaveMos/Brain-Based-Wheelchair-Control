@@ -41,7 +41,7 @@ class SegregationSystemDatabaseController:
         ]
         return all_prepared_sessions
 
-    def number_of_tuples(self, table_name: str) -> int:
+    def get_number_of_prepared_session_stored(self, table_name: str) -> int:
         """
         Returns the number of records in the specified table.
 
