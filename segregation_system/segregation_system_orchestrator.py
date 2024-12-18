@@ -1,13 +1,11 @@
 from segregation_system.balancing_report_model import BalancingReportModel
-from segregation_system.balancing_report_view import BalancingReportView
 from segregation_system.coverage_report_model import CoverageReportModel
-from segregation_system.coverage_report_view import CoverageReportView
-from segregation_system.json_handler import JsonHandler
 from segregation_system.json_io import JsonIO
 from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.segregation_system_database_controller import SegregationSystemDatabaseController
+from utility.json_handler.json_handler import JsonHandler
 
 
 class SegregationSystemOrchestrator:
@@ -74,7 +72,7 @@ class SegregationSystemOrchestrator:
             db = SegregationSystemDatabaseController(database_name)
 
             # Store the new prepared session in the database.
-            db.insert(table_name, new_prepared_session.to_dictionary())
+            db.store_prepared_session(new_prepared_session.to_dictionary())
 
             # OPTIMIZATION
             # If the check has already been passed, it is not necessary to do another read from the database.
