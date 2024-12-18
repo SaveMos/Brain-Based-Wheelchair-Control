@@ -1,5 +1,4 @@
 {
-    "number_of_records_to_store": "3",
     "missing_samples_threshold_interval": 10,
     "evaluation_phase": "True"
 }

@@ -6,7 +6,7 @@ from ingestion_system import ING_MAN_CONFIG_FILE_PATH
 from ingestion_system.ingestion_json_handler.json_handler import JsonHandler
 
 
-class IngestionSystemParameters:
+class Parameters:
     """
     Loads and stores configuration parameters for the ingestion system.
     """
@@ -24,7 +24,7 @@ class IngestionSystemParameters:
 
         self.evaluation_phase = False #if True send label to evaluation system
 
-        self.load_parameters(self)  #try to load parameters from json
+        self.load_parameters()  #try to load parameters from json
 
 
     def load_parameters(self):

@@ -9,7 +9,7 @@ import json
 from .ingestion_json_handler.json_handler import JsonHandler
 from .record_buffer_controller import RecordBufferController
 from .raw_session_preparation import RawSessionPreparation
-from .ingestion_system_parameters import IngestionSystemParameters
+from .ingestion_system_parameters import Parameters
 from .SessionAndRecordExchanger import SessionAndRecordExchanger
 
 
@@ -33,7 +33,7 @@ class IngestionSystemOrchestrator:
         print("INGESTION ORCHESTRATOR INITIALIZATION")
 
         #parameters class configuration
-        self.parameters = IngestionSystemParameters()
+        self.parameters = Parameters()
 
         #buffer class configuration
         self.buffer_controller = RecordBufferController()

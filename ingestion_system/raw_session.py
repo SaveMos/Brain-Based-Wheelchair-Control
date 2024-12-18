@@ -24,7 +24,7 @@ class RawSession:
             environment (str): Session environment.
             label (str, optional): Label for evaluation. Defaults to None.
             eeg_data (list): EEG data samples.
-            activity (str): Recorded activity.
+            activity(str): Recorded activity.
         """
         self.uuid = uuid
         self.environment = environment
