@@ -9,15 +9,13 @@ class JsonHandler:
         """
         Read a json file.
 
-        Returns:
-            filecontent: content of json file.
+        Returns the content of the json file.
 
         """
 
         try:
             with open(filepath, "r") as f:
-                filecontent = json.load(f)
-            return filecontent
+                return json.load(f)
 
         except Exception as e:
             print("Error to read file at path " + filepath + ": " + e)
@@ -27,7 +25,7 @@ class JsonHandler:
         """
             Args:
                 data: data to write into json file
-                filepath: path where json file will be save
+                filepath: path where json file will be saved.
 
             Returns:
                 bool: True if the file is written successfully, False otherwise.
