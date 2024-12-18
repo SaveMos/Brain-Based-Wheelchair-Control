@@ -99,10 +99,10 @@ class SegregationSystemOrchestrator:
                 report_model.generateBalancingReport()  # Generate the Balancing Report.
                 print("Balancing report generated!")
 
-                wait_for_input("Press Enter to launch the BalancingReport application...")  # Wait the user response.
+                #wait_for_input("Press Enter to launch the BalancingReport application...")  # Wait the user response.
 
-                report_view = BalancingReportView()
-                report_view.open_balancing_report()  # Open the balancing report with the Windows default application.
+                #report_view = BalancingReportView()
+                #report_view.open_balancing_report()  # Open the balancing report with the Windows default application.
 
                 # The image will be open in the default viewer but the application will terminate here.
 
@@ -129,11 +129,10 @@ class SegregationSystemOrchestrator:
             report_model.generateCoverageReport()
             print("Input coverage report generated!")
 
-            wait_for_input(
-                "Press Enter to launch the Input Coverage Report application...")  # Wait the user response.
+            #wait_for_input( "Press Enter to launch the Input Coverage Report application...")  # Wait the user response.
 
-            report_view = CoverageReportView()
-            report_view.open_coverage_report()  # Open the balancing report with the Windows default application.
+            #report_view = CoverageReportView()
+            #report_view.open_coverage_report()  # Open the balancing report with the Windows default application.
 
             # The image will be open in the default viewer but the application will terminate here.
 
