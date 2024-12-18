@@ -1,11 +1,12 @@
 from segregation_system.balancing_report_model import BalancingReportModel
 from segregation_system.coverage_report_model import CoverageReportModel
-from segregation_system.json_io import JsonIO
 from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.segregation_system_database_controller import SegregationSystemDatabaseController
+
 from utility.json_handler.json_handler import JsonHandler
+from utility.message_broker.message_broker import MessageBroker
 
 
 class SegregationSystemOrchestrator:
@@ -62,7 +63,7 @@ class SegregationSystemOrchestrator:
             config.configure_parameters()
 
             # Create a MessageBroker instance to send and receive messages.
-            message_broker = JsonIO()
+            message_broker = MessageBroker()
 
             new_prepared_session = PreparedSession(0, [], "")
             # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
@@ -156,7 +157,7 @@ class SegregationSystemOrchestrator:
             learning_sets = report_model.generateLearningSets(all_prepared_sessions, config)
 
             # Create a MessageBroker instance to send and receive messages.
-            message_broker = JsonIO()
+            message_broker = MessageBroker()
 
             # Get development IP
             network_info = json_handler.get_system_address("../global_netconf.json", "Development System")
