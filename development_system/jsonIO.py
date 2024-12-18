@@ -7,18 +7,19 @@ class JsonHandler:
         A class to read and save file json
     """
 
-    def create_learning_set_from_json(self, json_data: str) -> LearningSet:
+    def create_learning_set_from_json(self, json_file_path: str) -> LearningSet:
         """
         Convert a JSON file in a LearningSet obgect.
 
         Args:
-            json_data (str): The content of the JSON file as string.
+            json_file_path (str): The path to the JSON file.
 
         Returns:
             LearningSet: A LearningSet instance created from JSON data.
         """
-        # Parsing of the JSON
-        data = json.loads(json_data)
+        # Reading of the JSON
+        with open(json_file_path, "r") as file:
+            data = json.load(file)
 
         # Helper function to create a list of PreparedSession
         def parse_sessions(session_list):
@@ -37,6 +38,36 @@ class JsonHandler:
         )
 
         return learning_set
+
+    def save_learning_set(self, learning_set: LearningSet, json_file_path: str):
+        """
+        Save a LearningSet object into a JSON file.
+
+        Args:
+            learning_set (LearningSet): The LearningSet instance to save.
+            json_file_path (str): The path to the JSON file.
+        """
+
+        # Helper function to serialize a list of PreparedSession
+        def serialize_sessions(session_list):
+            return [
+                {
+                    "sessionID": session.sessionID,
+                    "features": session.features,
+                    "label": session.label
+                } for session in session_list
+            ]
+
+        # Serialization of the dataset
+        data = {
+            "training_set": serialize_sessions(learning_set.training_set),
+            "validation_set": serialize_sessions(learning_set.validation_set),
+            "test_set": serialize_sessions(learning_set.test_set)
+        }
+
+        # Writing to the JSON file
+        with open(json_file_path, "w") as file:
+            json.dump(data, file, indent=4)
 
 
 
@@ -75,29 +106,48 @@ class JsonHandler:
             print("Error to read file at path " + filepath + ": " + e)
             return None
 
-    def read_user_responses(self, filepath):
-        """Load the status from the JSON file."""
-        with open(filepath, 'r') as f:
-            return json.load(f)
-
-    def write_json_file(self, data, filepath):
+    def save_average_hyperparams(self, avg_neurons, avg_layers, filepath):
         """
             Args:
-                data: data to write into json file
-                filepath: path where json file will be save
+                avg_neurons: avg_neurons value to write into json file
+                avg_layers: avg_layers value to write into json file
+                filepath: path where json file will be saved
 
             Returns:
                 bool: True if the file is written successfully, False otherwise.
         """
-
+        # Struttura dei dati da scrivere nel file JSON
+        data = {
+            "avg_neurons": avg_neurons,
+            "avg_layers": avg_layers
+        }
 
         try:
-            with open(filepath, "w") as f:
-                json.dump(data, f, ensure_ascii=False, indent=4)
+            # Scrittura nel file JSON
+            with open(filepath, "w") as json_file:
+                json.dump(data, json_file, ensure_ascii=False, indent=4)
                 return True
         except Exception as e:
             print("Error to save file at path " + filepath + ": " + e)
             return False
+
+    def read_json_file(self, filepath):
+        """
+        Read a json file.
+
+        Returns:
+            filecontent: content of json file.
+
+        """
+        try:
+            with open(filepath, "r") as f:
+                filecontent = json.load(f)
+            return filecontent
+
+        except Exception as e:
+            print("Error to read file at path " + filepath + ": " + e)
+            return None
+
 
 
 # Example to test the class

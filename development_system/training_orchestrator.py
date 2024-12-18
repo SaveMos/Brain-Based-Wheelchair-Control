@@ -12,3 +12,7 @@ class TrainingOrchestrator:
         """ """
         if set_average_hyperparams:
             self.trainer.set_average_hyperparameters()
+        else:
+            iterations = self.trainer.set_number_iterations()
+            print("number of iterations= ", iterations)
+            return self.trainer.train(iterations)
