@@ -1,18 +1,15 @@
-import queue
-from production_system.prepared_session import PreparedSession
-from utility.json_handler.json_handler import JsonHandler
+from production_system.configuration_parameters import ConfigurationParameters
 from flask import Flask, request, jsonify
 import threading
 import requests
 from typing import Optional, Dict
 
 
-class ProductionSystemJSONIO:
+class ProductionSystemIO:
     """
 
         this class manage all sended/received json file
     """
-
 
     def __init__(self, host: str = '0.0.0.0', port: int = 5000):
         """
@@ -26,22 +23,26 @@ class ProductionSystemJSONIO:
         self.port = port
         self.last_message = None
 
-        # Queue to store received labels
-        self.ps_queue = queue.Queue()
-
         # Lock and condition for blocking behavior
         self.message_condition = threading.Condition()
 
         # Define a route to receive messages
-        @self.app.route('/ProductionSystem', methods=['POST'])
-        def receive_prepared_session():
-            prep_sess_json = request.get_json()
+        @self.app.route('/send', methods=['POST'])
+        def receive_message():
+            data = request.json
+            sender_ip = request.remote_addr
+            sender_port = data.get('port')
+            message = data.get('message')
 
-            prepared_session = PreparedSession(uuid= prep_sess_json['uuid'], features=prep_sess_json['features'])
 
-            self.ps_queue.put(prepared_session)
-            # Notify any threads waiting for a message
-            self.message_condition.notify_all()
+            with self.message_condition:
+                self.last_message = {
+                    'ip': sender_ip,
+                    'port': sender_port,
+                    'message': message
+                }
+                # Notify any threads waiting for a message
+                self.message_condition.notify_all()
 
             return jsonify({"status": "received"}), 200
 
@@ -76,7 +77,7 @@ class ProductionSystemJSONIO:
 
     def get_last_message(self) -> Optional[Dict]:
         """
-        Wait for a message to be received and return it.
+       Wait for a message to be received and return it.
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
@@ -88,32 +89,17 @@ class ProductionSystemJSONIO:
             # Retrieve and clear the last message
             message = self.last_message
             self.last_message = None
-            return message
+
+            sender_ip = message['ip']
+            # if the sender is the Develop system then I have received the classifier
+            if sender_ip == ConfigurationParameters.DEVELOP_SYSTEM_IP:
+                sender = "Develop"
+
+            # if the sender is the Preparation system then I have received the classifier
+            elif sender_ip == ConfigurationParameters.PREPARATION_SYSTEM_IP:
+                sender = "Preparation"
+
+            return sender, message
 
 
 
-    def send_label(self, label, destinatario):
-        """
-            method to send label to
-        """
-
-
-
-
-
-
-
-
-    def send_configuration(self, config):
-        """
-
-        """
-
-    def receive_classifier(self):
-        """
-        Receive a classifier from Development System
-
-        Returns:
-            the received classifier
-
-        """
