@@ -124,9 +124,9 @@ class LabelReceiver_and_ConfigurationSender:
 
 
     # Testing method
-    def send_timestamp(self, timestamp: int, phase: str) -> bool:
+    def send_timestamp(self, timestamp: float, phase: str) -> bool:
         """
-        Send the timestamp to the Messaging System.
+        Send the timestamp to the Testing System.
 
         :param timestamp: The timestamp to send.
         :param phase: The phase of the timestamp

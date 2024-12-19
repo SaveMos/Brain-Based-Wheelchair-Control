@@ -65,6 +65,7 @@ class EvaluationSystemParameters:
         except Exception as e:
             print(f"Error loading parameters: {e}")
 
+    @staticmethod
     def _validate_json(self, json_parameters: Dict, type: str) -> bool:
         """
         Validate JSON parameters read from a file.

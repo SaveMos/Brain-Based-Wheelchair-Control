@@ -11,7 +11,7 @@ class LabelsBuffer:
     A specialized SQLite database manager class for storing Label instances.
     """
 
-    def __init__(self, db_name: str):
+    def __init__(self, db_name: str = "labels.db"):
         """
         Initialize the LabelsBuffer with a given database name.
 
@@ -28,13 +28,16 @@ class LabelsBuffer:
         """
         Create the labels table in the database.
         """
+
         query = """
         CREATE TABLE IF NOT EXISTS labels (
-            uuid TEXT PRIMARY KEY,
+            uuid TEXT NOT NULL,
             movements INTEGER NOT NULL,
-            expert BOOLEAN NOT NULL
+            expert INTEGER NOT NULL,
+            PRIMARY KEY (uuid, expert)
         )
         """
+
         self.execute_query(query)
 
     def execute_query(self, query: str, params: Tuple = ()) -> None:
@@ -81,32 +84,72 @@ class LabelsBuffer:
         """
         self.execute_query(query, (label.uuid, label.movements, label.expert))
 
-    def get_all_classifier_labels(self) -> List[Label]:
+    def get_classifier_labels(self, limit: int) -> List[Label]:
         """
-        Get all classifier labels (where expert is False) from the database.
+        Get the first limit classifier labels from the database.
 
+        :param limit: The maximum number of labels to fetch.
         :return: A list of Label instances.
         """
-        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 0 ORDER BY uuid"
-        rows = self.fetch_query(query)
+        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 0 ORDER BY uuid LIMIT ?"
+        rows = self.fetch_query(query, (limit,))
         return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
 
-    def get_all_expert_labels(self) -> List[Label]:
+    def get_expert_labels(self, limit: int) -> List[Label]:
         """
-        Get all expert labels from the database.
+        Get the first limit expert labels from the database.
 
+        :param limit: The maximum number of labels to fetch.
         :return: A list of Label instances.
         """
-        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 1 ORDER BY uuid"
-        rows = self.fetch_query(query)
+        query = "SELECT uuid, movements, expert FROM labels WHERE expert = 1 ORDER BY uuid LIMIT ?"
+        rows = self.fetch_query(query, (limit,))
         return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
 
-    def delete_all_labels(self) -> None:
+    # def get_all_classifier_labels(self) -> List[Label]:
+    #     """
+    #     Get all classifier labels (where expert is False) from the database.
+    #
+    #     :return: A list of Label instances.
+    #     """
+    #     query = "SELECT uuid, movements, expert FROM labels WHERE expert = 0 ORDER BY uuid"
+    #     rows = self.fetch_query(query)
+    #     return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
+
+    # def get_all_expert_labels(self) -> List[Label]:
+    #     """
+    #     Get all expert labels from the database.
+    #
+    #     :return: A list of Label instances.
+    #     """
+    #     query = "SELECT uuid, movements, expert FROM labels WHERE expert = 1 ORDER BY uuid"
+    #     rows = self.fetch_query(query)
+    #     return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
+
+    def delete_labels(self, limit: int) -> None:
         """
-        Delete all labels from the database.
+        Delete the first limit labels from the database.
+        Both limit classifier labels and limit expert labels will be deleted.
+
+        :param limit: The maximum number of labels to delete.
         """
-        query = "DELETE FROM labels"
-        self.execute_query(query)
+
+        # Delete the first limit classifier labels
+        query = "DELETE FROM labels WHERE expert = 0 ORDER BY uuid LIMIT ?"
+        self.execute_query(query, (limit,))
+
+        # Delete the first limit expert labels
+        query = "DELETE FROM labels WHERE expert = 1 ORDER BY uuid LIMIT ?"
+        self.execute_query(query, (limit,))
+
+        self.execute_query(query
+
+    # def delete_all_labels(self) -> None:
+    #     """
+    #     Delete all labels from the database.
+    #     """
+    #     query = "DELETE FROM labels"
+    #     self.execute_query(query)
 
     def get_num_classifier_labels(self) -> int:
         """

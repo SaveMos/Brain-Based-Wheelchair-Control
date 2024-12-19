@@ -17,7 +17,7 @@ class EvaluationReportView:
         """
         self.evaluation_report_id = 0
 
-    def create_evaluation_report(self, classifier_labels: List[Label], expert_labels: List[Label],
+    def create_evaluation_report(self, classifier_labels: list[Label], expert_labels: list[Label],
                                  total_errors: int, max_consecutive_errors: int) -> bool:
         """
         Create an evaluation report with the given classifier and expert labels and save it to a json file.
@@ -42,12 +42,18 @@ class EvaluationReportView:
                 data = evaluation_report.to_dict()
                 json.dump(data, f, ensure_ascii=False, indent=4)
                 self.evaluation_report_id += 1
+
+                # Create the classifier_evaluation.json file where the Human Operator will write the evaluation.
+                with open("human_operator_workspace/classifier_evaluation.json", "w") as ce:
+                    json.dump({"classifier_evaluation": "waiting_for_evaluation"}, ce, ensure_ascii=False, indent=4)
+
                 return True
         except Exception as e:
             print(f"Error saving evaluation report: {e}")
             return False
 
-    def compute_actual_total_errors(self, classifier_labels: List[Label], expert_labels: List[Label]) -> int:
+
+    def compute_actual_total_errors(self, classifier_labels: list[Label], expert_labels: list[Label]) -> int:
         """
         Compute the actual total errors in the evaluation report.
 
@@ -63,7 +69,7 @@ class EvaluationReportView:
         return actual_total_errors
 
 
-    def compute_actual_max_consecutive_errors(self, classifier_labels: List[Label], expert_labels: List[Label]) -> int:
+    def compute_actual_max_consecutive_errors(self, classifier_labels: list[Label], expert_labels: list[Label]) -> int:
         """
         Compute the actual maximum consecutive errors in the evaluation report.
 
