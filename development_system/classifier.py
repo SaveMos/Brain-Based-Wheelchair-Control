@@ -1,7 +1,11 @@
-class Classifier:
+import numpy as np
+from sklearn.neural_network import MLPClassifier
+
+class Classifier(MLPClassifier):
     """Class representing a classifier."""
 
     def __init__(self):
+        super(Classifier, self).__init__()
         """Initialize classifier attributes."""
         self.num_iterations = None
         self.num_layers = None
@@ -62,3 +66,7 @@ class Classifier:
     def get_test_error(self):
         """Get the test error."""
         return self.test_error
+
+    def fit(self, x, y):
+        self.hidden_layer_sizes = np.full((self.num_layers,), self.num_neurons, dtype=int)
+        super().fit(x, y)

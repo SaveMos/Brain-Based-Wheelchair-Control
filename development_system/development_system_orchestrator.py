@@ -1,4 +1,5 @@
 from development_system import training_orchestrator
+from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.jsonIO import JsonHandler
 from development_system.development_system_message_broker import DevelopmentSystemMessageBroker
@@ -14,7 +15,7 @@ class DevelopmentSystemOrchestrator:
         self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
         #self.dev_mess_broker = DevelopmentSystemMessageBroker()  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
-
+        self.classifier = Classifier()
 
     def set_testing(self, value):
         """Set the minimum number of layers."""
@@ -29,7 +30,7 @@ class DevelopmentSystemOrchestrator:
 
         json_handler = JsonHandler()
         # Read the responses of the user for the stop and go
-        user_responses = json_handler.read_user_responses("responses/user_responses.json")
+        user_responses = json_handler.read_json_file("responses/user_responses.json")
         print("Start: ", user_responses["Start"])
 
         # Definition of the stop&go structure
@@ -39,7 +40,7 @@ class DevelopmentSystemOrchestrator:
             # Load configurations directly from ConfigurationParameters
             self.config_params.load_configuration()
             # Test the access to loaded configuration parameters
-            #print("Min Layers:", orchestrator.config_params.min_layers)
+            print("Min Layers:", orchestrator.config_params.min_layers)
 
             # Create a MessageBroker instance and start the server
             # dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
@@ -51,10 +52,9 @@ class DevelopmentSystemOrchestrator:
 
             # Simulation of the reception of the learning set, to change in future
             json_handler1 = JsonHandler()
-            with open("dataset_split.json", 'r') as f:
-                json_content = f.read()
 
-            learning_set = json_handler1.create_learning_set_from_json(json_content)
+            learning_set = json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
+
 
             # SET AVERAGE HYPERPARAMETERS
             set_average_hyperparams = True #in this case at the start, the average hyperparams must be setted
@@ -67,8 +67,10 @@ class DevelopmentSystemOrchestrator:
             # stop for setting #iterations
         elif user_responses["IterationCheck"] == 1:
             print("IterationCheck")
-            # set_num_iterations
+            # set_num_iterations   (questo probabilmente rimosso, train() legge direttamente il json)
             # TRAIN
+            set_average_hyperparams = False  # in this case, the average hyperparams are already setted
+            classifier = self.training_orchestrator.train_classifier(set_average_hyperparams)
             # GENERATE LEARNING REPORT
             # CHECK LEARNING PLOT
         elif user_responses["Validation"] == 1:

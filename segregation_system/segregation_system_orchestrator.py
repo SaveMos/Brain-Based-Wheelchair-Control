@@ -1,13 +1,12 @@
 from segregation_system.balancing_report_model import BalancingReportModel
-from segregation_system.balancing_report_view import BalancingReportView
 from segregation_system.coverage_report_model import CoverageReportModel
-from segregation_system.coverage_report_view import CoverageReportView
-from segregation_system.json_handler import JsonHandler
-from segregation_system.json_io import JsonIO
 from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.segregation_system_database_controller import SegregationSystemDatabaseController
+
+from utility.json_handler.json_handler import JsonHandler
+from utility.message_broker.message_broker import MessageBroker
 
 
 class SegregationSystemOrchestrator:
@@ -51,7 +50,11 @@ class SegregationSystemOrchestrator:
         table_name = "prepared_session"  # PreparedSession table name.
         database_name = "prepared_session_database"  # The database name.
 
-        if json_handler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions") != "OK":
+        number_of_session_status = json_handler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
+        balancing_report_status = json_handler.read_field_from_json(execution_state_file_path, "balancing_report")
+        coverage_report_status = json_handler.read_field_from_json(execution_state_file_path, "coverage_report")
+
+        if number_of_session_status != "OK" or balancing_report_status != "OK"or self.get_testing():
             # The first phase must be done.
 
             # Create a Configuration object, to load the system configuration.
@@ -60,7 +63,7 @@ class SegregationSystemOrchestrator:
             config.configure_parameters()
 
             # Create a MessageBroker instance to send and receive messages.
-            message_broker = JsonIO()
+            message_broker = MessageBroker()
 
             new_prepared_session = PreparedSession(0, [], "")
             # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
@@ -70,53 +73,48 @@ class SegregationSystemOrchestrator:
             db = SegregationSystemDatabaseController(database_name)
 
             # Store the new prepared session in the database.
-            db.insert(table_name, new_prepared_session.to_dictionary())
+            db.store_prepared_session(new_prepared_session.to_dictionary())
 
-            # Get the number of stored prepared sessions in the database.
-            number = db.number_of_tuples(table_name)
+            # OPTIMIZATION
+            # If the check has already been passed, it is not necessary to do another read from the database.
+            if number_of_session_status == "OK":
+                # Assign the minimum number to pass the test.
+                number_of_prepared_sessions_stored = config.minimum_number_of_collected_sessions
+            else:
+                # Get the number of stored prepared sessions in the database.
+                number_of_prepared_sessions_stored = db.get_number_of_prepared_session_stored(table_name)
 
-            if number > config.minimum_number_of_collected_sessions:
+            if number_of_prepared_sessions_stored >= config.minimum_number_of_collected_sessions or self.get_testing():
                 # The number is sufficient, we can continue.
                 json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
-                                                 "OK")  # Register this.
+                                                 "OK")  # Register this, so we do not have to make the check again.
+
+                # Get all the prepared sessions in the database.
+                all_prepared_sessions = db.get_all_prepared_sessions(table_name)
+
+                print("Generating the balancing report...")
+                report_model = BalancingReportModel(all_prepared_sessions,
+                                                    config)  # Create the BalancingReportModel Object.
+                report_model.generateBalancingReport()  # Generate the Balancing Report.
+                print("Balancing report generated!")
+
+                #wait_for_input("Press Enter to launch the BalancingReport application...")  # Wait the user response.
+
+                #report_view = BalancingReportView()
+                #report_view.open_balancing_report()  # Open the balancing report with the Windows default application.
+
+                # The image will be open in the default viewer but the application will terminate here.
+
+                #resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
+
+                #json_handler.write_field_to_json(execution_state_file_path, "balancing_report", resp)  # Register the response.
 
             else:
-                json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
-                                                 "NOT OK")  # Register this.
+                pass
+                #json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions","NOT OK")  # Register this.
 
-        elif json_handler.read_field_from_json(execution_state_file_path, "balancing_report") != "OK":
-            # The second phase must be done.
 
-            # Create a Configuration object, to load the system configuration.
-            config = SegregationSystemConfiguration()
-
-            # Configure the system parameters from the configuration file.
-            config.configure_parameters()
-
-            # Create an instance of database controller.
-            db = SegregationSystemDatabaseController(database_name)
-
-            # Get all the prepared sessions in the database.
-            all_prepared_sessions = db.get_all_prepared_sessions(table_name)
-
-            print("Generating the balancing report...")
-            report_model = BalancingReportModel(all_prepared_sessions,
-                                                config)  # Create the BalancingReportModel Object.
-            report_model.generateBalancingReport()  # Generate the Balancing Report.
-            print("Balancing report generated!")
-
-            wait_for_input("Press Enter to launch the BalancingReport application...")  # Wait the user response.
-
-            report_view = BalancingReportView()
-            report_view.open_balancing_report()  # Open the balancing report with the Windows default application.
-
-            resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
-
-            json_handler.write_field_to_json(execution_state_file_path, "balancing_report",
-                                             resp)  # Register the response.
-
-        elif json_handler.read_field_from_json(execution_state_file_path, "coverage_report") != "OK":
-            # The third phase.
+        elif coverage_report_status != "OK" or self.get_testing():
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController(database_name)
 
@@ -130,18 +128,18 @@ class SegregationSystemOrchestrator:
             report_model.generateCoverageReport()
             print("Input coverage report generated!")
 
-            wait_for_input(
-                "Press Enter to launch the Input Coverage Report application...")  # Wait the user response.
+            #wait_for_input( "Press Enter to launch the Input Coverage Report application...")  # Wait the user response.
 
-            report_view = CoverageReportView()
-            report_view.open_coverage_report()  # Open the balancing report.
+            #report_view = CoverageReportView()
+            #report_view.open_coverage_report()  # Open the balancing report with the Windows default application.
 
-            resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
+            # The image will be open in the default viewer but the application will terminate here.
 
-            json_handler.write_field_to_json(execution_state_file_path, "coverage_report",
-                                             resp)  # Register the response.
+            #resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
 
-        elif json_handler.read_field_from_json(execution_state_file_path, "coverage_report") == "OK":
+            #json_handler.write_field_to_json(execution_state_file_path, "coverage_report", resp)  # Register the response.
+
+        elif (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # The final phase.
             # Create a Configuration object, to load the system configuration.
             config = SegregationSystemConfiguration()
@@ -159,7 +157,7 @@ class SegregationSystemOrchestrator:
             learning_sets = report_model.generateLearningSets(all_prepared_sessions, config)
 
             # Create a MessageBroker instance to send and receive messages.
-            message_broker = JsonIO()
+            message_broker = MessageBroker()
 
             # Get development IP
             network_info = json_handler.get_system_address("../global_netconf.json", "Development System")
