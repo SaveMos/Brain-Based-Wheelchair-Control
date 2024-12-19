@@ -1,7 +1,7 @@
 import json
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.learning_set import LearningSet
-
+from development_system.classifier import Classifier
 class JsonHandler:
     """
         A class to read and save file json
@@ -147,6 +147,26 @@ class JsonHandler:
         except Exception as e:
             print("Error to read file at path " + filepath + ": " + e)
             return None
+
+    def write_json_file(self, data, filepath):
+        """
+            Args:
+                data: data to write into json file
+                filepath: path where json file will be saved.
+
+            Returns:
+                bool: True if the file is written successfully, False otherwise.
+        """
+
+
+        try:
+            with open(filepath, "w") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+                return True
+        except Exception as e:
+            print("Error to save file at path " + filepath + ": " + e)
+            return False
+
 
 
 

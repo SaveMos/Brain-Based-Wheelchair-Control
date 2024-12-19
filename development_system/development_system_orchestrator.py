@@ -3,6 +3,8 @@ from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.jsonIO import JsonHandler
 from development_system.development_system_message_broker import DevelopmentSystemMessageBroker
+from development_system.learning_plot_model import LearningPlotModel
+from development_system.learning_plot_view import LearningPlotView
 from development_system.training_orchestrator import TrainingOrchestrator
 
 
@@ -16,6 +18,8 @@ class DevelopmentSystemOrchestrator:
         #self.dev_mess_broker = DevelopmentSystemMessageBroker()  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.classifier = Classifier()
+        #self.plot_model = LearningPlotModel()
+        #self.plot_view = LearningPlotView()
 
     def set_testing(self, value):
         """Set the minimum number of layers."""
@@ -69,10 +73,12 @@ class DevelopmentSystemOrchestrator:
             print("IterationCheck")
             # set_num_iterations   (questo probabilmente rimosso, train() legge direttamente il json)
             # TRAIN
+                # GENERATE LEARNING REPORT
+                # CHECK LEARNING PLOT
             set_average_hyperparams = False  # in this case, the average hyperparams are already setted
             classifier = self.training_orchestrator.train_classifier(set_average_hyperparams)
-            # GENERATE LEARNING REPORT
-            # CHECK LEARNING PLOT
+           # json_handler.append_classifier_to_json(classifier, "intermediate_results/classifiers.json")
+
         elif user_responses["Validation"] == 1:
             print("Validation")
             # SET HYPERPARAMETERS (loop)

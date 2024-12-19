@@ -1,3 +1,6 @@
+from development_system.classifier import Classifier
+from development_system.learning_plot_model import LearningPlotModel
+from development_system.learning_plot_view import LearningPlotView
 from development_system.trainer import Trainer
 
 
@@ -7,6 +10,9 @@ class TrainingOrchestrator:
     def __init__(self):
         """ """
         self.trainer = Trainer()
+        self.classifier = Classifier()
+        self.plot_model = LearningPlotModel()
+        self.plot_view = LearningPlotView()
 
     def train_classifier(self, set_average_hyperparams):
         """ """
@@ -15,4 +21,10 @@ class TrainingOrchestrator:
         else:
             iterations = self.trainer.set_number_iterations()
             print("number of iterations= ", iterations)
-            return self.trainer.train(iterations)
+            classifier = self.trainer.train(iterations)
+            # GENERATE LEARNING REPORT
+            learning_error = self.plot_model.generate_learning_report(classifier)
+            # CHECK LEARNING PLOT
+            self.plot_view.show_learning_plot(learning_error)
+            classifier.training_error = classifier.get_loss_curve()
+            return classifier

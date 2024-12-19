@@ -70,3 +70,7 @@ class Classifier(MLPClassifier):
     def fit(self, x, y):
         self.hidden_layer_sizes = np.full((self.num_layers,), self.num_neurons, dtype=int)
         super().fit(x, y)
+
+    #curve to show in the learning report view
+    def get_loss_curve(self):
+        return self.loss_curve_
