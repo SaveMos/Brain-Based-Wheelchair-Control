@@ -47,8 +47,6 @@ class SegregationSystemOrchestrator:
         """
         json_handler = JsonHandler()
         execution_state_file_path = "data/execution_state_file.json"
-        table_name = "prepared_session"  # PreparedSession table name.
-        database_name = "prepared_session_database"  # The database name.
 
         number_of_session_status = json_handler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
         balancing_report_status = json_handler.read_field_from_json(execution_state_file_path, "balancing_report")
@@ -70,7 +68,7 @@ class SegregationSystemOrchestrator:
             new_prepared_session.from_dict(message_broker.get_last_message())
 
             # Create an instance of database controller.
-            db = SegregationSystemDatabaseController(database_name)
+            db = SegregationSystemDatabaseController()
 
             # Store the new prepared session in the database.
             db.store_prepared_session(new_prepared_session.to_dictionary())
@@ -82,7 +80,7 @@ class SegregationSystemOrchestrator:
                 number_of_prepared_sessions_stored = config.minimum_number_of_collected_sessions
             else:
                 # Get the number of stored prepared sessions in the database.
-                number_of_prepared_sessions_stored = db.get_number_of_prepared_session_stored(table_name)
+                number_of_prepared_sessions_stored = db.get_number_of_prepared_session_stored()
 
             if number_of_prepared_sessions_stored >= config.minimum_number_of_collected_sessions or self.get_testing():
                 # The number is sufficient, we can continue.
@@ -90,7 +88,7 @@ class SegregationSystemOrchestrator:
                                                  "OK")  # Register this, so we do not have to make the check again.
 
                 # Get all the prepared sessions in the database.
-                all_prepared_sessions = db.get_all_prepared_sessions(table_name)
+                all_prepared_sessions = db.get_all_prepared_sessions()
 
                 print("Generating the balancing report...")
                 report_model = BalancingReportModel(all_prepared_sessions,
@@ -116,10 +114,10 @@ class SegregationSystemOrchestrator:
 
         elif coverage_report_status != "OK" or self.get_testing():
             # Create an instance of database controller.
-            db = SegregationSystemDatabaseController(database_name)
+            db = SegregationSystemDatabaseController()
 
             # Get all the prepared sessions in the database.
-            all_prepared_sessions = db.get_all_prepared_sessions(table_name)
+            all_prepared_sessions = db.get_all_prepared_sessions()
 
             print("Generating the input coverage report...")
             # Create the BalancingReportModel Object.
@@ -148,10 +146,10 @@ class SegregationSystemOrchestrator:
             config.configure_parameters()
 
             # Create an instance of database controller.
-            db = SegregationSystemDatabaseController(database_name)
+            db = SegregationSystemDatabaseController()
 
             # Get all the prepared sessions in the database.
-            all_prepared_sessions = db.get_all_prepared_sessions(table_name)
+            all_prepared_sessions = db.get_all_prepared_sessions()
 
             report_model = LearningSetSplitter()
             learning_sets = report_model.generateLearningSets(all_prepared_sessions, config)
