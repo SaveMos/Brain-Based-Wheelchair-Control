@@ -5,7 +5,9 @@ Orchestrates the ingestion system workflow.
 
 #import classes
 import json
+import sys
 
+from . import ING_MAN_CONFIG_SCHEMA_FILE_PATH, ING_MAN_CONFIG_FILE_PATH, RECORD_SCHEMA_FILE_PATH
 from .ingestion_json_handler.json_handler import JsonHandler
 from .record_buffer_controller import RecordBufferController
 from .raw_session_preparation import RawSessionPreparation
@@ -31,6 +33,12 @@ class IngestionSystemOrchestrator:
         """
 
         print("INGESTION ORCHESTRATOR INITIALIZATION")
+        handler = JsonHandler()
+        #validate schema of configuration json
+        configuration = handler.read_json_file(ING_MAN_CONFIG_FILE_PATH)
+        is_valid = handler.validate_json(configuration, ING_MAN_CONFIG_SCHEMA_FILE_PATH)
+        if is_valid is False:
+            sys.exit(0) #exit if not correct
 
         #parameters class configuration
         self.parameters = Parameters()
@@ -62,7 +70,11 @@ class IngestionSystemOrchestrator:
         while True: #receive records iteratively
             message = self.json_io.get_last_message()['message'] #get record message
 
+            handler = JsonHandler()
             new_record = json.load(message) #convert json in python dict
+            is_valid = handler.validate_json(new_record, RECORD_SCHEMA_FILE_PATH)
+            if is_valid is False:
+                continue
             # stores record
             self.buffer_controller.store_record(new_record)
 
@@ -85,7 +97,6 @@ class IngestionSystemOrchestrator:
                 continue #do not send anything
 
             # if in evaluation phase, sends labels to evaluation system
-            handler = JsonHandler()
             if self.parameters.evaluation_phase:
                 label = {
                     "uuid": marked_raw_session["uuid"],
@@ -98,4 +109,4 @@ class IngestionSystemOrchestrator:
             # sends raw sessions
             json_raw_session = handler.convert_dictionary_to_json(marked_raw_session)
             self.json_io.send_message(target_ip='ip preparation system', target_port=5002, message=json_raw_session)
-            #self._update_session()
+            #self._update_session() abbiamo bisogno di tenere quante sessioni sono state inviate per poi cambiare fase?
