@@ -83,4 +83,3 @@ class EvaluationReportView:
             else:
                 consecutive_errors = 0
         return actual_max_consecutive_errors
-

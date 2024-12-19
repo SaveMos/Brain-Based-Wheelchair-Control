@@ -11,6 +11,7 @@ import queue
 import jsonschema
 from EvaluationSystemParameters import EvaluationSystemParameters
 from Label import Label
+import json
 
 
 class LabelReceiver_and_ConfigurationSender:
@@ -30,9 +31,9 @@ class LabelReceiver_and_ConfigurationSender:
         self.port = port
         # Queue to store received labels
         self.label_queue = queue.Queue()
-        # Get the JSON schema for labels
-        # TODO
-        self.label_schema = {}
+
+        # Path of the JSON schema for the labels
+        self.label_schema_path = "schemas/label_schema.json"
 
         # Define a route to receive labels
         @self.app.route('/EvaluationSystem', methods=['POST'])
@@ -79,8 +80,12 @@ class LabelReceiver_and_ConfigurationSender:
 
         :param json_label: The JSON label to validate.
         """
+
+        with open(self.label_schema_path, "r") as schema_file:
+            label_schema = json.load(schema_file)
+
         try:
-            jsonschema.validate(json_label, self.label_schema)
+            jsonschema.validate(json_label, label_schema)
             return True
         except jsonschema.ValidationError as e:
             print(f"Invalid JSON label: {e}")
