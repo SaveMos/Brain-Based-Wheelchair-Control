@@ -3,7 +3,7 @@ from segregation_system.coverage_report_model import CoverageReportModel
 from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
-from segregation_system.segregation_system_database_controller import SegregationSystemDatabaseController
+from segregation_system.segregation_database_manager.segregation_system_database_controller import SegregationSystemDatabaseController
 
 from utility.json_handler.json_handler import JsonHandler
 from utility.message_broker.message_broker import MessageBroker
@@ -151,8 +151,8 @@ class SegregationSystemOrchestrator:
             # Get all the prepared sessions in the database.
             all_prepared_sessions = db.get_all_prepared_sessions()
 
-            report_model = LearningSetSplitter()
-            learning_sets = report_model.generateLearningSets(all_prepared_sessions, config)
+            report_model = LearningSetSplitter(config)
+            learning_sets = report_model.generateLearningSets(all_prepared_sessions)
 
             # Create a MessageBroker instance to send and receive messages.
             message_broker = MessageBroker()

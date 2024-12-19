@@ -10,17 +10,22 @@ class LearningSetSplitter:
     """
     Handles the splitting of prepared sessions into training, validation, and test sets.
 
-    Attributes:
-        None
+    Author: Saverio Mosti
+
+    Creation Date: 2024-12-19
+
     """
 
-    def __init__(self):
+    def __init__(self , config : SegregationSystemConfiguration):
         """
         Initializes the LearningSetSplitter object.
         """
-        print("LearningSetSplitter initialized.")
+        self._training_percentage = config.training_set_percentage
+        self._validation_percentage = config.validation_set_percentage
+        self._test_percentage = 1 - (self._training_percentage + self._validation_percentage)
+        pass
 
-    def generateLearningSets(self, prepared_sessions: List[PreparedSession] , config : SegregationSystemConfiguration) -> LearningSet:
+    def generateLearningSets(self, prepared_sessions: List[PreparedSession] , ) -> LearningSet:
         """
         Divides the given prepared sessions into training, validation, and test sets
         based on the percentages specified in the configuration file.
@@ -35,11 +40,9 @@ class LearningSetSplitter:
         Raises:
             ValueError: If the sum of the percentages in the configuration is not 100%.
         """
-        training_percentage = config.training_set_percentage
-        validation_percentage = config.validation_set_percentage
-        test_percentage = 1 - (training_percentage + validation_percentage)
 
-        if training_percentage + validation_percentage + test_percentage != 1:
+
+        if self._training_percentage + self._validation_percentage + self._test_percentage != 1:
             raise ValueError("The percentages for training, validation, and test sets must sum to 100%.")
 
         # Shuffle the prepared sessions to ensure random distribution
@@ -47,9 +50,8 @@ class LearningSetSplitter:
 
         # Calculate the number of sessions for each set
         total_sessions = len(prepared_sessions)
-        training_count = int(total_sessions * training_percentage)
-        validation_count = int(total_sessions * validation_percentage)
-        test_count = total_sessions - training_count - validation_count
+        training_count = int(total_sessions * self._training_percentage)
+        validation_count = int(total_sessions * self._validation_percentage)
 
         # Split the sessions
         training_set = prepared_sessions[:training_count]

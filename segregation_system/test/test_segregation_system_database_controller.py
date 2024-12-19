@@ -3,7 +3,7 @@ from unittest import TestCase
 from uuid import uuid4
 
 from segregation_system.prepared_session import PreparedSession
-from segregation_system.segregation_system_database_controller import SegregationSystemDatabaseController
+from segregation_system.segregation_database_manager.segregation_system_database_controller import SegregationSystemDatabaseController
 
 
 class TestSegregationSystemDatabaseController(TestCase):
@@ -80,86 +80,73 @@ class TestSegregationSystemDatabaseController(TestCase):
         except Exception as e:
             self.fail()
 
-    from unittest import TestCase
+    def test_get_all_prepared_sessions(self):
+        """Test if the get_all_prepared_sessions method fetches data and converts it correctly."""
+        # Drop the table and re-initialize it to start fresh
+        self.db_controller.drop_table()
+        self.db_controller.initialize_prepared_session_database()
 
-    class TestSegregationSystemDatabaseController(TestCase):
-        def setUp(self):
-            """Sets up the test environment, initializing necessary data and controllers."""
-            # Initialize your database controller (this might be different based on your setup)
-            self.db_controller = SegregationSystemDatabaseController()
+        # Store two prepared sessions into the database
+        first_uuid = self.test_data["uuid"]
+        second_uuid = str(uuid.uuid4())  # Generate a new UUID for the second session
 
-            # Sample test data for prepared session
-            self.test_data = {
-                "uuid": str(uuid.uuid4()),  # Generating a unique UUID for the session
-                "label": "move",  # Example label
-                "psd_alpha_band": 0.2,
-                "psd_beta_band": 0.3,
-                "psd_theta_band": 0.4,
-                "psd_delta_band": 0.5,
-                "activity": "shopping",  # Example activity
-                "environment": "plain",  # Example environment
-            }
+        # Store the first session
+        self.db_controller.store_prepared_session(self.test_data)
 
-        def test_get_all_prepared_sessions(self):
-            """Test if the get_all_prepared_sessions method fetches data and converts it correctly."""
-            # Drop the table and re-initialize it to start fresh
-            self.db_controller.drop_table()
-            self.db_controller.initialize_prepared_session_database()
+        # Change UUID for the second session and store it
+        self.test_data["uuid"] = second_uuid
+        self.db_controller.store_prepared_session(self.test_data)
 
-            # Store two prepared sessions into the database
-            first_uuid = self.test_data["uuid"]
-            second_uuid = str(uuid.uuid4())  # Generate a new UUID for the second session
+        # Retrieve all prepared sessions from the database
+        all_prepared_sessions = self.db_controller.get_all_prepared_sessions()
 
-            # Store the first session
-            self.db_controller.store_prepared_session(self.test_data)
+        # Check if we got two sessions
+        self.assertEqual(len(all_prepared_sessions), 2, "There should be two sessions in the database.")
 
-            # Change UUID for the second session and store it
-            self.test_data["uuid"] = second_uuid
-            self.db_controller.store_prepared_session(self.test_data)
+        # Check if the session IDs match the UUIDs stored
+        self.assertEqual(all_prepared_sessions[0].uuid, first_uuid, "The first session's UUID does not match.")
+        self.assertEqual(all_prepared_sessions[1].uuid, second_uuid,
+                         "The second session's UUID does not match.")
 
-            # Retrieve all prepared sessions from the database
-            all_prepared_sessions = self.db_controller.get_all_prepared_sessions()
+        # Validate the features and labels of the sessions
+        for session in all_prepared_sessions:
+            self.assertIsInstance(session, PreparedSession,
+                                  "The returned object should be an instance of PreparedSession.")
+            self.assertEqual(len(session.features), 6, "Each session should have six features (PSD bands, activity, environment).")
+            self.assertIn(session.label, ["move", "turn left", "turn right"],
+                          "Label should be one of the valid labels.")
+            self.assertIn(session.features[4], ["shopping", "sport", "cooking", "gaming", "relax"],
+                          "Activity should be one of the valid activities.")
+            self.assertIn(session.features[5], ["slippery", "plain", "slope", "house", "track"],
+                          "Environment should be one of the valid environments.")
 
-            # Check if we got two sessions
-            self.assertEqual(len(all_prepared_sessions), 2, "There should be two sessions in the database.")
+        # Check that all data is correctly stored and converted
+        session1 = all_prepared_sessions[0]
+        session2 = all_prepared_sessions[1]
 
-            # Check if the session IDs match the UUIDs stored
-            self.assertEqual(all_prepared_sessions[0].sessionID, first_uuid, "The first session's UUID does not match.")
-            self.assertEqual(all_prepared_sessions[1].sessionID, second_uuid,
-                             "The second session's UUID does not match.")
+        # Check the features of the first session
+        self.assertEqual(session1.features[:4], [
+            self.test_data["psd_alpha_band"],
+            self.test_data["psd_beta_band"],
+            self.test_data["psd_theta_band"],
+            self.test_data["psd_delta_band"]
+        ], "Features (PSD bands) of the first session do not match.")
 
-            # Validate the features and labels of the sessions
-            for session in all_prepared_sessions:
-                self.assertIsInstance(session, PreparedSession,
-                                      "The returned object should be an instance of PreparedSession.")
-                self.assertEqual(len(session.features), 4, "Each session should have four features (PSD bands).")
-                self.assertIn(session.label, ["move", "turn left", "turn right"],
-                              "Label should be one of the valid labels.")
-                self.assertIn(session.features[4], ["shopping", "sport", "cooking", "gaming", "relax"],
-                              "Activity should be one of the valid activities.")
-                self.assertIn(session.features[5], ["slippery", "plain", "slope", "house", "track"],
-                              "Environment should be one of the valid environments.")
+        # Check the activity and environment for the first session
+        self.assertEqual(session1.features[4], self.test_data["activity"], "Activity of the first session does not match.")
+        self.assertEqual(session1.features[5], self.test_data["environment"], "Environment of the first session does not match.")
 
-            # Check that all data is correctly stored and converted
-            session1 = all_prepared_sessions[0]
-            session2 = all_prepared_sessions[1]
+        # Check the features of the second session (which should have the same values)
+        self.assertEqual(session2.features[:4], [
+            self.test_data["psd_alpha_band"],
+            self.test_data["psd_beta_band"],
+            self.test_data["psd_theta_band"],
+            self.test_data["psd_delta_band"]
+        ], "Features (PSD bands) of the second session do not match.")
 
-            # Check the features of the first session
-            self.assertEqual(session1.features, [
-                self.test_data["psd_alpha_band"],
-                self.test_data["psd_beta_band"],
-                self.test_data["psd_theta_band"],
-                self.test_data["psd_delta_band"]
-            ], "Features of the first session do not match.")
-
-            # Check the features of the second session (which should have the same values)
-            self.assertEqual(session2.features, [
-                self.test_data["psd_alpha_band"],
-                self.test_data["psd_beta_band"],
-                self.test_data["psd_theta_band"],
-                self.test_data["psd_delta_band"]
-            ], "Features of the second session do not match.")
-
+        # Check the activity and environment for the second session
+        self.assertEqual(session2.features[4], self.test_data["activity"], "Activity of the second session does not match.")
+        self.assertEqual(session2.features[5], self.test_data["environment"], "Environment of the second session does not match.")
 
     def test_get_number_of_prepared_session_stored(self):
         """Test if the get_number_of_prepared_session_stored method returns the correct count."""

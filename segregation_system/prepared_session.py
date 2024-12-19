@@ -3,77 +3,81 @@ Author: Saverio Mosti
 Creation Date: 2024-12-06
 """
 
-from typing import List
+from typing import List, Tuple
+
 
 class PreparedSession:
     """
     The `PreparedSession` class represents a prepared session for a data segregation system.
 
-    Attributes:
-        sessionID (int): The unique ID of the session.
-        features (List[Features]): A list of `Features` objects representing the characteristics of the session.
-        labels (str): The label associated with the prepared session.
     Author: Saverio Mosti
 
     Creation Date: 2024-12-06
     """
 
-    def __init__(self, sessionID: int, features: List[float], label : str):
+    def __init__(self, uuid: str, features: List[Tuple[float, float, float, float, str, str]], label: str):
         """
         Initializes a new instance of the `PreparedSession` class.
 
         Args:
-            sessionID (int): The unique ID of the session.
-            features (List[Features]): A list of features associated with the session.
+            uuid (str): The unique ID of the session.
+            features (List[Tuple[float, float, float, float, str, str]]): A list of features associated with the session.
             label (str): A label associated with the session.
         """
-        self._sessionID = sessionID
+        self._uuid = uuid
         self._features = features
-        self._labels = label
+        self._label = label
 
-    # Getter and setter for sessionID
+    # Getter and setter for uuid
     @property
-    def sessionID(self) -> int:
+    def uuid(self) -> str:
         """Returns the session ID."""
-        return self._sessionID
+        return self._uuid
 
-    @sessionID.setter
-    def sessionID(self, value: int):
+    @uuid.setter
+    def uuid(self, value: str):
         """Sets a new value for the session ID."""
-        if not isinstance(value, int):
-            raise ValueError("sessionID must be an integer.")
-        self._sessionID = value
+        if not isinstance(value, str):
+            raise ValueError("uuid must be a string.")
+        self._uuid = value
 
-    # Getter and setter for features
     @property
-    def features(self) -> List[float]:
+    def features(self) -> List[Tuple[float, float, float, float, str, str]]:
         """Returns the list of features for the session."""
         return self._features
 
     @features.setter
-    def features(self, value: List[float]):
+    def features(self, value: List[Tuple[float, float, float, float, str, str]]):
         """Sets a new list of features for the session."""
         if not isinstance(value, list):
             raise ValueError("features must be a list.")
+        for feature in value:
+            if not isinstance(feature, tuple) or len(feature) != 6:
+                raise ValueError("Each feature must be a tuple with 4 floats and 2 strings.")
+            if not all(isinstance(x, float) for x in feature[:4]):
+                raise ValueError("The first four elements of the feature must be floats.")
+            if not all(isinstance(x, str) for x in feature[4:]):
+                raise ValueError("The last two elements of the feature must be strings.")
         self._features = value
 
     # Getter and setter for labels
     @property
     def label(self) -> str:
         """Returns the list of labels for the session."""
-        return self._labels
+        return self._label
 
     @label.setter
     def label(self, value: str):
         """Sets a new list of labels for the session."""
-        self._labels = value
+        self._label = value
 
     def from_dict(self, data: dict):
         """
         Take the values from a dictionary and put them into the Object.
 
         Args:
-            data (dict): A dictionary containing keys `sessionID`, `features`, and `label`.
+            data (dict): A dictionary containing keys `uuid`, `psd_alpha_band`, `psd_beta_band`,
+                         `psd_theta_band`, `psd_delta_band`, `activity`, `environment`, and `label`.
 
         Returns:
             Nothing.
@@ -83,19 +87,34 @@ class PreparedSession:
             ValueError: If the data types of values do not match the expected types.
         """
         try:
-            self._sessionID = data['sessionID']
-            self._features = data['features']
-            self._labels = data['label']
+            # Assign the values from the dictionary to the object's attributes
+            self._uuid = data['uuid']
+            alpha = data['psd_alpha_band']
+            beta = data['psd_beta_band']
+            theta = data['psd_theta_band']
+            delta = data['psd_delta_band']
+            activity = data['activity']
+            environment = data['environment']
+            self._label = data['label']
         except KeyError as e:
             raise KeyError(f"Missing key in input dictionary: {e}")
 
         # Validate the types
-        if not isinstance(self._session_id, int):
-            raise ValueError("sessionID must be an integer.")
-        if not isinstance(self._features, list) or not all(isinstance(f, (float, int)) for f in self._features):
-            raise ValueError("features must be a list of numbers.")
+        if not isinstance(self._uuid, str):
+            raise ValueError("uuid must be a string.")
+        if not all(isinstance(x, (float, int)) for x in [alpha, beta, theta, delta]):
+            raise ValueError("PSD bands must be floats or integers.")
+        if not isinstance(activity, str):
+            raise ValueError("activity must be a string.")
+        if not isinstance(environment, str):
+            raise ValueError("environment must be a string.")
         if not isinstance(self._label, str):
             raise ValueError("label must be a string.")
+
+        # Construct the feature tuple (4 floats + 2 strings) and assign to self._features
+        self._features = [
+            alpha, beta, theta, delta, activity, environment
+        ]
 
     def to_dictionary(self) -> dict:
         """
@@ -105,9 +124,14 @@ class PreparedSession:
             dict: A dictionary representation of the `PreparedSession` object,
             with keys `sessionID`, `features`, and `label`.
         """
-        return {
-            'sessionID': self._sessionID,
-            'features': self._features,
-            'label': self._labels
+        return  {
+            "uuid": self._uuid,
+            "label": self._label,
+            "psd_alpha_band": self._features[0],
+            "psd_beta_band": self._features[1],
+            "psd_theta_band": self._features[2],
+            "psd_delta_band": self._features[3],
+            "activity": self._features[4],
+            "environment": self._features[5]
         }
 
