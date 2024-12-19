@@ -1,11 +1,21 @@
-from production_system.production_system_jsonio import ProductionSystemJSONIO
-from utility.json_handler.json_handler import JsonHandler
+from production_system.json_handler import JsonHandler
+import json
+
 class ConfigurationParameters:
     """
     Class that manage the configuration .
     """
+    GLOBAL_NETCONF_PATH = "../global_netconf.json"
+    PREPARATION_SYSTEM_IP = None
+    DEVELOP_SYSTEM_IP = None
+    EVALUATION_SYSTEM_IP = None
+    EVALUATION_SYSTEM_PORT = None
+
+
     def __init__(self):
         self._evaluation_phase = False
+
+
 
     @property
     def evaluation_phase(self) -> bool:
@@ -35,8 +45,14 @@ class ConfigurationParameters:
         Get the configuration parameter from json file
 
         """
-        # l'inizializzazione tramite file json deve passare per il production JSON IO o posso farlo direttamente qui?
         path = "configuration/prod_sys_conf.json"
         prod_sys_conf = JsonHandler.read_json_file(path)
 
         self._evaluation_phase = prod_sys_conf['evaluation_phase']
+
+        with open(ConfigurationParameters.GLOBAL_NETCONF_PATH, "r") as global_netconf:
+            data = json.load(global_netconf)
+            ConfigurationParameters.PREPARATION_SYSTEM_IP = data["Preparation System"]["ip"]
+            ConfigurationParameters.DEVELOP_SYSTEM_IP = data["Develop System"]["ip"]
+            ConfigurationParameters.EVALUATION_SYSTEM_IP = data["Evaluation System"]["ip"]
+            ConfigurationParameters.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]

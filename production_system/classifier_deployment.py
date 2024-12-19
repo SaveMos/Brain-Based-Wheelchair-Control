@@ -5,7 +5,7 @@ class ClassifierDeployment:
     class that deploy the provided classifier .
     """
     @staticmethod
-    def deploy(self, classifier):
+    def deploy(classifier):
         """
         Saves the provided classifier in a .sav file
         Args:
