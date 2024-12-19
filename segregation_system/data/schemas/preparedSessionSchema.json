@@ -6,7 +6,8 @@
         "type": "string"
       },
       "label": {
-        "type": "string"
+        "type": "string",
+        "enum" : ["move", "turn left", "turn right"]
       },
       "psd_alpha_band": {
         "type": "number"
@@ -22,11 +23,11 @@
       },
       "activity": {
         "type": "string",
-        "enum": ["sport", "meditation", "work", "home", "relax"]
+        "enum": ["shopping", "sport", "cooking", "gaming", "relax"]
       },
-      "genre": {
+      "environment": {
         "type": "string",
-        "enum": ["pop", "classical", "rock", "disco", "workout"]
+        "enum": ["slippery", "plain", "slope", "house", "track"]
       }
     },
     "required": [
@@ -37,6 +38,6 @@
       "psd_theta_band",
       "psd_delta_band",
       "activity",
-      "genre"
+      "environment"
     ]
   }
