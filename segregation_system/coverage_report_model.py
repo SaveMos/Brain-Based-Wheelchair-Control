@@ -4,8 +4,12 @@ Creation Date: 2024-12-06
 """
 
 import os
+from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+from segregation_system.prepared_session import PreparedSession
 
 
 class CoverageReportModel:
@@ -17,7 +21,7 @@ class CoverageReportModel:
     Creation Date: 2024-12-06
     """
 
-    def __init__(self, prepared_sessions):
+    def __init__(self, prepared_sessions : List[PreparedSession]):
         """
         Initializes the CoverageReportModel with the provided prepared sessions.
         :param prepared_sessions: List of PreparedSession objects.
@@ -93,9 +97,11 @@ class CoverageReportModel:
         ax.set_title("Coverage Report", size=16, color='black', y=1.1) # Add the title to the plot.
 
         # Save the plot to the "plots" directory as 'CoverageReport.png'.
-        if not os.path.exists('plots'):
-            os.makedirs('plots')
-        plt.savefig('plots/CoverageReport.png', bbox_inches='tight') # Save the plot into the '.png' file.
+        if not os.path.exists('user/plots'):
+            os.makedirs('user/plots') # If the directory does not exist, it will be created.
+
+        file_path = os.path.join('user/plots', 'CoverageReport.png')
+        plt.savefig('CoverageReport.png', bbox_inches='tight') # Save the plot into the '.png' file.
 
 
 

@@ -29,7 +29,7 @@ class CoverageReportView:
             FileNotFoundError: If the 'CoverageReport.png' file does not exist.
             RuntimeError: If the system platform is not supported.
         """
-        image_path = 'plots\CoverageReport.png'
+        image_path = 'user/plots\CoverageReport.png'
 
         # Check if the file exists
         if not os.path.exists(image_path):

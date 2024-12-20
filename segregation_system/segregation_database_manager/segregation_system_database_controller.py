@@ -207,6 +207,14 @@ class SegregationSystemDatabaseController:
         self.__db.execute_query(delete_query, (session_uuid,))
         return True
 
+    def reset_session_database(self):
+        """
+        Drops the `prepared_session` table from the database, and it creates it again.
+        Use this function to reset the prepared session database.
+        """
+        self.drop_table()
+        self.initialize_prepared_session_database()
+
 
 # Example to test the class
 if __name__ == "__main__":

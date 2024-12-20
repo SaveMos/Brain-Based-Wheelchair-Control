@@ -34,7 +34,7 @@ class DevelopmentSystemOrchestrator:
 
         json_handler = JsonHandler()
         # Read the responses of the user for the stop and go
-        user_responses = json_handler.read_json_file("responses/user_responses.json")
+        user_responses = json_handler.read_json_file("responses/user.json")
         print("Start: ", user_responses["Start"])
 
         # Definition of the stop&go structure

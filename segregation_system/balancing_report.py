@@ -2,6 +2,10 @@
 Author: Saverio Mosti
 Creation Date: 2024-12-06
 """
+from typing import List
+
+from segregation_system.prepared_session import PreparedSession
+
 
 class BalancingReport:
     """
@@ -18,18 +22,21 @@ class BalancingReport:
     Creation Date: 2024-12-06
     """
 
-    def __init__(self, move: int, turn_left: int, turn_right: int):
+    def __init__(self, sessions: List[PreparedSession]):
         """
         Initializes a new instance of the `BalancingReport` class.
-
-        Args:
-            move (int): The number of moves in the balancing process.
-            turn_left (int): The number of turns to the left.
-            turn_right (int): The number of turns to the right.
         """
-        self._move = move
-        self._turn_left = turn_left
-        self._turn_right = turn_right
+        self._move = 0
+        self._turn_left = 0
+        self.turn_right = 0
+
+        for session in sessions:
+            if session.label == "move":
+                self._move += 1
+            if session.label == "turn_left":
+                self._turn_left += 1
+            if session.label == "turn_right":
+                self.turn_right += 1
 
     # Getter and setter for move
     @property
