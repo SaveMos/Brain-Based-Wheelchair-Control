@@ -90,16 +90,5 @@ class ProductionSystemIO:
             message = self.last_message
             self.last_message = None
 
-            sender_ip = message['ip']
-            # if the sender is the Develop system then I have received the classifier
-            if sender_ip == ConfigurationParameters.DEVELOP_SYSTEM_IP:
-                sender = "Develop"
 
-            # if the sender is the Preparation system then I have received the classifier
-            elif sender_ip == ConfigurationParameters.PREPARATION_SYSTEM_IP:
-                sender = "Preparation"
-
-            return sender, message
-
-
-
+            return message

@@ -1,4 +1,5 @@
-
+from production_system.label import Label
+from production_system.prepared_session import PreparedSession
 import joblib
 
 
@@ -10,7 +11,7 @@ class Classification:
     def __init__(self):
         self._classifier = None
 
-    def classify(self, prepared_session):
+    def classify(self, prepared_session: PreparedSession):
         """
         Method that execute classify operation based on received prepared_session and classifier
         Args:
@@ -25,7 +26,9 @@ class Classification:
         if self._classifier is None:
             self._classifier = joblib.load("model/classifier.sav")
 
-        label = self._classifier.predict(prepared_session)
+        movement = self._classifier.predict(prepared_session.features)
+        label = Label(prepared_session.uuid, movement)
+
         return label
 
 

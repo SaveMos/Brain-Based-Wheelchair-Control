@@ -1,3 +1,5 @@
+from jsonschema.benchmarks.useless_keywords import schema
+
 from production_system.json_handler import JsonHandler
 import json
 
@@ -40,19 +42,27 @@ class ConfigurationParameters:
 
         self._evaluation_phase = param
 
-    def get_config_params(self):
+    def get_config_params(self) :
         """
         Get the configuration parameter from json file
 
+        Returns:
+            bool: True if there aren't error, False otherwise
+
         """
+        handler = JsonHandler()
         path = "configuration/prod_sys_conf.json"
-        prod_sys_conf = JsonHandler.read_json_file(path)
+        prod_sys_conf = handler.read_json_file(path)
+        schema_path = "production_schema/configSchema.json"
+        if handler.validate_json(prod_sys_conf, schema_path):
+            return False
 
         self._evaluation_phase = prod_sys_conf['evaluation_phase']
 
-        with open(ConfigurationParameters.GLOBAL_NETCONF_PATH, "r") as global_netconf:
-            data = json.load(global_netconf)
-            ConfigurationParameters.PREPARATION_SYSTEM_IP = data["Preparation System"]["ip"]
-            ConfigurationParameters.DEVELOP_SYSTEM_IP = data["Develop System"]["ip"]
-            ConfigurationParameters.EVALUATION_SYSTEM_IP = data["Evaluation System"]["ip"]
-            ConfigurationParameters.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]
+        data = handler.read_json_file(ConfigurationParameters.GLOBAL_NETCONF_PATH)
+        ConfigurationParameters.PREPARATION_SYSTEM_IP = data["Preparation System"]["ip"]
+        ConfigurationParameters.DEVELOP_SYSTEM_IP = data["Develop System"]["ip"]
+        ConfigurationParameters.EVALUATION_SYSTEM_IP = data["Evaluation System"]["ip"]
+        ConfigurationParameters.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]
+
+        return True

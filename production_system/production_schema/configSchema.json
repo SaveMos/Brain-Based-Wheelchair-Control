@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "evaluation_phase": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "evaluation_phase"
+  ]
+}
