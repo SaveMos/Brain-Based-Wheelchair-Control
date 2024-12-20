@@ -5,34 +5,17 @@ Description: Script to test the BalancingReportModel class by generating a datas
 and creating a histogram plot.
 """
 
-import random
-import uuid
-
 from segregation_system.balancing_report_model import BalancingReportModel
 from segregation_system.balancing_report_view import BalancingReportView
-from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
 
 
 def main():
     """
     Main function to test the BalancingReportModel.
     """
-    randomized_prepared_sessions = [
-        PreparedSession(
-            uuid=str(uuid.uuid4()),  # Random UUID for each session
-            features=[
-                random.uniform(0.1, 1.0),  # Random feature values
-                random.uniform(0.1, 1.0),  # Random feature values
-                random.uniform(0.1, 1.0),  # Random feature values
-                random.uniform(0.1, 1.0),  # Random feature values
-                random.choice(["gaming", "shopping", "sport", "relax"]),
-                random.choice(["plain", "slippery", "slope", "house", "track"]),
-            ],
-            label=random.choice(["move", "turn_left", "turn_right"])  # Random label
-        )
-        for _ in range(20)
-    ]
+    randomized_prepared_sessions = generate_random_prepared_sessions_object(100)
 
     # Count labels manually
     expected_counts = {"move": 0, "turn_left": 0, "turn_right": 0}
@@ -41,18 +24,18 @@ def main():
 
     # Define a SegregationSystemConfiguration with a tolerance value
     config = SegregationSystemConfiguration()
-    config.configure_parameters("../conf/segregation_system_configuration.json")
+    config.configure_parameters("conf/segregation_system_configuration.json")
 
     # Create the BalancingReportModel
     report_model = BalancingReportModel(randomized_prepared_sessions, config)
 
     # Generate and save the histogram
     print("Generating the histogram...")
-    report_model.generateBalancingReport('../user/plots')
+    report_model.generateBalancingReport()
     print("Histogram saved in 'plots/BalancingReport.png'.")
 
     report_view = BalancingReportView()
-    report_view.open_balancing_report('../user/plots') # Open the plot in the default image viewer.
+    report_view.open_balancing_report() # Open the plot in the default image viewer.
 
 
 if __name__ == "__main__":

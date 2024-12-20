@@ -1,28 +1,12 @@
-import random
-import uuid
 from unittest import TestCase
 
 from segregation_system.balancing_report import BalancingReport
-from segregation_system.prepared_session import PreparedSession
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
 
 
 class TestBalancingReport(TestCase):
     def setUp(self):
-        self.prepared_sessions = [
-            PreparedSession(
-                uuid=str(uuid.uuid4()),  # Random UUID for each session
-                features=[
-                    random.uniform(0.1, 1.0), # Random feature values
-                    random.uniform(0.1, 1.0), # Random feature values
-                    random.uniform(0.1, 1.0), # Random feature values
-                    random.uniform(0.1, 1.0), # Random feature values
-                    random.choice(["gaming", "shopping", "sport", "relax"]),
-                    random.choice(["plain", "slippery", "slope", "house", "track"]),
-                ],
-                label=random.choice(["move", "turn_left", "turn_right"])  # Random label
-            )
-            for _ in range(20)
-        ]
+        self.prepared_sessions = generate_random_prepared_sessions_object(20)
 
     def test_balancing_report(self):
         # Create BalancingReport from prepared sessions

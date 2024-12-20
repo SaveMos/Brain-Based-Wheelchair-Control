@@ -24,7 +24,7 @@ class BalancingReportView:
         """
         print("BalancingReportView initialized.")
 
-    def open_balancing_report(self , dir_path = 'user/plots'):
+    def open_balancing_report(self , dir_path = os.path.join('user', 'plots')):
         """
         Opens the 'BalancingReport.png' file using the default image viewer of the system.
         Ensures the file exists before attempting to open it.
@@ -33,7 +33,7 @@ class BalancingReportView:
             FileNotFoundError: If the 'BalancingReport.png' file does not exist.
             RuntimeError: If the system platform is not supported.
         """
-        image_path = os.path.join(dir_path, 'BalancingReport.png')
+        image_path = os.path.join(dir_path, 'Balancing Report.png')
 
         # Check if the file exists
         if not os.path.exists(image_path):
