@@ -7,25 +7,32 @@ class Classifier(MLPClassifier):
     def __init__(self):
         super(Classifier, self).__init__()
         """Initialize classifier attributes."""
-        self.num_iterations = None
+        #self.num_iterations = None
         self.num_layers = None
         self.num_neurons = None
-        self.training_error = None
+        #self.training_error = None
         self.validation_error = None
         self.test_error = None
 
-    def get_error_difference(self):
-        """Calculate the error difference between validation and training."""
-        return abs(self.validation_error - self.training_error)
+    def get_train_valid_error_difference(self):
+        if self.get_validation_error() == 0:
+            return 1
+        return (self.get_validation_error() - self.get_training_error()) / self.get_validation_error()
+
+    def get_valid_test_error_difference(self):
+        if self.get_test_error() == 0:
+            return 1
+        return (self.get_test_error() - self.get_validation_error()) / self.get_test_error()
 
     # Setters and Getters
-    def set_num_iterations(self, value):
+
+    def set_num_iterations(self, num_iterations: int):
         """Set the number of iterations."""
-        self.num_iterations = value
+        self.max_iter = num_iterations      # #iterations of MLPClassifier
 
     def get_num_iterations(self):
         """Get the number of iterations."""
-        return self.num_iterations
+        return self.max_iter                # #iterations of MLPClassifier
 
     def set_num_layers(self, value):
         """Set the number of layers."""
@@ -43,13 +50,17 @@ class Classifier(MLPClassifier):
         """Get the number of neurons."""
         return self.num_neurons
 
-    def set_training_error(self, value):
-        """Set the training error."""
-        self.training_error = value
+    #def set_training_error(self):
+        #"""Set the training error."""
+        #self.training_error = self.loss_
+
+    #def get_training_error(self):
+        #"""Get the training error."""
+        #return self.training_error
 
     def get_training_error(self):
         """Get the training error."""
-        return self.training_error
+        return self.loss_
 
     def set_validation_error(self, value):
         """Set the validation error."""
@@ -66,6 +77,15 @@ class Classifier(MLPClassifier):
     def get_test_error(self):
         """Get the test error."""
         return self.test_error
+
+    def classifier_report(self):
+        return {'validation_error': self.get_validation_error(),
+                'training_error': self.get_training_error(),
+                'difference': self.get_train_valid_error_difference(),
+                'num_layers': self.get_num_layers(),
+                'num_neurons': self.get_num_neurons(),
+                'network_complexity': self.get_num_layers() * self.get_num_neurons()
+                }
 
     def fit(self, x, y):
         self.hidden_layer_sizes = np.full((self.num_layers,), self.num_neurons, dtype=int)

@@ -19,12 +19,12 @@ class TrainingOrchestrator:
         if set_average_hyperparams:
             self.trainer.set_average_hyperparameters()
         else:
-            iterations = self.trainer.set_number_iterations()
+            iterations = self.trainer.read_number_iterations()
             print("number of iterations= ", iterations)
             classifier = self.trainer.train(iterations)
             # GENERATE LEARNING REPORT
             learning_error = self.plot_model.generate_learning_report(classifier)
             # CHECK LEARNING PLOT
             self.plot_view.show_learning_plot(learning_error)
-            classifier.training_error = classifier.get_loss_curve()
-            return classifier
+            #classifier.training_error = classifier.get_loss_curve() il training_error è calcolato in automatico da MLPClassifier
+            #return classifier non serve nemmeno restituirlo, questo è allenato solo per trovare il numero di iterazioni corretto

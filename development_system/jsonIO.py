@@ -158,7 +158,6 @@ class JsonHandler:
                 bool: True if the file is written successfully, False otherwise.
         """
 
-
         try:
             with open(filepath, "w") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4)
@@ -166,6 +165,7 @@ class JsonHandler:
         except Exception as e:
             print("Error to save file at path " + filepath + ": " + e)
             return False
+
 
 
 

@@ -6,6 +6,7 @@ from development_system.development_system_message_broker import DevelopmentSyst
 from development_system.learning_plot_model import LearningPlotModel
 from development_system.learning_plot_view import LearningPlotView
 from development_system.training_orchestrator import TrainingOrchestrator
+from development_system.validation_orchestrator import ValidationOrchestrator
 
 
 class DevelopmentSystemOrchestrator:
@@ -14,10 +15,13 @@ class DevelopmentSystemOrchestrator:
     def __init__(self):
         """Initialize the orchestrator."""
         self.testing = None
+        self.json_handler = JsonHandler()
         self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
         #self.dev_mess_broker = DevelopmentSystemMessageBroker()  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
+        self.validation_orchestrator = ValidationOrchestrator()
         self.classifier = Classifier()
+
         #self.plot_model = LearningPlotModel()
         #self.plot_view = LearningPlotView()
 
@@ -76,15 +80,16 @@ class DevelopmentSystemOrchestrator:
                 # GENERATE LEARNING REPORT
                 # CHECK LEARNING PLOT
             set_average_hyperparams = False  # in this case, the average hyperparams are already setted
-            classifier = self.training_orchestrator.train_classifier(set_average_hyperparams)
-           # json_handler.append_classifier_to_json(classifier, "intermediate_results/classifiers.json")
+            self.training_orchestrator.train_classifier(set_average_hyperparams)
 
         elif user_responses["Validation"] == 1:
             print("Validation")
             # SET HYPERPARAMETERS (loop)
             # TRAIN               (loop)
-            # GENERATE VALIDATION REPORT
-            # CHECK VALIDATION RESULT
+                # GENERATE VALIDATION REPORT
+                # CHECK VALIDATION RESULT
+            self.validation_orchestrator.validation()
+
         elif user_responses["GenerateTest"] == 1:
             print("GenerateTest")
             # GENERATE TEST REPORT

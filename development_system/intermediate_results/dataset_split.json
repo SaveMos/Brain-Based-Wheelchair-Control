@@ -26,6 +26,11 @@
       "sessionID": 5,
       "features": [0.9, 0.2, 0.6, 0.1],
       "label": "Class_C"
+    },
+    {
+      "sessionID": 7,
+      "features": [0.9, 0.2, 0.8, 0.7],
+      "label": "Class_A"
     }
   ],
   "test_set": [
