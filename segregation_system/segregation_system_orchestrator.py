@@ -46,7 +46,7 @@ class SegregationSystemOrchestrator:
             orchestrator.run()
         """
         json_handler = JsonHandler()
-        execution_state_file_path = "data/execution_state_file.json"
+        execution_state_file_path = "user/user_responses.json"
 
         number_of_session_status = json_handler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
         balancing_report_status = json_handler.read_field_from_json(execution_state_file_path, "balancing_report")
@@ -74,7 +74,7 @@ class SegregationSystemOrchestrator:
             db.store_prepared_session(new_prepared_session.to_dictionary())
 
             # OPTIMIZATION
-            # If the check has already been passed, it is not necessary to do another read from the database.
+            # If the check has already been passed in the past, it is not necessary to do another read from the database.
             if number_of_session_status == "OK":
                 # Assign the minimum number to pass the test.
                 number_of_prepared_sessions_stored = config.minimum_number_of_collected_sessions

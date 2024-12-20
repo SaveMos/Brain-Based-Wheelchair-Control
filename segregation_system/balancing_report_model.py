@@ -33,22 +33,10 @@ class BalancingReportModel:
             segregation_config (SegregationSystemConfiguration): The segregation system configuration to access tolerance.
         """
 
-        num_move = 0
-        num_turn_left = 0
-        num_turn_right = 0
-
-        for session in sessions:
-            if session.label == "move":
-                num_move += 1
-            if session.label == "turn_left":
-                num_turn_left += 1
-            if session.label == "turn_right":
-                num_turn_right += 1
-
-        self.balancing_report = BalancingReport(num_move , num_turn_left , num_turn_right)
+        self.balancing_report = BalancingReport(sessions)
         self.segregation_config = segregation_config
 
-    def generateBalancingReport(self):
+    def generateBalancingReport(self, dir_path = os.path.join('user' , 'plots')):
         """
         Generates and saves a histogram for the balancing report, with two tolerance lines at 5%
         above and below the median bar. The histogram is saved as 'BalancingReport.png' in a 'plots' directory.
@@ -90,6 +78,7 @@ class BalancingReportModel:
 
         ax.legend()  # Add a legend to the plot.
 
-        os.makedirs('plots', exist_ok=True) # Create the 'plots' directory if it does not exist
+        os.makedirs(dir_path, exist_ok=True) # Create the 'plots' directory if it does not exist
 
-        plt.savefig('plots/BalancingReport.png') # Save the plot as a '.png' image
+        plot_path = os.path.join(dir_path, 'Balancing Report.png')
+        plt.savefig(plot_path) # Save the plot as a '.png' image
