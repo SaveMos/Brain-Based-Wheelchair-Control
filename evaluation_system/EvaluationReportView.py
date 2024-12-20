@@ -3,7 +3,7 @@ Author: Giovanni Ligato
 """
 
 from Label import Label
-from EvaluationReport import EvaluationReport
+from evaluation_system.EvaluationReport import EvaluationReport
 import json
 
 class EvaluationReportView:
@@ -64,7 +64,7 @@ class EvaluationReportView:
 
         actual_total_errors = 0
         for i in range(min(len(classifier_labels), len(expert_labels))):
-            if classifier_labels[i].movements() != expert_labels[i].movements():
+            if classifier_labels[i].movements != expert_labels[i].movements:
                 actual_total_errors += 1
         return actual_total_errors
 
@@ -82,7 +82,7 @@ class EvaluationReportView:
         actual_max_consecutive_errors = 0
         consecutive_errors = 0
         for i in range(min(len(classifier_labels), len(expert_labels))):
-            if classifier_labels[i].movements() != expert_labels[i].movements():
+            if classifier_labels[i].movements != expert_labels[i].movements:
                 consecutive_errors += 1
                 if consecutive_errors > actual_max_consecutive_errors:
                     actual_max_consecutive_errors = consecutive_errors

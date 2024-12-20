@@ -22,5 +22,13 @@
   "Evaluation System": {
     "ip": "192.168.146.216",
     "port": 8006
+  },
+  "Messaging System": {
+    "ip": "192.168.141.116",
+    "port": 8007
+  },
+  "Service Class": {
+    "ip": "192.168.130.138",
+    "port": 8008
   }
 }

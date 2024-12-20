@@ -27,21 +27,23 @@ class EvaluationSystemParameters:
     PRODUCTION_SYSTEM_IP = None
     MESSAGING_SYSTEM_IP = None
     MESSAGING_SYSTEM_PORT = None
-    TESTING_SYSTEM_IP = None
-    TESTING_SYSTEM_PORT = None
+    SERVICE_CLASS_IP = None
+    SERVICE_CLASS_PORT = None
 
 
     @staticmethod
-    def loadParameters():
+    def loadParameters(basedir: str = "."):
         """
         This method is used to load the parameters of the Evaluation System.
+
+        :param basedir: The base directory from which to look for the different parameters files.
         """
 
         try:
-            with open(EvaluationSystemParameters.LOCAL_PARAMETERS_PATH, "r") as local_parameters:
+            with open(f"{basedir}/{EvaluationSystemParameters.LOCAL_PARAMETERS_PATH}", "r") as local_parameters:
                 data = json.load(local_parameters)
 
-                if EvaluationSystemParameters._validate_json(data, "local"):
+                if EvaluationSystemParameters._validate_json(data, "local", basedir):
                     EvaluationSystemParameters.MINIMUM_NUMBER_LABELS = data["minimum_number_labels"]
                     EvaluationSystemParameters.TOTAL_ERRORS = data["total_errors"]
                     EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS = data["max_consecutive_errors"]
@@ -49,16 +51,16 @@ class EvaluationSystemParameters:
                 else:
                     print("Invalid local parameters.")
 
-            with open(EvaluationSystemParameters.GLOBAL_PARAMETERS_PATH, "r") as global_parameters:
+            with open(f"{basedir}/{EvaluationSystemParameters.GLOBAL_PARAMETERS_PATH}", "r") as global_parameters:
                 data = json.load(global_parameters)
 
-                if EvaluationSystemParameters._validate_json(data, "global"):
+                if EvaluationSystemParameters._validate_json(data, "global", basedir):
                     EvaluationSystemParameters.INGESTION_SYSTEM_IP = data["Ingestion System"]["ip"]
                     EvaluationSystemParameters.PRODUCTION_SYSTEM_IP = data["Production System"]["ip"]
                     EvaluationSystemParameters.MESSAGING_SYSTEM_IP = data["Messaging System"]["ip"]
                     EvaluationSystemParameters.MESSAGING_SYSTEM_PORT = data["Messaging System"]["port"]
-                    EvaluationSystemParameters.TESTING_SYSTEM_IP = data["Testing System"]["ip"]
-                    EvaluationSystemParameters.TESTING_SYSTEM_PORT = data["Testing System"]["port"]
+                    EvaluationSystemParameters.SERVICE_CLASS_IP = data["Service Class"]["ip"]
+                    EvaluationSystemParameters.SERVICE_CLASS_PORT = data["Service Class"]["port"]
                 else:
                     print("Invalid global parameters.")
 
@@ -66,19 +68,20 @@ class EvaluationSystemParameters:
             print(f"Error loading parameters: {e}")
 
     @staticmethod
-    def _validate_json(self, json_parameters: Dict, type: str) -> bool:
+    def _validate_json(json_parameters: dict, type: str, basedir: str = ".") -> bool:
         """
         Validate JSON parameters read from a file.
 
         :param json_parameters: The JSON parameters to validate.
         :param type: The type of the parameters (local or global).
+        :param basedir: The base directory from which to look for the different parameters files.
         :return: True if the JSON parameters are valid, False otherwise.
         """
 
         if type == "local":
-            schema_path = EvaluationSystemParameters.LOCAL_PARAMETERS_SCHEMA_PATH
+            schema_path = f"{basedir}/{EvaluationSystemParameters.LOCAL_PARAMETERS_SCHEMA_PATH}"
         elif type == "global":
-            schema_path = EvaluationSystemParameters.GLOBAL_PARAMETERS_SCHEMA_PATH
+            schema_path = f"{basedir}/{EvaluationSystemParameters.GLOBAL_PARAMETERS_SCHEMA_PATH}"
         else:
             return False
 

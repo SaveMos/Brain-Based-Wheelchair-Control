@@ -9,8 +9,8 @@ import requests
 from typing import Optional, Dict
 import queue
 import jsonschema
-from EvaluationSystemParameters import EvaluationSystemParameters
-from Label import Label
+from evaluation_system.EvaluationSystemParameters import EvaluationSystemParameters
+from evaluation_system.Label import Label
 import json
 
 
@@ -19,12 +19,13 @@ class LabelReceiver_and_ConfigurationSender:
     Evaluation System module responsible for receiving labels and sending configuration.
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 8006):
+    def __init__(self, host: str = '0.0.0.0', port: int = 8006, basedir: str = "."):
         """
         Initialize the Flask communication server.
 
         :param host: The host address for the Flask server.
         :param port: The port number for the Flask server.
+        :param basedir: The base directory for the Flask server.
         """
         self.app = Flask(__name__)
         self.host = host
@@ -33,7 +34,7 @@ class LabelReceiver_and_ConfigurationSender:
         self.label_queue = queue.Queue()
 
         # Path of the JSON schema for the labels
-        self.label_schema_path = "schemas/label_schema.json"
+        self.label_schema_path = f"{basedir}/schemas/label_schema.json"
 
         # Define a route to receive labels
         @self.app.route('/EvaluationSystem', methods=['POST'])
@@ -126,14 +127,14 @@ class LabelReceiver_and_ConfigurationSender:
     # Testing method
     def send_timestamp(self, timestamp: float, phase: str) -> bool:
         """
-        Send the timestamp to the Testing System.
+        Send the timestamp to the Service Class.
 
         :param timestamp: The timestamp to send.
         :param phase: The phase of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
-        url = f"http://{EvaluationSystemParameters.TESTING_SYSTEM_IP}:\
-              {EvaluationSystemParameters.TESTING_SYSTEM_PORT}/TestingSystem"
+        url = f"http://{EvaluationSystemParameters.SERVICE_CLASS_IP}:\
+              {EvaluationSystemParameters.SERVICE_CLASS_PORT}/ServiceClass"
 
         timestamp_message = {
             "system": "Evaluation System",
@@ -148,43 +149,3 @@ class LabelReceiver_and_ConfigurationSender:
         except requests.RequestException as e:
             print(f"Error sending timestamp: {e}")
         return False
-
-
-
-
-if __name__ == "__main__":
-
-    # Module A (Sender)
-    from time import sleep
-
-    # Create a MessageBroker instance and start the server
-    module_a = MessageBroker(host='0.0.0.0', port=5001)
-    module_a.start_server()
-
-    # Send a message to Module B
-    response = module_a.send_message(target_ip='127.0.0.1', target_port=5002, message='{"action": "test"}')
-    print("Response from Module B:", response)
-
-    # Keep the server running
-    while True:
-        sleep(1)
-
-    ########################################################
-
-    # Module B (Receiver)
-    from time import sleep
-
-    # Create a MessageBroker instance and start the server
-    module_b = MessageBroker(host='0.0.0.0', port=5002)
-    module_b.start_server()
-
-    # Keep the server running and print messages received
-    while True:
-        message = module_b.get_last_message()
-        if message:
-            print("Message received:", message)
-            # Reset last message to avoid printing repeatedly
-            module_b.last_message = None
-        sleep(1)
-
-

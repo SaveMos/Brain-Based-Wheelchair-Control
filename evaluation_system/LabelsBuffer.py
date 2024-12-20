@@ -4,7 +4,7 @@ Author: Giovanni Ligato
 
 import sqlite3
 from typing import List, Tuple, Dict, Any
-from Label import Label
+from evaluation_system.Label import Label
 
 class LabelsBuffer:
     """
@@ -142,7 +142,6 @@ class LabelsBuffer:
         query = "DELETE FROM labels WHERE expert = 1 ORDER BY uuid LIMIT ?"
         self.execute_query(query, (limit,))
 
-        self.execute_query(query
 
     # def delete_all_labels(self) -> None:
     #     """

@@ -2,13 +2,14 @@
 Author: Giovanni Ligato
 """
 
+from evaluation_system.Label import Label
 
 class EvaluationReport:
     """
     Model class for the Evaluation Report
     """
 
-    def __init__(self, classifier_labels: List[Label], expert_labels: List[Label],
+    def __init__(self, classifier_labels: list[Label], expert_labels: list[Label],
                  total_errors: int, max_consecutive_errors: int,
                  actual_total_errors: int, actual_max_consecutive_errors: int):
         """
@@ -29,7 +30,7 @@ class EvaluationReport:
         self.actual_total_errors = actual_total_errors
         self.actual_max_consecutive_errors = actual_max_consecutive_errors
 
-    def get_classifier_labels(self) -> List[Label]:
+    def get_classifier_labels(self) -> list[Label]:
         """
         Get the classifier labels.
 
@@ -37,7 +38,7 @@ class EvaluationReport:
         """
         return self.classifier_labels
 
-    def get_expert_labels(self) -> List[Label]:
+    def get_expert_labels(self) -> list[Label]:
         """
         Get the expert labels.
 
