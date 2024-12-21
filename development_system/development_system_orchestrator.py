@@ -1,10 +1,8 @@
-from development_system import training_orchestrator
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.jsonIO import JsonHandler
 from development_system.development_system_message_broker import DevelopmentSystemMessageBroker
-from development_system.learning_plot_model import LearningPlotModel
-from development_system.learning_plot_view import LearningPlotView
+from development_system.testing_orchestrator import TestingOrchestrator
 from development_system.training_orchestrator import TrainingOrchestrator
 from development_system.validation_orchestrator import ValidationOrchestrator
 
@@ -20,10 +18,9 @@ class DevelopmentSystemOrchestrator:
         #self.dev_mess_broker = DevelopmentSystemMessageBroker()  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
+        self.testing_orchestrator = TestingOrchestrator()
         self.classifier = Classifier()
 
-        #self.plot_model = LearningPlotModel()
-        #self.plot_view = LearningPlotView()
 
     def set_testing(self, value):
         """Set the minimum number of layers."""
@@ -38,30 +35,32 @@ class DevelopmentSystemOrchestrator:
 
         json_handler = JsonHandler()
         # Read the responses of the user for the stop and go
-        user_responses = json_handler.read_json_file("responses/user.json")
+        user_responses = json_handler.read_json_file("responses/user_responses.json")
         print("Start: ", user_responses["Start"])
 
         # Definition of the stop&go structure
         # The user must insert only a value equal to 1 in the JSON file, the only considered value 0 is the testNotOK
-        if user_responses["Start"] == 1:
-            print("Start")
-            # Load configurations directly from ConfigurationParameters
-            self.config_params.load_configuration()
-            # Test the access to loaded configuration parameters
-            print("Min Layers:", orchestrator.config_params.min_layers)
+        if user_responses["Start"] == 1 or user_responses["ClassifierCheck"] == 1:
 
-            # Create a MessageBroker instance and start the server
-            # dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
-            # dev_mess_broker.start_server()
+            if user_responses["Start"] == 1:
+                print("Start")
+                # Load configurations directly from ConfigurationParameters
+                self.config_params.load_configuration()
+                # Test the access to loaded configuration parameters
+                print("Min Layers:", orchestrator.config_params.min_layers)
 
-            # message = dev_mess_broker.rcv_learning_set()
-            # if message:
-            # print("Message received:", message)
+                # Create a MessageBroker instance and start the server
+                # dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
+                # dev_mess_broker.start_server()
 
-            # Simulation of the reception of the learning set, to change in future
-            json_handler1 = JsonHandler()
+                # message = dev_mess_broker.rcv_learning_set()
+                # if message:
+                # print("Message received:", message)
 
-            learning_set = json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
+                #IMPLEMENTARE IL SALVATAGGIO DEI TRE SET IN TRE FILE JSON DIFFERENTI
+                # Simulation of the reception of the learning set, to change in future
+                json_handler1 = JsonHandler()
+                json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
 
 
             # SET AVERAGE HYPERPARAMETERS
@@ -94,6 +93,7 @@ class DevelopmentSystemOrchestrator:
             print("GenerateTest")
             # GENERATE TEST REPORT
             # CHECK TEST RESULT
+            self.testing_orchestrator.test()
         elif user_responses["TestOK"] == 0:
             print("TestNotOK")
             # SEND CONFIGURATION

@@ -34,7 +34,7 @@ class ValidationReportModel:
             classifier_report = {'index': i}
             classifier_report.update(top_classifier.classifier_report())
             self.top_5_classifiers.append(classifier_report)
-            #joblib.dump(top_classifier, "data/classifier" + str(i) + ".sav")
+            joblib.dump(top_classifier, "data/classifier" + str(i) + ".sav")
             classifiers.remove(top_classifier)
 
         validation_report = {'report': self.top_5_classifiers,
