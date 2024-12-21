@@ -1,8 +1,9 @@
-import unittest
 import threading
 import time
-from flask import Flask
+import unittest
+
 from message_broker import MessageBroker
+
 
 class TestMessageBroker(unittest.TestCase):
     @classmethod
