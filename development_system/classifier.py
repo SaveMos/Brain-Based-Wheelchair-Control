@@ -10,7 +10,7 @@ class Classifier(MLPClassifier):
         #self.num_iterations = None
         self.num_layers = None
         self.num_neurons = None
-        #self.training_error = None
+        self.training_error = None
         self.validation_error = None
         self.test_error = None
 
@@ -50,9 +50,12 @@ class Classifier(MLPClassifier):
         """Get the number of neurons."""
         return self.num_neurons
 
-    #def set_training_error(self):
+    def set_training_error(self, training_error = 0):
         #"""Set the training error."""
-        #self.training_error = self.loss_
+        if training_error == 0:
+            self.training_error = self.loss_
+        else:
+            self.training_error = training_error
 
     #def get_training_error(self):
         #"""Get the training error."""
@@ -79,7 +82,8 @@ class Classifier(MLPClassifier):
         return self.test_error
 
     def classifier_report(self):
-        return {'validation_error': self.get_validation_error(),
+        return {'num_iterations': self.get_num_iterations(),
+                'validation_error': self.get_validation_error(),
                 'training_error': self.get_training_error(),
                 'difference': self.get_train_valid_error_difference(),
                 'num_layers': self.get_num_layers(),

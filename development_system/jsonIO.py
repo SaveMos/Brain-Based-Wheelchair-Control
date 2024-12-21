@@ -166,7 +166,18 @@ class JsonHandler:
             print("Error to save file at path " + filepath + ": " + e)
             return False
 
+    def read_winner_network(self, filepath):
+        with open(filepath, 'r') as file:
+            data = json.load(file)
 
+        classifier = Classifier()
+        classifier.set_num_iterations(data.get("num_iterations"))
+        classifier.set_validation_error(data.get("validation_error"))
+        classifier.set_training_error(data.get("training_error"))
+        classifier.set_num_layers(data.get("num_layers"))
+        classifier.set_num_neurons(data.get("num_neurons"))
+
+        return classifier
 
 
 
