@@ -5,8 +5,8 @@ Description: Script to test the BalancingReportModel class by generating a datas
 and creating a histogram plot.
 """
 
-from segregation_system.balancing_report_model import BalancingReportModel
-from segregation_system.balancing_report_view import BalancingReportView
+from segregation_system.balancing_report.balancing_report_model import BalancingReportModel
+from segregation_system.balancing_report.balancing_report_view import BalancingReportView
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
 

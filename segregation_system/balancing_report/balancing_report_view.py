@@ -24,7 +24,7 @@ class BalancingReportView:
         """
         print("BalancingReportView initialized.")
 
-    def open_balancing_report(self , dir_path = os.path.join('user', 'plots')):
+    def open_balancing_report(self, dir_path = os.path.join('../user', 'plots')):
         """
         Opens the 'BalancingReport.png' file using the default image viewer of the system.
         Ensures the file exists before attempting to open it.

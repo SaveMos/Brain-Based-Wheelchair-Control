@@ -1,6 +1,6 @@
 import unittest
+
 from database_manager import DatabaseManager
-import os
 
 
 class TestDatabaseManager(unittest.TestCase):

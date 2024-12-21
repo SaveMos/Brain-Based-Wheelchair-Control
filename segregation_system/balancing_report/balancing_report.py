@@ -13,9 +13,9 @@ class BalancingReport:
     turns to the left, and turns to the right.
 
     Attributes:
-        move (int): The number of moves in the balancing process.
-        turn_left (int): The number of times a turn to the left occurred.
-        turn_right (int): The number of times a turn to the right occurred.
+        _move (int): The number of moves in the balancing process.
+        _turn_left (int): The number of times a turn to the left occurred.
+        _turn_right (int): The number of times a turn to the right occurred.
 
     Author: Saverio Mosti
 
@@ -28,7 +28,7 @@ class BalancingReport:
         """
         self._move = 0
         self._turn_left = 0
-        self.turn_right = 0
+        self._turn_right = 0
 
         for session in sessions:
             if session.label == "move":
@@ -36,7 +36,7 @@ class BalancingReport:
             if session.label == "turn_left":
                 self._turn_left += 1
             if session.label == "turn_right":
-                self.turn_right += 1
+                self._turn_right += 1
 
     # Getter and setter for move
     @property

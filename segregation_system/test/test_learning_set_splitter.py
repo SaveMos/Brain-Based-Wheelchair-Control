@@ -1,10 +1,8 @@
 import unittest
 import uuid
-from typing import List
-from segregation_system.learning_set import LearningSet
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
-from segregation_system.learning_set_splitter import LearningSetSplitter
+from segregation_system.learning_set.learning_set_splitter import LearningSetSplitter
 
 
 class TestLearningSetSplitter(unittest.TestCase):

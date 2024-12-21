@@ -32,7 +32,7 @@ class CoverageReportModel:
             "Activity + Scatter" , "Environment + Scatter"
         ]
 
-    def generateCoverageReport(self, dir_path = os.path.join('user', 'plots')):
+    def generateCoverageReport(self, dir_path = os.path.join('../user', 'plots')):
         """
         Creates a radar bubble plot for the provided prepared sessions.
         Save the plot to the "plots" directory as 'CoverageReport.png'.
