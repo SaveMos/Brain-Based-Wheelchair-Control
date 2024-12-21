@@ -2,3 +2,4 @@
 **/__pycache__/
 /segregation_system/test/conf/
 /segregation_system/test/user/
+/utility/database/test_database.db

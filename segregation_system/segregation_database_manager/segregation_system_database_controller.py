@@ -113,12 +113,7 @@ class SegregationSystemDatabaseController:
         Returns:
             bool: True if the table was dropped successfully, False otherwise.
         """
-        try:
-            # Drop the table if it exists (safe operation)
-            drop_table_query = f"DROP TABLE IF EXISTS {self.__table_name}"
-            self.__db.execute_query(drop_table_query)
-        except Exception as e:
-            pass  # Log or handle the exception if necessary (optional)
+        self.__db.drop_table(self.__table_name)
 
     def get_all_prepared_sessions(self) -> List[PreparedSession]:
         """

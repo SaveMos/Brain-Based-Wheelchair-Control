@@ -1,5 +1,6 @@
 import sqlite3
-from typing import List, Tuple, Any, Dict, Optional
+from typing import List, Tuple, Any, Dict
+
 
 class DatabaseManager:
     """
@@ -137,6 +138,15 @@ class DatabaseManager:
         query = f"SELECT * FROM {table_name} WHERE {condition}"
         return self.fetch_query(query, condition_params)
 
+    def drop_table(self, table_name: str) -> None:
+        """
+        Drop a table from the database.
+
+        :param table_name: The name of the table to drop.
+        """
+        query = f"DROP TABLE IF EXISTS {table_name}"
+        self.execute_query(query)
+
 
 # To Test the DatabaseManager class
 if __name__ == "__main__":
@@ -163,8 +173,3 @@ if __name__ == "__main__":
 
     # Delete a record
     db.delete('users', 'name = ?', ('John Doe',))
-
-
-
-
-
