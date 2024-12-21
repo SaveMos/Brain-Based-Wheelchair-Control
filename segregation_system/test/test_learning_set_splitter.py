@@ -3,6 +3,7 @@ import uuid
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.learning_set.learning_set_splitter import LearningSetSplitter
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
 
 
 class TestLearningSetSplitter(unittest.TestCase):
@@ -20,14 +21,7 @@ class TestLearningSetSplitter(unittest.TestCase):
         self.splitter = LearningSetSplitter(config)
 
         # Generate 100 PreparedSession objects with random UUIDs
-        self.prepared_sessions = [
-            PreparedSession(
-                uuid = str(uuid.uuid4()),  # Random UUID for each session
-                features=[0.25, 0.30, 0.45, 0.60, 'gaming', 'plain'],
-                label="move"  # Keeping label constant for simplicity
-            )
-            for _ in range(100)
-        ]
+        self.prepared_sessions = generate_random_prepared_sessions_object(100)
 
     def test_generateLearningSets(self):
         """

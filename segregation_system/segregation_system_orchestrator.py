@@ -63,7 +63,7 @@ class SegregationSystemOrchestrator:
             # Create a MessageBroker instance to send and receive messages.
             message_broker = MessageBroker()
 
-            new_prepared_session = PreparedSession(0, [], "")
+            new_prepared_session = PreparedSession("0", [], "")
             # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
             new_prepared_session.from_dict(message_broker.get_last_message())
 

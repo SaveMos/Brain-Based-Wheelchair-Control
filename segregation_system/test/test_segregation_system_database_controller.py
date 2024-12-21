@@ -1,9 +1,10 @@
 import uuid
 from unittest import TestCase
-from uuid import uuid4
 
 from segregation_system.prepared_session import PreparedSession
-from segregation_system.segregation_database_manager.segregation_system_database_controller import SegregationSystemDatabaseController
+from segregation_system.segregation_database_manager.segregation_system_database_controller import \
+    SegregationSystemDatabaseController
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
 
 
 class TestSegregationSystemDatabaseController(TestCase):
@@ -11,39 +12,24 @@ class TestSegregationSystemDatabaseController(TestCase):
     def setUp(self):
         """Set up the database controller and mock the database manager."""
         self.db_controller = SegregationSystemDatabaseController()
-        self.test_data = {
-            "uuid": str(uuid.uuid4()),  # Generate a unique UUID
-            "label": "move",  # Valid label
-            "psd_alpha_band": 0.25,  # Example numerical value
-            "psd_beta_band": 0.30,  # Example numerical value
-            "psd_theta_band": 0.45,  # Example numerical value
-            "psd_delta_band": 0.60,  # Example numerical value
-            "activity": "gaming",  # Valid activity
-            "environment": "plain"  # Valid environment
-        }
+        Session = generate_random_prepared_sessions_object(1)
+        Session = Session[0]
+        self.test_data = Session.to_dictionary()
+
 
     def test_store_prepared_session(self):
         """Test if the store_prepared_session method stores data correctly."""
         # Prepare the data to store
-        session_data = {
-            "uuid": str(uuid4()),
-            "label": "move",
-            "psd_alpha_band": 0.5,
-            "psd_beta_band": 0.6,
-            "psd_theta_band": 0.7,
-            "psd_delta_band": 0.8,
-            "activity": "sport",
-            "environment": "plain"
-        }
+
 
         num = self.db_controller.get_number_of_prepared_session_stored()
 
         # Call the method
-        self.db_controller.store_prepared_session(session_data)
+        self.db_controller.store_prepared_session(self.test_data)
 
         num_next = self.db_controller.get_number_of_prepared_session_stored()
 
-        self.db_controller.remove_prepared_session(session_data["uuid"])
+        self.db_controller.remove_prepared_session(self.test_data["uuid"])
 
         self.assertEqual(num + 1, num_next)
 
@@ -113,7 +99,7 @@ class TestSegregationSystemDatabaseController(TestCase):
             self.assertIsInstance(session, PreparedSession,
                                   "The returned object should be an instance of PreparedSession.")
             self.assertEqual(len(session.features), 6, "Each session should have six features (PSD bands, activity, environment).")
-            self.assertIn(session.label, ["move", "turn left", "turn right"],
+            self.assertIn(session.label, ["move", "turn_left", "turn_right"],
                           "Label should be one of the valid labels.")
             self.assertIn(session.features[4], ["shopping", "sport", "cooking", "gaming", "relax"],
                           "Activity should be one of the valid activities.")

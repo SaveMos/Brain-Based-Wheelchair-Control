@@ -92,7 +92,7 @@ class SegregationSystemDatabaseController:
         create_table_query = f"""
                 CREATE TABLE IF NOT EXISTS prepared_session (
                     uuid TEXT PRIMARY KEY,
-                    label TEXT CHECK(label IN ('move', 'turn left', 'turn right')) NOT NULL,
+                    label TEXT CHECK(label IN ('move', 'turn_left', 'turn_right')) NOT NULL,
                     psd_alpha_band REAL NOT NULL,
                     psd_beta_band REAL NOT NULL,
                     psd_theta_band REAL NOT NULL,
