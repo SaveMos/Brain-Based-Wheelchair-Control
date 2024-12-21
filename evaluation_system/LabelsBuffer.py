@@ -133,15 +133,21 @@ class LabelsBuffer:
 
         :param limit: The maximum number of labels to delete.
         """
-
         # Delete the first limit classifier labels
-        query = "DELETE FROM labels WHERE expert = 0 ORDER BY uuid LIMIT ?"
-        self.execute_query(query, (limit,))
+        query_classifier = """
+        DELETE FROM labels WHERE rowid IN (
+            SELECT rowid FROM labels WHERE expert = 0 ORDER BY uuid LIMIT ?
+        )
+        """
+        self.execute_query(query_classifier, (limit,))
 
         # Delete the first limit expert labels
-        query = "DELETE FROM labels WHERE expert = 1 ORDER BY uuid LIMIT ?"
-        self.execute_query(query, (limit,))
-
+        query_expert = """
+        DELETE FROM labels WHERE rowid IN (
+            SELECT rowid FROM labels WHERE expert = 1 ORDER BY uuid LIMIT ?
+        )
+        """
+        self.execute_query(query_expert, (limit,))
 
     # def delete_all_labels(self) -> None:
     #     """
