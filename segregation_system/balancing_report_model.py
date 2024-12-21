@@ -36,7 +36,7 @@ class BalancingReportModel:
         self.balancing_report = BalancingReport(sessions)
         self.segregation_config = segregation_config
 
-    def generateBalancingReport(self, dir_path = os.path.join('../user', 'plots')):
+    def generateBalancingReport(self, dir_path = os.path.join('user', 'plots')):
         """
         Generates and saves a histogram for the balancing report, with two tolerance lines at 5%
         above and below the median bar. The histogram is saved as 'BalancingReport.png' in a 'plots' directory.

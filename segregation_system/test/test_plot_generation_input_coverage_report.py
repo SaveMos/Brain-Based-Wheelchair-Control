@@ -1,5 +1,5 @@
-from segregation_system.coverage_report.coverage_report_model import CoverageReportModel
-from segregation_system.coverage_report.coverage_report_view import CoverageReportView
+from segregation_system.coverage_report_model import CoverageReportModel
+from segregation_system.coverage_report_view import CoverageReportView
 from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 

@@ -20,7 +20,7 @@ class CoverageReportView:
         """
         print("CoverageReportView initialized.")
 
-    def open_coverage_report(self, dir_path = os.path.join('../user', 'plots')):
+    def open_coverage_report(self, dir_path = os.path.join('user', 'plots')):
         """
         Opens the 'CoverageReport.png' file using the default image viewer of the system.
         Ensures the file exists before attempting to open it.

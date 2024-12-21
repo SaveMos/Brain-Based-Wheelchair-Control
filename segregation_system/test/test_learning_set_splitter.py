@@ -1,6 +1,6 @@
 import unittest
 
-from segregation_system.learning_set.learning_set_splitter import LearningSetSplitter
+from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
