@@ -5,7 +5,7 @@ from typing import List
 from segregation_system.prepared_session import PreparedSession
 
 
-def generate_random_prepared_sessions_object(n : int) -> List[PreparedSession]:
+def generate_random_prepared_sessions_object_list(n : int) -> List[PreparedSession]:
     randomized_prepared_sessions = [
         PreparedSession(
             uuid=str(uuid.uuid4()),  # Random UUID for each session
@@ -22,3 +22,7 @@ def generate_random_prepared_sessions_object(n : int) -> List[PreparedSession]:
         for _ in range(n)
     ]
     return randomized_prepared_sessions
+
+def generate_random_prepared_session_object() -> PreparedSession:
+    Session = generate_random_prepared_sessions_object_list(1)
+    return Session[0]

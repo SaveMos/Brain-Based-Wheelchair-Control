@@ -8,14 +8,14 @@ and creating a histogram plot.
 from segregation_system.balancing_report.balancing_report_model import BalancingReportModel
 from segregation_system.balancing_report.balancing_report_view import BalancingReportView
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
-from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 
 def main():
     """
     Main function to test the BalancingReportModel.
     """
-    randomized_prepared_sessions = generate_random_prepared_sessions_object(100)
+    randomized_prepared_sessions = generate_random_prepared_sessions_object_list(100)
 
     # Count labels manually
     expected_counts = {"move": 0, "turn_left": 0, "turn_right": 0}

@@ -1,6 +1,6 @@
 from segregation_system.coverage_report.coverage_report_model import CoverageReportModel
 from segregation_system.coverage_report.coverage_report_view import CoverageReportView
-from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 
 def main():
@@ -9,8 +9,7 @@ def main():
     and generate the radar plot.
     """
     #Generate 100 random prepared sessions
-    randomized_prepared_sessions = generate_random_prepared_sessions_object(100)
-
+    randomized_prepared_sessions = generate_random_prepared_sessions_object_list(100)
 
     # Create the CoverageReportModel with the prepared sessions
     coverage_report = CoverageReportModel(randomized_prepared_sessions)

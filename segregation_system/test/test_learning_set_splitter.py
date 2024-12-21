@@ -1,9 +1,8 @@
 import unittest
-import uuid
-from segregation_system.prepared_session import PreparedSession
-from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
+
 from segregation_system.learning_set.learning_set_splitter import LearningSetSplitter
-from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
+from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 
 class TestLearningSetSplitter(unittest.TestCase):
@@ -21,7 +20,7 @@ class TestLearningSetSplitter(unittest.TestCase):
         self.splitter = LearningSetSplitter(config)
 
         # Generate 100 PreparedSession objects with random UUIDs
-        self.prepared_sessions = generate_random_prepared_sessions_object(100)
+        self.prepared_sessions = generate_random_prepared_sessions_object_list(100)
 
     def test_generateLearningSets(self):
         """

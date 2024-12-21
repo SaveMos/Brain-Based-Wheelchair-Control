@@ -1,12 +1,12 @@
 from unittest import TestCase
 
-from segregation_system.balancing_report import BalancingReport
-from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
+from segregation_system.balancing_report.balancing_report import BalancingReport
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 
 class TestBalancingReport(TestCase):
     def setUp(self):
-        self.prepared_sessions = generate_random_prepared_sessions_object(20)
+        self.prepared_sessions = generate_random_prepared_sessions_object_list(20)
 
     def test_balancing_report(self):
         # Create BalancingReport from prepared sessions
