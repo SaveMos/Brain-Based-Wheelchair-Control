@@ -18,5 +18,5 @@ ING_MAN_CONFIG_SCHEMA_FILE_PATH = _get_data_file_absolute_path("Ingestion_Config
 RECORD_SCHEMA_FILE_PATH = _get_data_file_absolute_path("recordSchema.json")
 
 # Database Manager
-DATABASE_FILE_PATH = _get_data_file_absolute_path("./IngestionDB/IngestionSystem.db")
-DATABASE_FOLDER_PATH = _get_data_file_absolute_path("./IngestionDB")
+DATABASE_FILE_PATH = _get_data_file_absolute_path("IngestionDB/IngestionSystem.db")
+DATABASE_FOLDER_PATH = _get_data_file_absolute_path("IngestionDB")

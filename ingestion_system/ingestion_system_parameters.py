@@ -37,7 +37,7 @@ class Parameters:
         configuration = self.jsonhandler.read_json_file(filepath) # trasforming Json to a Python dictionary
 
         #reading configuration parameters from dictionary
-        self.number_of_records_to_store = configuration["number_of_records_to_store"]
+        #self.number_of_records_to_store = configuration["number_of_records_to_store"]
         self.missing_samples_threshold_interval = configuration["missing_samples_threshold_interval"]
         self.evaluation_phase = configuration["evaluation_phase"]
 

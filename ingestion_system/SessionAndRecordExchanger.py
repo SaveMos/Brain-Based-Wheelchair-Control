@@ -76,29 +76,19 @@ class SessionAndRecordExchanger:
             print(f"Error sending message: {e}")
         return None
 
-    def get_last_message(self) -> Optional[Dict]:
+    def get_last_message(self, timeout: float = 5.0) -> Optional[Dict]:
         """
         Wait for a message to be received and return it.
 
-        :return: A dictionary containing the sender's IP, port, and the message content.
+        :param timeout: Maximum time to wait for a message.
+        :return: A dictionary containing the sender's IP, port, and the message content, or None if timed out.
         """
         with self.message_condition:
-            # Wait until a message is received
-            while self.last_message is None:
-                self.message_condition.wait() #blocking wait of condition thread
+            if not self.message_condition.wait(timeout=timeout):
+                print("Timeout while waiting for a message.")
+                return None
 
-            # Retrieve and clear the last message
             message = self.last_message
             self.last_message = None
-            """
-            message format:
-            {
-                'ip': sender_ip,  
-                'port': sender_port,  
-                'message': message 
-            }
-            """
-
-
             return message
 
