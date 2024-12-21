@@ -1,6 +1,7 @@
 import unittest
 
 from segregation_system.prepared_session import PreparedSession
+from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object
 
 
 class TestPreparedSession(unittest.TestCase):
@@ -8,16 +9,9 @@ class TestPreparedSession(unittest.TestCase):
         """
         This method is called before every test.
         """
-        self.test_data = {
-            'uuid': '12345',
-            'psd_alpha_band': 1.0,
-            'psd_beta_band': 2.0,
-            'psd_theta_band': 3.0,
-            'psd_delta_band': 4.0,
-            'activity': 'active',
-            'environment': 'indoor',
-            'label': 'Test Label'
-        }
+        Session = generate_random_prepared_sessions_object(1)
+        Session = Session[0]
+        self.test_data = Session.to_dictionary()
 
         # Create a session object using from_dict
         self.session = PreparedSession(
