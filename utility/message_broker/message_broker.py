@@ -3,12 +3,14 @@ import threading
 import requests
 from typing import Optional, Dict
 
+
 class MessageBroker:
     """
     A utility class to enable inter-module communication using Flask.
 
     This class supports sending and receiving messages in a blocking manner.
     """
+
     def __init__(self, host: str = '0.0.0.0', port: int = 5000):
         """
         Initialize the Flask communication server.
