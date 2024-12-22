@@ -1,4 +1,6 @@
 import json
+from typing import Any
+
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.learning_set import LearningSet
 from development_system.classifier import Classifier
@@ -179,7 +181,40 @@ class JsonHandler:
 
         return classifier
 
+    def get_system_address(self , json_filepath: str, system_name: str) -> Any | None:
+        """
+        Reads the IP address and port of a specified system from a JSON file.
 
+        Args:
+            json_filepath (str): Path to the JSON file containing system configurations.
+            system_name (str): Name of the system whose address is to be fetched.
+
+        Returns:
+            dict: A dictionary containing the IP address and port of the specified system.
+                  Example: {"ip": "192.168.149.66", "port": 8001}
+            None: If the system name is not found or an error occurs.
+        """
+        try:
+            # Load the JSON file
+            systems_data = self.read_json_file(json_filepath)
+
+            # Fetch the system configuration
+            system_info = systems_data.get(system_name)
+            if system_info:
+                return system_info
+            else:
+                print(f"System '{system_name}' not found in the configuration file.")
+                return None
+
+        except FileNotFoundError:
+            print(f"Error: File '{json_filepath}' not found.")
+            return None
+        except json.JSONDecodeError:
+            print("Error: Failed to parse JSON file.")
+            return None
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return None
 
 # Example to test the class
 if __name__ == "__main__":

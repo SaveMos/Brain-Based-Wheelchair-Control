@@ -53,15 +53,20 @@ class DevelopmentSystemMessageBroker:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
+    def send_classifier(self, target_ip: str, target_port: int, classifier_file: str) -> Optional[Dict]:
         """
-        Send a message to a target module.
+        Send the winner classifier to the target module production system.
 
         :param target_ip: The IP address of the target module.
         :param target_port: The port of the target module.
-        :param message: The message to send (typically a JSON string).
+        :param classifier_file: The message to send (typically a JSON string).
         :return: The response from the target, if any.
         """
+
+        with open(classifier_file, "rb") as f:
+            file_content = f.read()
+            message = file_content.decode('latin1')  # Encode binary content to a string format
+
         url = f"http://{target_ip}:{target_port}/send"
         payload = {
             "port": self.port,
@@ -73,6 +78,34 @@ class DevelopmentSystemMessageBroker:
                 return response.json()
         except requests.RequestException as e:
             print(f"Error sending message: {e}")
+        except (UnicodeDecodeError, IOError) as e:
+            print(f"Error processing file: {e}")
+        return None
+
+    def send_configuration(self, target_ip: str, target_port: int) -> Optional[Dict]:
+        """
+        Send the configuration to the target module messaging system.
+
+        :param target_ip: The IP address of the target module.
+        :param target_port: The port of the target module.
+        :return: The response from the target, if any.
+        """
+
+        restart_config = {"action": "restart"}
+
+        url = f"http://{target_ip}:{target_port}/send"
+
+        payload = {
+            "port": self.port,
+            "message": restart_config
+        }
+        try:
+            response = requests.post(url, json=payload)
+            if response.status_code == 200:
+                return response.json()
+        except requests.RequestException as e:
+            print(f"Error sending message: {e}")
+
         return None
 
     def rcv_learning_set(self) -> Optional[Dict]:
@@ -90,11 +123,3 @@ class DevelopmentSystemMessageBroker:
             message = self.last_message
             self.last_message = None
             return message
-
-
-    def send_classifier(self):
-        """ """
-        pass  # Logic for development.
-    def send_configuration(self):
-        """ """
-        pass  # Logic for development.

@@ -15,7 +15,7 @@ class DevelopmentSystemOrchestrator:
         self.testing = None
         self.json_handler = JsonHandler()
         self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
-        #self.dev_mess_broker = DevelopmentSystemMessageBroker()  # instance of DevelopmentSystemMessageBroker class
+        #self.dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
@@ -42,18 +42,18 @@ class DevelopmentSystemOrchestrator:
         # The user must insert only a value equal to 1 in the JSON file, the only considered value 0 is the testNotOK
         if user_responses["Start"] == 1 or user_responses["ClassifierCheck"] == 1:
 
+            self.config_params.load_configuration()
+            # Test the access to loaded configuration parameters
+            print("Min Layers:", orchestrator.config_params.min_layers)
+
             if user_responses["Start"] == 1:
                 print("Start")
                 # Load configurations directly from ConfigurationParameters
-                self.config_params.load_configuration()
-                # Test the access to loaded configuration parameters
-                print("Min Layers:", orchestrator.config_params.min_layers)
 
                 # Create a MessageBroker instance and start the server
-                # dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)
-                # dev_mess_broker.start_server()
+                # self.dev_mess_broker.start_server()
 
-                # message = dev_mess_broker.rcv_learning_set()
+                # message = self.dev_mess_broker.rcv_learning_set()
                 # if message:
                 # print("Message received:", message)
 
@@ -68,10 +68,6 @@ class DevelopmentSystemOrchestrator:
             self.training_orchestrator.train_classifier(set_average_hyperparams)
             # stop for setting #iterations
 
-        elif user_responses["ClassifierCheck"] == 1:
-            print("ClassifierCheck")
-            # SET AVERAGE HYPERPARAMETERS
-            # stop for setting #iterations
         elif user_responses["IterationCheck"] == 1:
             print("IterationCheck")
             # set_num_iterations   (questo probabilmente rimosso, train() legge direttamente il json)
@@ -97,9 +93,27 @@ class DevelopmentSystemOrchestrator:
         elif user_responses["TestOK"] == 0:
             print("TestNotOK")
             # SEND CONFIGURATION
+
+            # Retrieve ip address and port of the target system
+            endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
+
+            # Create a MessageBroker instance and start the server
+            #self.dev_mess_broker.start_server()
+            #self.response = dev_mess_broker.send_configuration(target_ip=endpoint["ip"], target_port=endpoint["port"])
+            #self.print("Response from Module Production System:", response)
+
         elif user_responses["TestOK"] == 1:
             print("TestOK")
-            # send classifier
+            # SEND CLASSIFIER
+
+            # Retrieve ip address and port of the target system
+            endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
+
+            # Create a MessageBroker instance and start the server
+            #self.dev_mess_broker.start_server()
+            #response = self.dev_mess_broker.send_classifier(target_ip=endpoint["ip"], target_port=endpoint["port"], classifier_file="data/classifier.sav")
+            #print("Response from Module Production System:", response)
+
 
 if __name__ == "__main__":
 
