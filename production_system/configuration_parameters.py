@@ -1,6 +1,6 @@
 from jsonschema.benchmarks.useless_keywords import schema
 
-from production_system.json_handler import JsonHandler
+from production_system.json_validation import JsonHandler
 import json
 
 class ConfigurationParameters:
@@ -12,6 +12,10 @@ class ConfigurationParameters:
     DEVELOP_SYSTEM_IP = None
     EVALUATION_SYSTEM_IP = None
     EVALUATION_SYSTEM_PORT = None
+    SERVICE_CLASS_IP = None
+    SERVICE_CLASS_PORT = None
+    MESSAGING_SYSTEM_IP = None
+    MESSAGING_SYSTEM_PORT = None
 
 
     def __init__(self):
@@ -64,5 +68,17 @@ class ConfigurationParameters:
         ConfigurationParameters.DEVELOP_SYSTEM_IP = data["Develop System"]["ip"]
         ConfigurationParameters.EVALUATION_SYSTEM_IP = data["Evaluation System"]["ip"]
         ConfigurationParameters.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]
+        ConfigurationParameters.SERVICE_CLASS_IP = data["Service Class"]["ip"]
+        ConfigurationParameters.SERVICE_CLASS_PORT = data["Service Class"]["port"]
+        ConfigurationParameters.MESSAGING_SYSTEM_IP = data["Messaging System"]["ip"]
+        ConfigurationParameters.MESSAGING_SYSTEM_PORT = data["Messaging System"]["port"]
 
         return True
+
+    def start_config(self):
+
+        configuration = {
+            "configuration": "start production"
+        }
+
+        return configuration

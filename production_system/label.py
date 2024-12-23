@@ -54,3 +54,19 @@ class Label:
             value (int): The new movements label.
         """
         self._movements = value
+
+    def to_dictionary(self) -> dict:
+        """
+        convert a label object into dictionary
+
+        Returns:
+
+            dict: dictionary that content label field
+
+        """
+        result = {
+            "uuid": self._uuid,
+            "movements": self._movements
+        }
+
+        return result

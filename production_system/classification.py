@@ -16,10 +16,9 @@ class Classification:
         Method that execute classify operation based on received prepared_session and classifier
         Args:
             prepared_session: prepared session that must be classified
-            classifier: classifier used in operation
 
         Returns:
-            label
+            label: aN object of label class representing the label obtained from classify operation
 
         """
 
@@ -30,5 +29,3 @@ class Classification:
         label = Label(prepared_session.uuid, movement)
 
         return label
-
-

@@ -1,4 +1,6 @@
-from production_system.configuration_parameters import ConfigurationParameters
+"""
+    Class for managing the sending and receiving of messages
+"""
 from flask import Flask, request, jsonify
 import threading
 import requests
@@ -8,7 +10,7 @@ from typing import Optional, Dict
 class ProductionSystemIO:
     """
 
-        this class manage all sended/received json file
+        this class manage all sent/received json file
     """
 
     def __init__(self, host: str = '0.0.0.0', port: int = 5000):

@@ -1,3 +1,6 @@
+"""
+Author: Alessandro Ascani
+"""
 import joblib
 
 class ClassifierDeployment:
