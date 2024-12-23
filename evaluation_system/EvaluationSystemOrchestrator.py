@@ -5,27 +5,29 @@ from evaluation_system.LabelsBuffer import LabelsBuffer
 from evaluation_system.LabelReceiver_and_ConfigurationSender import LabelReceiver_and_ConfigurationSender
 import json
 import jsonschema
-from evaluation_system.Label import Label
 from evaluation_system.EvaluationReportView import EvaluationReportView
+import os
 
 class EvaluationSystemOrchestrator:
     """
     This class is responsible for orchestrating the Evaluation System.
     """
 
-    def __init__(self):
+    def __init__(self, basedir: str = "."):
         """
         Initialize the Evaluation System Orchestrator.
+
+        :param basedir: Base directory of the Evaluation System.
         """
 
-        EvaluationSystemParameters.loadParameters()
+        self.basedir = basedir
+
+        EvaluationSystemParameters.loadParameters(self.basedir)
         self.testing = EvaluationSystemParameters.TESTING
 
-
-
         self.labels_buffer = LabelsBuffer()
-        self.labelReceiver_and_configurationSender = LabelReceiver_and_ConfigurationSender()
-        self.evaluation_report_view = EvaluationReportView()
+        self.labelReceiver_and_configurationSender = LabelReceiver_and_ConfigurationSender(basedir=self.basedir)
+        self.evaluation_report_view = EvaluationReportView(self.basedir)
 
 
 
@@ -38,12 +40,12 @@ class EvaluationSystemOrchestrator:
         """
 
         try:
-            with open("human_operator_workspace/classifier_evaluation.json", "r") as f:
+            with open(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json", "r") as f:
                 # The file exists. Now we need to check the content.
                 data = json.load(f)
 
                 # Validating the JSON content
-                with open("schemas/classifier_evaluation_schema.json", "r") as schema_file:
+                with open(f"{self.basedir}/classifier_evaluation_schema.json", "r") as schema_file:
                     schema = json.load(schema_file)
                     jsonschema.validate(data, schema)
 
@@ -58,11 +60,15 @@ class EvaluationSystemOrchestrator:
         Main method of the Evaluation System Orchestrator.
         """
 
+        print("Evaluation System Orchestrator started.")
+
         self.labelReceiver_and_configurationSender.start_server()
 
-        classifier_evaluation_exists, classifier_evaluation = self._get_classifier_evaluation()
-
         while True:
+            classifier_evaluation_exists, classifier_evaluation = self._get_classifier_evaluation()
+
+            print(f"Classifier evaluation exists: {classifier_evaluation_exists}")
+
             if not classifier_evaluation_exists:
                 # Evaluation Report has not been created yet.
 
@@ -98,8 +104,10 @@ class EvaluationSystemOrchestrator:
                 if not self.testing:
                     return
 
+                print("Testing mode, classifier evaluation automatically generated.")
+
                 # Testing mode, evaluation automatically generated
-                random_evaluation = int(random.random() <= 0.3)
+                random_evaluation = int(random.random() <= 0.3) # 30% chance of being good
                 if random_evaluation == 1:
                     # Good classifier
                     print("Good classifier.")
@@ -110,6 +118,8 @@ class EvaluationSystemOrchestrator:
                     self.labelReceiver_and_configurationSender.send_timestamp(time.time(), "end")
                     self.labelReceiver_and_configurationSender.send_configuration()
                     print("Configuration sent.")
+
+                return
 
             else:
                 # Evaluation Report has been created.
@@ -132,4 +142,7 @@ class EvaluationSystemOrchestrator:
                     self.labelReceiver_and_configurationSender.send_configuration()
                     print("Configuration sent.")
 
+                # Remove the classifier_evaluation.json file to start a new evaluation
+                os.remove(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json")
 
+                return

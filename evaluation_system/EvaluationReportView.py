@@ -2,7 +2,7 @@
 Author: Giovanni Ligato
 """
 
-from Label import Label
+from evaluation_system.Label import Label
 from evaluation_system.EvaluationReport import EvaluationReport
 import json
 
@@ -11,10 +11,13 @@ class EvaluationReportView:
     Creates and saves to a json file the evaluation report of the Evaluation System.
     """
 
-    def __init__(self):
+    def __init__(self, basedir: str = "."):
         """
         Initialize the EvaluationReportView with an evaluation report id.
+
+        :param basedir: Base directory of the Evaluation System.
         """
+        self.basedir = basedir
         self.evaluation_report_id = 0
 
     def create_evaluation_report(self, classifier_labels: list[Label], expert_labels: list[Label],
@@ -38,13 +41,13 @@ class EvaluationReportView:
                                              actual_total_errors, actual_max_consecutive_errors)
 
         try:
-            with open(f"reports/evaluation_report_{self.evaluation_report_id}.json", "w") as f:
+            with open(f"{self.basedir}/reports/evaluation_report_{self.evaluation_report_id}.json", "w") as f:
                 data = evaluation_report.to_dict()
                 json.dump(data, f, ensure_ascii=False, indent=4)
                 self.evaluation_report_id += 1
 
                 # Create the classifier_evaluation.json file where the Human Operator will write the evaluation.
-                with open("human_operator_workspace/classifier_evaluation.json", "w") as ce:
+                with open(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json", "w") as ce:
                     json.dump({"classifier_evaluation": "waiting_for_evaluation"}, ce, ensure_ascii=False, indent=4)
 
                 return True
