@@ -4,7 +4,7 @@ import json
 from evaluation_system.EvaluationSystemOrchestrator import EvaluationSystemOrchestrator
 from evaluation_system.LabelsBuffer import LabelsBuffer
 from evaluation_system.LabelReceiver_and_ConfigurationSender import LabelReceiver_and_ConfigurationSender
-from evaluation_system.EvaluationReportView import EvaluationReportView
+from evaluation_system.EvaluationReportModel import EvaluationReportModel
 from evaluation_system.EvaluationSystemParameters import EvaluationSystemParameters
 from evaluation_system.Label import Label
 import os
@@ -60,13 +60,13 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
 
     @patch("evaluation_system.EvaluationSystemOrchestrator.LabelReceiver_and_ConfigurationSender")
     @patch("evaluation_system.EvaluationSystemOrchestrator.LabelsBuffer")
-    @patch("evaluation_system.EvaluationSystemOrchestrator.EvaluationReportView")
-    def test_evaluate_creates_evaluation_report(self, mock_report_view,
+    @patch("evaluation_system.EvaluationSystemOrchestrator.EvaluationReportModel")
+    def test_evaluate_creates_evaluation_report(self, mock_report_model,
                                                 mock_labels_buffer, mock_receiver):
         """Test Evaluate method creates evaluation report correctly."""
         mock_receiver_instance = mock_receiver.return_value
         mock_labels_buffer_instance = mock_labels_buffer.return_value
-        mock_report_view_instance = mock_report_view.return_value
+        mock_report_model_instance = mock_report_model.return_value
 
         EvaluationSystemParameters.loadParameters("..")
 
@@ -85,7 +85,7 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
         orchestrator.Evaluate()
 
         # Check that the evaluation report was created
-        mock_report_view_instance.create_evaluation_report.assert_called_once_with(
+        mock_report_model_instance.create_evaluation_report.assert_called_once_with(
             [{"uuid": "0", "movements": 0, "expert": False}],
             [{"uuid": "0", "movements": 0, "expert": True}],
             EvaluationSystemParameters.TOTAL_ERRORS,

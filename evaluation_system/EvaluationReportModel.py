@@ -6,14 +6,14 @@ from evaluation_system.Label import Label
 from evaluation_system.EvaluationReport import EvaluationReport
 import json
 
-class EvaluationReportView:
+class EvaluationReportModel:
     """
     Creates and saves to a json file the evaluation report of the Evaluation System.
     """
 
     def __init__(self, basedir: str = "."):
         """
-        Initialize the EvaluationReportView with an evaluation report id.
+        Initialize the EvaluationReportModel with an evaluation report id.
 
         :param basedir: Base directory of the Evaluation System.
         """
