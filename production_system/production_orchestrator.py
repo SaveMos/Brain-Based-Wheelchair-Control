@@ -71,15 +71,16 @@ class ProductionOrchestrator:
             elif message['ip'] == "Preparation" :
                 #classify operation
                 print("Prepared session received")
-                prepared_session_json = message['message']
+                ps_json = message['message']
                 # validation of json schema
                 schemas_path = "production_schema/PreparedSessionSchema.json"
-                result = handler.validate_json(prepared_session_json, schemas_path)
+                result = handler.validate_json(ps_json, schemas_path)
                 if result is False:
                     continue
 
+                ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_tetha_band'], ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
                 #convert prepared session json in python object
-                prepared_session = PreparedSession(prepared_session_json['uuid'], prepared_session_json['features'])
+                prepared_session = PreparedSession(ps_json['uuid'], ps_features)
 
                 label = self._classification.classify(prepared_session)
 
