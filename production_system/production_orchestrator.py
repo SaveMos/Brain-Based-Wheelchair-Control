@@ -1,8 +1,11 @@
+from cgitb import handler
+
 from production_system.configuration_parameters import ConfigurationParameters
 from production_system.classifier_deployment import ClassifierDeployment
-from production_system.production_system_io import ProductionSystemIO
+from production_system.production_system_communication import ProductionSystemIO
 from production_system.classification import Classification
 from production_system.json_handler import JsonHandler
+from production_system.classifier import Classifier
 from production_system.label import Label
 import sys
 import json
@@ -42,9 +45,11 @@ class ProductionOrchestrator:
             message = self._prod_sys_io.get_last_message()
             handler = JsonHandler()
 
-            # da capire come arriva il classifier
+
             if message['ip'] == "Develop" :
-                classifier = message['message']
+
+                msg_json = message['message']
+                classifier = Classifier(msg_json['num_iteration'], msg_json['num_layers'], msg_json['num_neurons'], msg_json['test_error'], msg_json['validation_error'], msg_json['training_error'])
                 deployment = ClassifierDeployment()
                 deployment.deploy(classifier)
 
