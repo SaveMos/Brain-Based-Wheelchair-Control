@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "properties": {
+    "layers": {
+      "type": "object",
+      "properties": {
+        "min_layers": { "type": "integer" },
+        "max_layers": { "type": "integer" },
+        "step_layers": { "type": "integer" }
+      },
+      "required": ["min_layers", "max_layers", "step_layers"]
+    },
+    "neurons": {
+      "type": "object",
+      "properties": {
+        "min_neurons": { "type": "integer" },
+        "max_neurons": { "type": "integer" },
+        "step_neurons": { "type": "integer" }
+      },
+      "required": ["min_neurons", "max_neurons", "step_neurons"]
+    },
+    "tolerance": {
+      "type": "object",
+      "properties": {
+        "overfitting_tolerance": { "type": "number" },
+        "generalization_tolerance": { "type": "number" }
+      },
+      "required": ["overfitting_tolerance", "generalization_tolerance"]
+    }
+  },
+  "required": ["layers", "neurons", "tolerance"]
+}

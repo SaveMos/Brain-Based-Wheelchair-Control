@@ -4,6 +4,7 @@ import joblib
 
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
+from development_system.validation_report import ValidationReport
 
 
 class ValidationReportModel:
@@ -15,6 +16,7 @@ class ValidationReportModel:
 
     def generate_validation_report(self, classifiers: List[Classifier]):
         """Generate the validation report."""
+        validation_report = ValidationReport()
         # Assuming at least 5 classifiers
         for i in range(1, 6):
 
@@ -37,6 +39,7 @@ class ValidationReportModel:
             joblib.dump(top_classifier, "data/classifier" + str(i) + ".sav")
             classifiers.remove(top_classifier)
 
-        validation_report = {'report': self.top_5_classifiers,
-                             'overfitting_tolerance': ConfigurationParameters.overfitting_tolerance,}
+        validation_report.set_validation_report(self.top_5_classifiers)
+        validation_report.set_overfitting_tolerance(ConfigurationParameters.overfitting_tolerance)
+        #validation_report = {'report': self.top_5_classifiers, 'overfitting_tolerance': ConfigurationParameters.overfitting_tolerance,}
         return validation_report
