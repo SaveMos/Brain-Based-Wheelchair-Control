@@ -5,7 +5,7 @@ from evaluation_system.LabelsBuffer import LabelsBuffer
 from evaluation_system.LabelReceiver_and_ConfigurationSender import LabelReceiver_and_ConfigurationSender
 import json
 import jsonschema
-from evaluation_system.EvaluationReportView import EvaluationReportView
+from evaluation_system.EvaluationReportModel import EvaluationReportModel
 import os
 
 class EvaluationSystemOrchestrator:
@@ -27,8 +27,7 @@ class EvaluationSystemOrchestrator:
 
         self.labels_buffer = LabelsBuffer()
         self.labelReceiver_and_configurationSender = LabelReceiver_and_ConfigurationSender(basedir=self.basedir)
-        self.evaluation_report_view = EvaluationReportView(self.basedir)
-
+        self.evaluation_report_model = EvaluationReportModel(self.basedir)
 
 
     def _get_classifier_evaluation(self) -> (bool, dict or None):
@@ -52,7 +51,6 @@ class EvaluationSystemOrchestrator:
                 return True, data
         except:
             return False, None
-
 
 
     def Evaluate(self):
@@ -93,9 +91,9 @@ class EvaluationSystemOrchestrator:
                 expert_labels = self.labels_buffer.get_expert_labels(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
 
                 # Create the evaluation report
-                self.evaluation_report_view.create_evaluation_report(classifier_labels, expert_labels,
-                                                                     EvaluationSystemParameters.TOTAL_ERRORS,
-                                                                     EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS)
+                self.evaluation_report_model.create_evaluation_report(classifier_labels, expert_labels,
+                                                                      EvaluationSystemParameters.TOTAL_ERRORS,
+                                                                      EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS)
 
                 # Remove the labels
                 self.labels_buffer.delete_labels(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
