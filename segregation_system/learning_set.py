@@ -106,3 +106,36 @@ class LearningSet:
         if not isinstance(value, list) or not all(isinstance(item, PreparedSession) for item in value):
             raise ValueError("test_set must be a list of PreparedSession objects.")
         self._test_set = value
+
+    def to_dict(self) -> dict:
+        """
+        Converts the LearningSet instance into a dictionary.
+
+        Returns:
+            dict: A dictionary representation of the LearningSet.
+        """
+        return {
+            "training_set": [session.to_dictionary() for session in self._training_set],
+            "validation_set": [session.to_dictionary() for session in self._validation_set],
+            "test_set": [session.to_dictionary() for session in self._test_set],
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'LearningSet':
+        """
+        Creates a LearningSet instance from a dictionary.
+
+        Args:
+            data (dict): A dictionary containing the learning set data.
+
+        Returns:
+            LearningSet: A new instance of LearningSet.
+        """
+        if not isinstance(data, dict):
+            raise ValueError("Input data must be a dictionary.")
+
+        return cls(
+            training_set=[PreparedSession.from_dictionary(session) for session in data["training_set"]],
+            validation_set=[PreparedSession.from_dictionary(session) for session in data["validation_set"]],
+            test_set=[PreparedSession.from_dictionary(session) for session in data["test_set"]],
+        )

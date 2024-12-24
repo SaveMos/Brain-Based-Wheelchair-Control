@@ -63,9 +63,8 @@ class SegregationSystemOrchestrator:
             # Create a MessageBroker instance to send and receive messages.
             message_broker = MessageBroker()
 
-            new_prepared_session = PreparedSession("0", [], "")
+            new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
             # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
-            new_prepared_session.from_dict(message_broker.get_last_message())
 
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
@@ -161,7 +160,7 @@ class SegregationSystemOrchestrator:
             network_info = json_handler.get_system_address("../global_netconf.json", "Development System")
 
             # Send the learning sets to the Development System.
-            message_broker.send_message(network_info.get("ip"), network_info.get("port"), learning_sets)
+            message_broker.send_message(network_info.get("ip"), network_info.get("port"), JsonHandler.dict_to_string(learning_sets.to_dict()))
 
 
 

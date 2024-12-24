@@ -1,0 +1,80 @@
+import unittest
+from segregation_system.learning_set import LearningSet
+from segregation_system.prepared_session import PreparedSession
+
+class TestLearningSet(unittest.TestCase):
+    def setUp(self):
+        """
+        Sets up test data for the tests.
+        """
+        self.training_sessions = [
+            PreparedSession("1", [0.1, 0.2, 0.3, 0.4, "activity1", "environment1"], "label1"),
+            PreparedSession("2", [0.5, 0.6, 0.7, 0.8, "activity2", "environment2"], "label2")
+        ]
+        self.validation_sessions = [
+            PreparedSession("3", [0.9, 1.0, 1.1, 1.2, "activity3", "environment3"], "label3")
+        ]
+        self.test_sessions = [
+            PreparedSession("4", [1.3, 1.4, 1.5, 1.6, "activity4", "environment4"], "label4")
+        ]
+        self.learning_set = LearningSet(
+            self.training_sessions,
+            self.validation_sessions,
+            self.test_sessions
+        )
+
+    def test_to_dict(self):
+        """
+        Tests the to_dict method of the LearningSet class.
+        """
+        learning_set_dict = self.learning_set.to_dict()
+
+        # Assert dictionary structure
+        self.assertIn("training_set", learning_set_dict, "The dictionary should contain 'training_set'.")
+        self.assertIn("validation_set", learning_set_dict, "The dictionary should contain 'validation_set'.")
+        self.assertIn("test_set", learning_set_dict, "The dictionary should contain 'test_set'.")
+
+        # Assert correct serialization of training sessions
+        self.assertEqual(len(learning_set_dict["training_set"]), len(self.training_sessions),
+                         "The number of training sessions in the dictionary should match.")
+
+        for i, session in enumerate(learning_set_dict["training_set"]):
+            self.assertEqual(session["uuid"], self.training_sessions[i].uuid, "UUID mismatch.")
+            self.assertEqual(session["psd_alpha_band"], self.training_sessions[i].features[0], "Alpha band mismatch.")
+            self.assertEqual(session["psd_beta_band"], self.training_sessions[i].features[1], "Beta band mismatch.")
+            self.assertEqual(session["psd_theta_band"], self.training_sessions[i].features[2], "Theta band mismatch.")
+            self.assertEqual(session["psd_delta_band"], self.training_sessions[i].features[3], "Delta band mismatch.")
+            self.assertEqual(session["activity"], self.training_sessions[i].features[4], "Activity mismatch.")
+            self.assertEqual(session["environment"], self.training_sessions[i].features[5], "Environment mismatch.")
+            self.assertEqual(session["label"], self.training_sessions[i].label, "Label mismatch.")
+
+        print(learning_set_dict)
+
+    def test_from_dict(self):
+        """
+        Tests the from_dict method of the LearningSet class.
+        """
+        # Convert the LearningSet to a dictionary
+        learning_set_dict = self.learning_set.to_dict()
+
+        # Create a new LearningSet from the dictionary
+        new_learning_set = LearningSet.from_dict(learning_set_dict)
+
+        # Assert that the new LearningSet matches the original one
+        self.assertEqual(len(new_learning_set.training_set), len(self.learning_set.training_set),
+                         "The number of training sessions in the reconstructed LearningSet should match.")
+        self.assertEqual(len(new_learning_set.validation_set), len(self.learning_set.validation_set),
+                         "The number of validation sessions in the reconstructed LearningSet should match.")
+        self.assertEqual(len(new_learning_set.test_set), len(self.learning_set.test_set),
+                         "The number of test sessions in the reconstructed LearningSet should match.")
+
+        # Assert equality of each session
+        for i in range(len(new_learning_set.training_set)):
+            self.assertEqual(new_learning_set.training_set[i], self.learning_set.training_set[i],
+                             f"Training session {i} does not match after reconstruction.")
+        for i in range(len(new_learning_set.validation_set)):
+            self.assertEqual(new_learning_set.validation_set[i], self.learning_set.validation_set[i],
+                             f"Validation session {i} does not match after reconstruction.")
+        for i in range(len(new_learning_set.test_set)):
+            self.assertEqual(new_learning_set.test_set[i], self.learning_set.test_set[i],
+                             f"Test session {i} does not match after reconstruction.")

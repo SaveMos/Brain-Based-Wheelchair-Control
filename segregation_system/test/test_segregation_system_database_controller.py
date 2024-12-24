@@ -12,14 +12,13 @@ class TestSegregationSystemDatabaseController(TestCase):
     def setUp(self):
         """Set up the database controller and mock the database manager."""
         self.db_controller = SegregationSystemDatabaseController()
-        self.test_data = generate_random_prepared_session_object().to_dictionary()
+        self.prepared_session = generate_random_prepared_session_object()
+        self.test_data =  self.prepared_session.to_dictionary()
 
 
     def test_store_prepared_session(self):
         """Test if the store_prepared_session method stores data correctly."""
         # Prepare the data to store
-
-
         num = self.db_controller.get_number_of_prepared_session_stored()
 
         # Call the method
@@ -30,6 +29,20 @@ class TestSegregationSystemDatabaseController(TestCase):
         self.db_controller.remove_prepared_session(self.test_data["uuid"])
 
         self.assertEqual(num + 1, num_next)
+
+    def test_retrieve_prepared_session(self):
+        """Test if a PreparedSession is correctly retrieved."""
+        self.db_controller.initialize_prepared_session_database()
+        self.db_controller.store_prepared_session(self.test_data)
+
+        all_prepared_sessions = self.db_controller.get_all_prepared_sessions()
+
+        res = (all_prepared_sessions[0] == self.prepared_session)
+
+        self.db_controller.reset_session_database()
+
+        assert res
+
 
     def test_initialize_prepared_session_database(self):
         """Test if the initialize_prepared_session_database method creates the table."""

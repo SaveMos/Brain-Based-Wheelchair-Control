@@ -155,5 +155,23 @@ class TestJsonHandler(unittest.TestCase):
         if os.path.exists("invalid_data.json"):
             os.remove("invalid_data.json")
 
+    def test_dict_to_string(self):
+        dict_str = self.handler.dict_to_string(self.sample_data)
+
+        dict_from_str = self.handler.string_to_dict(dict_str)
+
+        self.assertEqual(dict_from_str, self.sample_data)
+
+    def test_string_to_dict(self):
+        dict_from_str = self.handler.string_to_dict('''{
+        "name": "Mario",
+        "age": 30,
+        "hobby": [
+            "sport",
+            "cooking"
+        ]
+    }''')
+        self.assertEqual(dict_from_str, self.sample_data)
+
 if __name__ == "__main__":
     unittest.main()

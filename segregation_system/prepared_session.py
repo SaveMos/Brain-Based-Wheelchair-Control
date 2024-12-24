@@ -28,6 +28,22 @@ class PreparedSession:
         self._features = features
         self._label = label
 
+    def __eq__(self, other: object) -> bool:
+        """
+        Checks if two PreparedSession instances are equal by comparing their uuid, features, and label.
+
+        Args:
+            other (object): The object to compare with.
+
+        Returns:
+            bool: True if the objects are equal, False otherwise.
+        """
+        if not isinstance(other, PreparedSession):
+            return False
+        return (self._uuid == other._uuid and
+                self._features == other._features and
+                self._label == other._label)
+
     # Getter and setter for uuid
     @property
     def uuid(self) -> str:
@@ -71,36 +87,37 @@ class PreparedSession:
         """Sets a new list of labels for the session."""
         self._label = value
 
-    def from_dict(self, data: dict):
+
+    @staticmethod
+    def from_dictionary(data: dict) -> "PreparedSession":
         """
-        Take the values from a dictionary and put them into the Object.
+        Creates a PreparedSession object from a dictionary.
 
         Args:
             data (dict): A dictionary containing keys `uuid`, `psd_alpha_band`, `psd_beta_band`,
                          `psd_theta_band`, `psd_delta_band`, `activity`, `environment`, and `label`.
 
         Returns:
-            Nothing.
+            PreparedSession: A new PreparedSession object.
 
         Raises:
             KeyError: If required keys are missing in the dictionary.
             ValueError: If the data types of values do not match the expected types.
         """
         try:
-            # Assign the values from the dictionary to the object's attributes
-            self._uuid = data['uuid']
+            uuid = data['uuid']
             alpha = data['psd_alpha_band']
             beta = data['psd_beta_band']
             theta = data['psd_theta_band']
             delta = data['psd_delta_band']
             activity = data['activity']
             environment = data['environment']
-            self._label = data['label']
+            label = data['label']
         except KeyError as e:
             raise KeyError(f"Missing key in input dictionary: {e}")
 
-        # Validate the types
-        if not isinstance(self._uuid, str):
+        # Validate types
+        if not isinstance(uuid, str):
             raise ValueError("uuid must be a string.")
         if not all(isinstance(x, (float, int)) for x in [alpha, beta, theta, delta]):
             raise ValueError("PSD bands must be floats or integers.")
@@ -108,13 +125,11 @@ class PreparedSession:
             raise ValueError("activity must be a string.")
         if not isinstance(environment, str):
             raise ValueError("environment must be a string.")
-        if not isinstance(self._label, str):
+        if not isinstance(label, str):
             raise ValueError("label must be a string.")
 
-        # Construct the feature tuple (4 floats + 2 strings) and assign to self._features
-        self._features = [
-            alpha, beta, theta, delta, activity, environment
-        ]
+        # Create and return the PreparedSession object
+        return PreparedSession(uuid, [alpha, beta, theta, delta, activity, environment], label)
 
     def to_dictionary(self) -> dict:
         """

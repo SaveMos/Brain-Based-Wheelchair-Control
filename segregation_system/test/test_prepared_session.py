@@ -29,8 +29,7 @@ class TestPreparedSession(unittest.TestCase):
         """
         Test the from_dict method to ensure it correctly initializes an object from a dictionary.
         """
-        new_session = PreparedSession('', [], '')  # Start with empty values
-        new_session.from_dict(self.test_data)
+        new_session = PreparedSession.from_dictionary(self.test_data)
 
         # Check if the session object has been correctly initialized
         self.assertEqual(new_session._uuid, self.test_data['uuid'])
