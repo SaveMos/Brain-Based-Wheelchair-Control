@@ -30,12 +30,10 @@ class Classification:
 
         # convert features in Data Frame
         features_struct = {
-            'PSD_alpha_band': prepared_session.features[0],
-            'PSD_beta_band': prepared_session.features[1],
-            'PSD_theta_band': prepared_session.features[2],
-            'PSD_delta_band': prepared_session.features[3],
-            'activity': prepared_session.features[4],
-            'environment': prepared_session.features[5]
+            'PSD_alpha_band': [prepared_session.features[0]],
+            'PSD_beta_band': [prepared_session.features[1]],
+            'PSD_theta_band': [prepared_session.features[2]],
+            'PSD_delta_band': [prepared_session.features[3]]
         }
 
         features = pd.DataFrame(features_struct)
@@ -48,8 +46,7 @@ class Classification:
 if __name__ == "__main__":
     data = {"uuid": "001", "PSD_alpha_band": 0.8, "PSD_beta_band": 0.7, "PSD_theta_band": 0.9, "PSD_delta_band": 0.6,
             "activity": 4, "environment": 2}
-    features = [data["PSD_alpha_band"], data["PSD_beta_band"], data["PSD_theta_band"], data["PSD_delta_band"],
-                data["activity"], data["environment"]]
+    features = [data["PSD_alpha_band"], data["PSD_beta_band"], data["PSD_theta_band"], data["PSD_delta_band"]]
     ps = PreparedSession(data['uuid'], features)
 
     instance = Classification()
