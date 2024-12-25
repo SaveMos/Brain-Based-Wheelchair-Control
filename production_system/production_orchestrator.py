@@ -102,3 +102,8 @@ class ProductionOrchestrator:
                 serv_cl_port = ConfigurationParameters.SERVICE_CLASS_PORT
                 print("Send label to service class")
                 self._prod_sys_io.send_message(serv_cl_ip, serv_cl_port, label_json)
+
+if __name__ == "__main__":
+    prod = ProductionOrchestrator(False)
+    prod.production()
+

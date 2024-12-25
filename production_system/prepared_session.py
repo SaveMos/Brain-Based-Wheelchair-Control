@@ -4,6 +4,7 @@
 from typing import List
 
 
+
 class PreparedSession:
     """
         Data object class to represent the prepared session used by production system
@@ -51,3 +52,10 @@ class PreparedSession:
             value (List[float]): The new list of features.
         """
         self._features = value
+
+if __name__ == "__main__":
+    data = {"uuid": "001", "PSD_alpha_band": 1.5, "PSD_beta_band": 0.5, "PSD_theta_band": 0.25, "PSD_delta_band": 2.25, "activity": 4, "enviroment": 2}
+    features = [data["PSD_alpha_band"], data["PSD_beta_band"], data["PSD_theta_band"], data["PSD_delta_band"], data["activity"], data["enviroment"]]
+    ps = PreparedSession(data['uuid'], features)
+    print(ps.uuid)
+    print(ps.features)

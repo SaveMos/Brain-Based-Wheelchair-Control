@@ -1,9 +1,13 @@
+import numpy as np
+from sklearn.neural_network import MLPClassifier
 
-class Classifier:
+class Classifier(MLPClassifier):
     """
         Data object class to represent a classifier used in Production System
     """
     def __init__(self, num_iteration: int, num_layers: int, num_neurons: int, test_error: int, validation_error: int, training_error: int):
+        super(Classifier, self).__init__()
+
         self._num_iteration = num_iteration
         self._num_layers = num_layers
         self._num_neurons = num_neurons
