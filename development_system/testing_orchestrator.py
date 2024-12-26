@@ -54,19 +54,27 @@ class TestingOrchestrator:
         #print("loss curve:", network.get_loss_curve())
         #print("------------------------------------")
 
-        test_data = self.json_handler.read_json_file("intermediate_results/dataset_split.json")
+        test_data = self.json_handler.read_json_file("data/test_set.json")
 
         # Estrazione del test set
-        test_set = test_data["validation_set"]
+        test_set = test_data["test_set"]
 
         # Creazione del DataFrame da test_set
         test_data = pd.DataFrame([
-            {"features": record["features"], "label": record["label"]}
+            {"psd_alpha_band": record["psd_alpha_band"],
+             "psd_beta_band": record["psd_beta_band"],
+             "psd_theta_band": record["psd_theta_band"],
+             "psd_delta_band": record["psd_delta_band"],
+             # "activity": record["activity"],
+             # "environment": record["environment"],
+             "label": record["label"]}
+
             for record in test_set
         ])
 
         # Separazione delle caratteristiche (X) e delle etichette (y)
-        test_features = pd.DataFrame(test_data["features"].to_list())
+        #test_features = pd.DataFrame(test_data["features"].to_list())
+        test_features = test_data.drop(columns=["label"])
         test_labels = test_data["label"]
 
         true_labels = []

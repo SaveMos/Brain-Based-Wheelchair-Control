@@ -5,7 +5,7 @@ from development_system.development_system_message_broker import DevelopmentSyst
 from development_system.testing_orchestrator import TestingOrchestrator
 from development_system.training_orchestrator import TrainingOrchestrator
 from development_system.validation_orchestrator import ValidationOrchestrator
-
+from segregation_system.prepared_session import PreparedSession
 
 class DevelopmentSystemOrchestrator:
     """Orchestrates the development system process."""
@@ -60,7 +60,9 @@ class DevelopmentSystemOrchestrator:
                 #IMPLEMENTARE IL SALVATAGGIO DEI TRE SET IN TRE FILE JSON DIFFERENTI
                 # Simulation of the reception of the learning set, to change in future
                 json_handler1 = JsonHandler()
-                json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
+                learning_set = json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
+                json_handler1.print_learning_set(learning_set)
+                json_handler1.save_learning_set(learning_set)
 
 
             # SET AVERAGE HYPERPARAMETERS

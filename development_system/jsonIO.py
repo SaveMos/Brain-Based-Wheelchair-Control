@@ -9,7 +9,7 @@ class JsonHandler:
         A class to read and save file json
     """
 
-    def create_learning_set_from_json(self, json_file_path: str) -> LearningSet:
+    def json_to_learning_set(self, json_file_path: str) -> LearningSet:
         """
         Convert a JSON file in a LearningSet obgect.
 
@@ -41,37 +41,103 @@ class JsonHandler:
 
         return learning_set
 
-    def save_learning_set(self, learning_set: LearningSet, json_file_path: str):
+    import json
+    from typing import List
+    from segregation_system.prepared_session import PreparedSession
+    from segregation_system.learning_set import LearningSet
+
+    def create_learning_set_from_json(self, json_file_path: str) -> LearningSet:
         """
-        Save a LearningSet object into a JSON file.
+        Converts a JSON file to a LearningSet object.
 
         Args:
-            learning_set (LearningSet): The LearningSet instance to save.
-            json_file_path (str): The path to the JSON file.
+            json_file_path (str): Path to the JSON file containing the data.
+
+        Returns:
+            LearningSet: An instance of the LearningSet class populated with the data from the JSON file.
+
+        Raises:
+            FileNotFoundError: If the JSON file does not exist.
+            KeyError: If required keys are missing in the JSON data.
+            ValueError: If the data types do not match the expected structure.
         """
+        try:
+            with open(json_file_path, 'r') as file:
+                data = json.load(file)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"File not found: {e}")
 
-        # Helper function to serialize a list of PreparedSession
-        def serialize_sessions(session_list):
-            return [
-                {
-                    "sessionID": session.sessionID,
-                    "features": session.features,
-                    "label": session.label
-                } for session in session_list
-            ]
+        # Helper function to convert a dictionary to a PreparedSession object
+        def dict_to_prepared_session(session_dict: dict) -> PreparedSession:
+            try:
+                uuid = session_dict['uuid']
+                label = session_dict['label']
+                features = [
+                    (
+                        session_dict['psd_alpha_band'],
+                        session_dict['psd_beta_band'],
+                        session_dict['psd_theta_band'],
+                        session_dict['psd_delta_band'],
+                        session_dict['activity'],
+                        session_dict['environment'],
+                    )
+                ]
+                return PreparedSession(uuid=uuid, features=features, label=label)
+            except KeyError as e:
+                raise KeyError(f"Missing key in session dictionary: {e}")
 
-        # Serialization of the dataset
-        data = {
-            "training_set": serialize_sessions(learning_set.training_set),
-            "validation_set": serialize_sessions(learning_set.validation_set),
-            "test_set": serialize_sessions(learning_set.test_set)
-        }
+        # Convert each set in the JSON to a list of PreparedSession objects
+        training_set = [dict_to_prepared_session(session) for session in data.get('training_set', [])]
+        validation_set = [dict_to_prepared_session(session) for session in data.get('validation_set', [])]
+        test_set = [dict_to_prepared_session(session) for session in data.get('test_set', [])]
 
-        # Writing to the JSON file
-        with open(json_file_path, "w") as file:
-            json.dump(data, file, indent=4)
+        # Create and return the LearningSet object
+        return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
 
+    def save_learning_set(self, learning_set: LearningSet):
+        def session_to_dict(session: PreparedSession) -> dict:
+            return {
+                "uuid": session.uuid,
+                "label": session.label,
+                "psd_alpha_band": session.features[0][0],
+                "psd_beta_band": session.features[0][1],
+                "psd_theta_band": session.features[0][2],
+                "psd_delta_band": session.features[0][3],
+                "activity": session.features[0][4],
+                "environment": session.features[0][5]
+            }
 
+        training_data = [session_to_dict(session) for session in learning_set.training_set]
+        validation_data = [session_to_dict(session) for session in learning_set.validation_set]
+        test_data = [session_to_dict(session) for session in learning_set.test_set]
+
+        with open('data/training_set.json', 'w') as f:
+            json.dump({"training_set": training_data}, f, indent=4)
+
+        with open('data/validation_set.json', 'w') as f:
+            json.dump({"validation_set": validation_data}, f, indent=4)
+
+        with open('data/test_set.json', 'w') as f:
+            json.dump({"test_set": test_data}, f, indent=4)
+
+    def print_learning_set(self, learning_set: LearningSet):
+        def print_session(session: PreparedSession):
+            print(f"UUID: {session.uuid}")
+            print(f"Label: {session.label}")
+            print(f"Features: {session.features}")
+            print()
+
+        print("Training Set:")
+        for session in learning_set.training_set:
+            print_session(session)
+
+        print("Validation Set:")
+        for session in learning_set.validation_set:
+            print_session(session)
+
+        print("Test Set:")
+        for session in learning_set.test_set:
+            print_session(session)
 
     def read_configuration_parameters(self, filepath):
         """

@@ -1,0 +1,14 @@
+{
+    "validation_set": [
+        {
+            "uuid": "3",
+            "label": "label3",
+            "psd_alpha_band": 0.9,
+            "psd_beta_band": 1.0,
+            "psd_theta_band": 1.1,
+            "psd_delta_band": 1.2,
+            "activity": "activity3",
+            "environment": "environment3"
+        }
+    ]
+}
