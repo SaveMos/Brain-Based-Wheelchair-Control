@@ -58,3 +58,5 @@ class ValidationOrchestrator:
         print("validation report =", self.validation_report)
         # CHECK VALIDATION RESULT
         self.validation_report_view.show_validation_report(self.validation_report)
+        #it is useful only for testing the creation of validation report
+        return self.validation_report

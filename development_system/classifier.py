@@ -13,6 +13,7 @@ class Classifier(MLPClassifier):
         self.training_error = None
         self.validation_error = None
         self.test_error = None
+        self.early_stopping = False #it prevents the classifier to stop before the number of iterations
 
     def get_train_valid_error_difference(self):
         if self.get_validation_error() == 0:

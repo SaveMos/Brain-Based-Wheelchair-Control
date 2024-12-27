@@ -1,8 +1,3 @@
-import joblib
-
-from development_system.classifier import Classifier
-
-
 class TestReport:
     """Class representing the test report."""
 

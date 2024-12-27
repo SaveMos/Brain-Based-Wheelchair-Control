@@ -1,0 +1,7 @@
+{
+  "development_phase": false,
+  "missing_samples_correction": "interpolate",
+  "upper_bound": 0.99,
+  "lower_bound": 0.01,
+  "testing" : false
+}

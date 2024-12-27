@@ -41,19 +41,27 @@ class Trainer:
 
     def train(self, iterations, validation: bool = False):
         """Train the classifier."""
-        data = self.json_handler.read_json_file("intermediate_results/dataset_split.json")
+        data = self.json_handler.read_json_file("data/training_set.json")
 
         # Estrazione del training set
         training_set = data["training_set"]
 
         # Creazione del DataFrame da training_set
         training_data = pd.DataFrame([
-            {"features": record["features"], "label": record["label"]}
+            {"psd_alpha_band": record["psd_alpha_band"],
+            "psd_beta_band": record["psd_beta_band"],
+            "psd_theta_band": record["psd_theta_band"],
+            "psd_delta_band": record["psd_delta_band"],
+            #"activity": record["activity"],
+            #"environment": record["environment"],
+            "label": record["label"]}
+
             for record in training_set
         ])
 
         # Separazione delle caratteristiche (X) e delle etichette (y)
-        training_features = pd.DataFrame(training_data["features"].to_list())  # Convertiamo le liste in colonne
+        #training_features = pd.DataFrame(training_data["features"].to_list())  # Convertiamo le liste in colonne
+        training_features = training_data.drop(columns=["label"])
         training_labels = training_data["label"]
         data = self.json_handler.read_json_file("intermediate_results/average_hyperparams.json")
 
@@ -70,19 +78,26 @@ class Trainer:
         return self.classifier
 
     def validate(self):
-        data = self.json_handler.read_json_file("intermediate_results/dataset_split.json")
+        data = self.json_handler.read_json_file("data/validation_set.json")
 
         # Estrazione del validation set
         validation_set = data["validation_set"]
 
         # Creazione del DataFrame da validation_set
         validation_data = pd.DataFrame([
-            {"features": record["features"], "label": record["label"]}
+            {"psd_alpha_band": record["psd_alpha_band"],
+             "psd_beta_band": record["psd_beta_band"],
+             "psd_theta_band": record["psd_theta_band"],
+             "psd_delta_band": record["psd_delta_band"],
+              #"activity": record["activity"],
+             # "environment": record["environment"],
+             "label": record["label"]}
             for record in validation_set
         ])
 
         # Separazione delle caratteristiche (X) e delle etichette (y)
-        validation_features = pd.DataFrame(validation_data["features"].to_list())
+        #validation_features = pd.DataFrame(validation_data["features"].to_list())
+        validation_features = validation_data.drop(columns=["label"])
         validation_labels = validation_data["label"]
 
         true_labels = []

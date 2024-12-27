@@ -1,0 +1,36 @@
+{
+  "title": "PreparationSystemParameters",
+  "type": "object",
+  "required": [
+    "development_phase",
+    "missing_samples_correction",
+    "upper_bound",
+    "lower_bound",
+    "testing"
+  ],
+  "properties": {
+    "development_phase": {
+      "type": "boolean"
+    },
+    "missing_samples_correction": {
+      "type": "string",
+      "enum": [
+        "interpolate",
+        "copy_last_sample"
+      ]
+    },
+    "upper_bound": {
+      "type": "number",
+      "minimum": 0.01,
+      "maximum": 0.99
+    },
+    "lower_bound": {
+      "type": "number",
+      "minimum": 0.01,
+      "maximum": 0.99
+    },
+    "testing": {
+      "type": "boolean"
+    }
+  }
+}
