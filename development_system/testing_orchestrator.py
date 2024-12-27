@@ -109,3 +109,5 @@ class TestingOrchestrator:
 
         # CHECK TEST RESULT
         self.test_report_view.show_test_report(self.test_report)
+        #useful only for the test of the test report format
+        return self.test_report

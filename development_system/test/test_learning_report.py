@@ -1,14 +1,10 @@
 from unittest import TestCase
 
 import joblib
-import numpy as np
 
 from development_system.classifier import Classifier
 from development_system.learning_plot_model import LearningPlotModel
 from development_system.learning_plot_view import LearningPlotView
-from development_system.trainer import Trainer
-
-
 
 class TestTraining(TestCase):
     def test_generate_learning_report(self):
