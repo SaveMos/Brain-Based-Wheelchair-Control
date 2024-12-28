@@ -1,13 +1,48 @@
 import json
 from typing import Any
 
+from jsonschema import validate, ValidationError, SchemaError
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.learning_set import LearningSet
 from development_system.classifier import Classifier
+
 class JsonHandler:
     """
         A class to read and save file json
     """
+
+
+    @staticmethod
+    def validate_json(json_file: str, schema_file: str) -> bool:
+        """
+        Validate a JSON file against a JSON schema.
+
+        :param json_file: Path to the JSON file to validate.
+        :param schema_file: Path to the JSON schema file.
+        :return: True if the JSON is valid, False otherwise.
+        """
+        try:
+            # Load JSON data
+            with open(json_file, 'r') as jf:
+                json_data = json.load(jf)
+
+            # Load JSON schema
+            with open(schema_file, 'r') as sf:
+                json_schema = json.load(sf)
+
+            # Validate JSON against schema
+            validate(instance=json_data, schema=json_schema)
+            print("JSON is valid.")
+            return True
+
+        except ValidationError as e:
+            print(f"Validation Error: {e.message}")
+        except SchemaError as e:
+            print(f"Schema Error: {e.message}")
+        except Exception as e:
+            print(f"Error: {e}")
+
+        return False
 
     def json_to_learning_set(self, json_file_path: str) -> LearningSet:
         """
