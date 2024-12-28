@@ -4,12 +4,9 @@
     Author: Alessandro Ascani
 """
 import sys
-import json
-
 from production_system.configuration_parameters import ConfigurationParameters
-from production_system.classifier_deployment import ClassifierDeployment
 from production_system.production_system_communication import ProductionSystemIO
-from production_system.classification import Classification
+from production_system.classifier_controller import ClassifierController
 from production_system.json_validation import JsonHandler
 from production_system.classifier import Classifier
 from production_system.prepared_session import PreparedSession
@@ -29,7 +26,7 @@ class ProductionOrchestrator:
 
         self._configuration = ConfigurationParameters()
         self._prod_sys_io = ProductionSystemIO()
-        self._classification = Classification()
+        self._classifier_controller = ClassifierController()
 
         # configure parameters
         result = self._configuration.get_config_params()
@@ -58,15 +55,12 @@ class ProductionOrchestrator:
                 #convert json message in object class
                 msg_json = message['message']
                 classifier = Classifier(msg_json['num_iteration'], msg_json['num_layers'], msg_json['num_neurons'], msg_json['test_error'], msg_json['validation_error'], msg_json['training_error'])
-                deployment = ClassifierDeployment()
-                deployment.deploy(classifier)
+                self._classifier_controller.deploy(classifier)
 
                 # send start configuration to messaging system
                 print("Send start configuration")
-                msg_sys_ip = self._configuration.MESSAGING_SYSTEM_IP
-                msg_sys_port = self._configuration.MESSAGING_SYSTEM_PORT
                 config = self._configuration.start_config()
-                self._prod_sys_io.send_message(msg_sys_ip, msg_sys_port, config)
+                self._prod_sys_io.send_configuration(config)
 
             elif message['ip'] == "Preparation" :
                 #classify operation
@@ -82,28 +76,21 @@ class ProductionOrchestrator:
                 #convert prepared session json in python object
                 prepared_session = PreparedSession(ps_json['uuid'], ps_features)
 
-                label = self._classification.classify(prepared_session)
-
-                #convert label into json
-                label_dict = label.to_dictionary()
-
-                label_json = json.dumps(label_dict)
-
+                label = self._classifier_controller.classify(prepared_session)
 
                 #if evaluation phase parameter is true label is sent also to Evaluation System
                 if self._configuration.evaluation_phase:
                     eval_sys_ip = ConfigurationParameters.EVALUATION_SYSTEM_IP
                     eval_sys_port = ConfigurationParameters.EVALUATION_SYSTEM_PORT
                     print("Send label to evaluate session")
-                    self._prod_sys_io.send_message(eval_sys_ip, eval_sys_port, label_json)
+                    self._prod_sys_io.send_label(eval_sys_ip, eval_sys_port, label)
 
                 # Send label to client
                 serv_cl_ip = ConfigurationParameters.SERVICE_CLASS_IP
                 serv_cl_port = ConfigurationParameters.SERVICE_CLASS_PORT
                 print("Send label to service class")
-                self._prod_sys_io.send_message(serv_cl_ip, serv_cl_port, label_json)
+                self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
 
 if __name__ == "__main__":
     prod = ProductionOrchestrator(False)
     prod.production()
-

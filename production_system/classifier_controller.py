@@ -1,3 +1,6 @@
+"""
+Author: Alessandro Ascani
+"""
 import joblib
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
@@ -6,13 +9,22 @@ from production_system.prepared_session import PreparedSession
 
 
 
-class Classification:
+class ClassifierController:
     """
-     Class that executes the classify operation
+     Class that managing the classifier executing the deployment and classification operation
 
     """
     def __init__(self):
         self._classifier: MLPClassifier or None = None
+
+    @staticmethod
+    def deploy(classifier):
+        """
+        Saves the provided classifier in a .sav file
+        Args:
+            classifier: model of classifier to save
+        """
+        joblib.dump(classifier, "model/classifier.sav")
 
     def classify(self, prepared_session: PreparedSession):
         """
