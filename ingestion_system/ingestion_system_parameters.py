@@ -22,7 +22,7 @@ class Parameters:
 
         self.missing_samples_threshold_interval = 10
 
-        self.evaluation_phase = False #if True send label to evaluation system
+        self.evaluation_phase = True#if True send label to evaluation system
 
         self.load_parameters()  #try to load parameters from json
 
