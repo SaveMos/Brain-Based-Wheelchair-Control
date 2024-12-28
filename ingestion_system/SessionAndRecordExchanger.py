@@ -5,13 +5,14 @@ Handles JSON-based input and output operations for the ingestion system.
 from flask import Flask, request, jsonify
 import threading
 import requests
+from queue import Queue, Empty
 from typing import Optional, Dict
 
 class SessionAndRecordExchanger:
     """
     A utility class to enable inter-module communication using Flask.
 
-    This class supports sending and receiving messages in a blocking manner.
+    This class supports sending and receiving messages using a thread-safe queue.
     """
     def __init__(self, host: str = '0.0.0.0', port: int = 5000):
         """
@@ -23,10 +24,9 @@ class SessionAndRecordExchanger:
         self.app = Flask(__name__)
         self.host = host
         self.port = port
-        self.last_message = None
 
-        # Lock and condition for blocking behavior
-        self.message_condition = threading.Condition()
+        # Thread-safe queue for received messages
+        self.message_queue = Queue()
 
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
@@ -36,14 +36,15 @@ class SessionAndRecordExchanger:
             sender_port = data.get('port')
             message = data.get('message')
 
-            with self.message_condition:
-                self.last_message = {
-                    'ip': sender_ip,
-                    'port': sender_port,
-                    'message': message
-                }
-                # Notify any threads waiting for a message
-                self.message_condition.notify_all()
+            if not message:
+                return jsonify({"error": "Invalid message format"}), 400
+
+            # Add the message to the queue
+            self.message_queue.put({
+                'ip': sender_ip,
+                'port': sender_port,
+                'message': message
+            })
 
             return jsonify({"status": "received"}), 200
 
@@ -69,26 +70,22 @@ class SessionAndRecordExchanger:
             "message": message
         }
         try:
-            response = requests.post(url, json=payload)
+            response = requests.post(url, json=payload, timeout=5)
             if response.status_code == 200:
                 return response.json()
         except requests.RequestException as e:
             print(f"Error sending message: {e}")
         return None
 
-    def get_last_message(self, timeout: float = 5.0) -> Optional[Dict]:
+    def get_message(self, timeout: Optional[float] = None) -> Optional[Dict]:
         """
-        Wait for a message to be received and return it.
+        Retrieve a message from the queue, blocking if necessary.
 
-        :param timeout: Maximum time to wait for a message.
+        :param timeout: Maximum time to wait for a message (in seconds). None means wait indefinitely.
         :return: A dictionary containing the sender's IP, port, and the message content, or None if timed out.
         """
-        with self.message_condition:
-            if not self.message_condition.wait(timeout=timeout):
-                print("Timeout while waiting for a message.")
-                return None
-
-            message = self.last_message
-            self.last_message = None
-            return message
-
+        try:
+            return self.message_queue.get(timeout=timeout)
+        except Empty:
+            print("No messages received within the timeout period.")
+            return None

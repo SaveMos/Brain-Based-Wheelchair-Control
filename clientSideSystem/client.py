@@ -3,16 +3,16 @@ import time
 import json
 from threading import Thread
 
+from ingestion_system.SessionAndRecordExchanger import SessionAndRecordExchanger
 from . import TIME_START_PATH_PROD, TIME_START_PATH_DEV, TIME_END_PATH_PROD
 from .recordsender import RecordSender
-from utility.message_broker.message_broker import MessageBroker
 
 
 
-def client_receiver(communication: MessageBroker) -> None:
+def client_receiver(communication: SessionAndRecordExchanger) -> None:
     #waits for receiving messages from the ingestion system
     while True:
-        message = communication.get_last_message()
+        message = communication.get_message()
         print(message)
 
         ending_time = time.time()
@@ -31,7 +31,7 @@ class ClientSideOrchestrator:
 
     def __init__(self, csv_path):
         self.csv_path = csv_path
-        self.communication = MessageBroker(host='127.0.0.1', port=5000)
+        self.communication = SessionAndRecordExchanger(host='127.0.0.1', port=5000)
         self.is_testing_production = True  #da parametrizzare?
         self.time_period = 0.1 # delay between messages to ingestion
         self.uuid_list = []

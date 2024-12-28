@@ -63,12 +63,9 @@ class IngestionSystemOrchestrator:
         """
         Process a record through the ingestion workflow.
         """
-        i = 1
         while True:  # receive records iteratively
             try:
-                print(i)
-                i = i+1
-                message = self.json_io.get_last_message()  # Get record message
+                message = self.json_io.get_message()  # Get record message
                 #print("record ricevuto dall'ingestion proveniente dal client:", message)
 
                 # Debug: Verifica la struttura del messaggio
@@ -92,7 +89,6 @@ class IngestionSystemOrchestrator:
                 # if there is at least one None: not enough records
                 if None in stored_records:
                     continue
-                print("OK RAW SESSION COMPLETA")
 
                 # creates raw session
                 raw_session = self.session_preparation.create_raw_session(stored_records)
@@ -104,7 +100,6 @@ class IngestionSystemOrchestrator:
                 self.number_of_missing_samples, marked_raw_session = self.session_preparation.mark_missing_samples(
                     raw_session, None)
                 if self.number_of_missing_samples >= self.parameters.missing_samples_threshold_interval:
-                    print("MANCANZA DI SAMPLES")
                     continue  # do not send anything
 
                 # if in evaluation phase, sends labels to evaluation system
@@ -115,12 +110,10 @@ class IngestionSystemOrchestrator:
                     }
                     #print("json_label prima della conversione da dizionario a json ", label)
                     json_label = handler.convert_dictionary_to_json(label) #json
-                    print("invio al client il label")
                     self.json_io.send_message(target_ip="127.0.0.1", target_port=5013, message=json_label)
 
                 # sends raw sessions
                 json_raw_session = marked_raw_session.to_json()
-                print("invio al client la raw session")
                 self.json_io.send_message(target_ip="127.0.0.1", target_port=5012, message=json_raw_session)
 
             except Exception as e:
