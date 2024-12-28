@@ -2,6 +2,8 @@
 Module: raw_session
 This module represents a raw session composed of multiple records (3/4).
 """
+import json
+
 
 class RawSession:
     """
@@ -32,4 +34,18 @@ class RawSession:
         self.eeg_data = eeg_data
         self.activity = activity
 
+    def to_json(self):
+        """
+        Convert the instance attributes to a JSON string.
+
+        Returns:
+            str: JSON string representing the instance attributes.
+        """
+        return json.dumps({
+            "uuid": self.uuid,
+            "environment": self.environment,
+            "label": self.label,
+            "eeg_data": self.eeg_data,
+            "activity": self.activity
+        })
 

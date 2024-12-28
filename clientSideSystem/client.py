@@ -42,8 +42,10 @@ class ClientSideOrchestrator:
         sends a raw to the ingestion System
         :param current_row: row to send
         """
+        #print("il record prima dell'invio all'ingestion è:", current_row)
+        print("mando una row")
         json_row = json.dumps(current_row)
-        print("sto per inviare un record all'ingestion: ", json_row)
+        #print("il record modificato prima dell'invio all'ingestion: ", json_row)
 
         response = self.communication.send_message(target_ip='127.0.0.1', target_port=5001, message=json_row)
         if response is None:
@@ -65,10 +67,8 @@ class ClientSideOrchestrator:
 
 
         print("SENDING")
-
         #iterate over each record in the record_list
         for i, record in enumerate(record_sender.record_list):
-
             #check if the UUID has been already sent
             if record["value"]["UUID"] not in self.uuid_list:
                 #if it's new, it is added to uuid_list
@@ -99,6 +99,7 @@ class ClientSideOrchestrator:
             self._send_one_row(record)
             time.sleep(self.time_period)
 
+        print("ho finito di inviare i dati all'ingestion")
         #if it's not testing, wait for the end of receiving thread
         if not testing:
             receiver.join()

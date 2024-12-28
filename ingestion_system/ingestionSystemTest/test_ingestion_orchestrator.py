@@ -22,8 +22,10 @@ def run_client():
 
 def test_ingestion_system_orchestrator():
     # create receiver
-    receiver = MessageBroker("127.0.0.1", 5002)
-    label_receiver = MessageBroker("127.0.0.1", 5003)
+    receiver = MessageBroker(host='127.0.0.1', port=5012)
+    label_receiver = MessageBroker(host='127.0.0.1', port=5013)
+    receiver.start_server()
+    label_receiver.start_server()
 
     # Run the orchestrator
     ingestion_system = Process(target=run_orchestrator, args=())
@@ -41,13 +43,16 @@ def test_ingestion_system_orchestrator():
     num_labels = 8
     # waits for the sessions
     for i in range(num_sessions):
+        print("io preparation attendo messaggio da ingestion")
         message = receiver.get_last_message()
-        raw_session = json.loads(message["data"])
+        #print("io preparation messaggio ricevuto dall'ingestion: ", message)
+        raw_session = json.loads(message['message']) #convert to dictionary
+        #print("io preparation messaggio trasformato: ", message)
         raw_sessions.append(raw_session)
     # waits for labels
     for i in range(num_labels):
         message = label_receiver.get_last_message()
-        label = json.loads(message["data"])
+        label = json.loads(message['message'])
         labels.append(label)
 
     ingestion_system.terminate()

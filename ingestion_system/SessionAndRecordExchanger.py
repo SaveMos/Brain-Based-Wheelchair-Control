@@ -54,7 +54,7 @@ class SessionAndRecordExchanger:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
+    def send_message(self, target_ip: str, target_port: int, message) -> Optional[Dict]:
         """
         Send a message to a target module.
 

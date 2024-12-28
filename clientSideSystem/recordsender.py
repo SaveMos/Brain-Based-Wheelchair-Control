@@ -74,7 +74,6 @@ class RecordSender:
                  ...
             ]
             """
-
             #each message is added to the list
             self.record_list.append(message)
 

@@ -63,53 +63,24 @@ class IngestionSystemOrchestrator:
         """
         Process a record through the ingestion workflow.
         """
+        i = 1
         while True:  # receive records iteratively
             try:
-                print("ricevo record")
+                print(i)
+                i = i+1
                 message = self.json_io.get_last_message()  # Get record message
-                print("record ricevuto dall'ingestion proveniente dal client:", message)
-
-                if not message:
-                    print("No message received.")
-                    continue
+                #print("record ricevuto dall'ingestion proveniente dal client:", message)
 
                 # Debug: Verifica la struttura del messaggio
-                print(f"Message structure: {type(message)}, Content: {message}")
+                #print(f"Message structure: {type(message)}, Content: {message}")
 
-                if isinstance(message, str):
-                    # Prova a caricare il JSON se è una stringa
-                    try:
-                        message = json.loads(message)
-                    except json.JSONDecodeError as e:
-                        print(f"Error decoding JSON message: {e}")
-                        continue
-
-                # Debug: Verifica il contenuto del messaggio
-                print(f"Decoded message: {message}")
-
-                # Accedi alla chiave 'message'
-                if 'message' not in message:
-                    print("Key 'message' not found in message.")
-                    continue
-
-                record_message = message['message']
-                print("Processed record_message:", record_message)
-
+                record_message = message['message'] #json
                 handler = JsonHandler()
 
-                # Converte il JSON in dizionario
-                try:
-                    new_record = json.loads(record_message)
-                except Exception as e:
-                    print(f"Error converting record_message to dictionary: {e}")
-                    continue
+                new_record = json.loads(record_message) #dictionary
 
-                print("Converted record to dictionary:", new_record)
-
-                # Valida il record
                 is_valid = handler.validate_json(new_record, RECORD_SCHEMA_FILE_PATH)
                 if not is_valid:
-                    print(f"Invalid record received: {record_message}")
                     continue
 
                 # stores record
@@ -117,11 +88,11 @@ class IngestionSystemOrchestrator:
 
                 # retrieve records
                 stored_records = self.buffer_controller.get_records(new_record["value"]["UUID"])
-                print("Stored records:", stored_records)
 
                 # if there is at least one None: not enough records
                 if None in stored_records:
                     continue
+                print("OK RAW SESSION COMPLETA")
 
                 # creates raw session
                 raw_session = self.session_preparation.create_raw_session(stored_records)
@@ -133,6 +104,7 @@ class IngestionSystemOrchestrator:
                 self.number_of_missing_samples, marked_raw_session = self.session_preparation.mark_missing_samples(
                     raw_session, None)
                 if self.number_of_missing_samples >= self.parameters.missing_samples_threshold_interval:
+                    print("MANCANZA DI SAMPLES")
                     continue  # do not send anything
 
                 # if in evaluation phase, sends labels to evaluation system
@@ -141,15 +113,15 @@ class IngestionSystemOrchestrator:
                         "uuid": marked_raw_session.uuid,
                         "label": marked_raw_session.label
                     }
-
-                    json_label = handler.convert_dictionary_to_json(label)
-                    print("json_label da inviare al test ingestion: ", json_label)
-                    self.json_io.send_message(target_ip="127.0.0.1", target_port=5003, message=json_label)
+                    #print("json_label prima della conversione da dizionario a json ", label)
+                    json_label = handler.convert_dictionary_to_json(label) #json
+                    print("invio al client il label")
+                    self.json_io.send_message(target_ip="127.0.0.1", target_port=5013, message=json_label)
 
                 # sends raw sessions
-                json_raw_session = handler.convert_dictionary_to_json(vars(marked_raw_session))
-                print("json_raw_session da inviare al test ingestion: ", json_raw_session)
-                self.json_io.send_message(target_ip="127.0.0.1", target_port=5002, message=json_raw_session)
+                json_raw_session = marked_raw_session.to_json()
+                print("invio al client la raw session")
+                self.json_io.send_message(target_ip="127.0.0.1", target_port=5012, message=json_raw_session)
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")
