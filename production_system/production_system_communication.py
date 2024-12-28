@@ -4,7 +4,10 @@
 from flask import Flask, request, jsonify
 import threading
 import requests
+import json
 from typing import Optional, Dict
+from production_system.label import Label
+from production_system.configuration_parameters import ConfigurationParameters
 
 
 class ProductionSystemIO:
@@ -55,19 +58,49 @@ class ProductionSystemIO:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
+    def send_configuration(self, message: str) -> Optional[Dict]:
+        """
+        Send start configuration to messaging system.
+
+        :param message: The message to send (JSON string).
+        :return: The response from the target, if any.
+        """
+
+        # recover messaging system information
+        configuration = ConfigurationParameters()
+        msg_sys_ip = configuration.MESSAGING_SYSTEM_IP
+        msg_sys_port = configuration.MESSAGING_SYSTEM_PORT
+        url = f"http://{msg_sys_ip}:{msg_sys_port}/send"
+        payload = {
+            "port": self.port,
+            "message": message
+        }
+        try:
+            response = requests.post(url, json=payload)
+            if response.status_code == 200:
+                return response.json()
+        except requests.RequestException as e:
+            print(f"Error sending message: {e}")
+        return None
+
+    def send_label(self, target_ip: str, target_port: int, label: Label) -> Optional[Dict]:
         """
         Send a message to a target module.
 
         :param target_ip: The IP address of the target module.
         :param target_port: The port of the target module.
-        :param message: The message to send (typically a JSON string).
+        :param label: The label to send.
         :return: The response from the target, if any.
         """
+
+        # convert label into json
+        label_dict = label.to_dictionary()
+
+        label_json = json.dumps(label_dict)
         url = f"http://{target_ip}:{target_port}/send"
         payload = {
             "port": self.port,
-            "message": message
+            "message": label_json
         }
         try:
             response = requests.post(url, json=payload)
