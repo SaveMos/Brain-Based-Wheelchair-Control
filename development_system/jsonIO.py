@@ -1,4 +1,6 @@
 import json
+import pandas as pd
+
 from typing import Any
 
 from jsonschema import validate, ValidationError, SchemaError
@@ -316,6 +318,52 @@ class JsonHandler:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             return None
+
+    @staticmethod
+    def extract_features_and_labels(data_set, set_type):
+        """
+        Estrae features e labels da un set di dati.
+
+        Args:
+            data_set (dict): Un dizionario contenente un set di dati (ad es. "test_set").
+            set_type (str): Type da dizionario contenente un set.
+
+        Returns:
+            list: Una lista contenente due elementi:
+                  - features (pd.DataFrame): Un DataFrame con le caratteristiche.
+                  - labels (pd.Series): Una Serie con le etichette.
+        """
+        # Dizionari di mappatura
+        activity_mapping = {"shopping": 0, "sport": 1, "cooking": 2, "relax": 3, "gaming": 4}
+
+        environment_mapping = {"slippery": 0, "plain": 1, "slope": 2, "house": 3, "track": 4}
+
+
+        # Estrazione del test set dal dizionario
+        current_set = data_set[set_type]
+
+        # Creazione del DataFrame dai record del test set
+        current_data = pd.DataFrame([
+            {
+                "psd_alpha_band": record["psd_alpha_band"],
+                "psd_beta_band": record["psd_beta_band"],
+                "psd_theta_band": record["psd_theta_band"],
+                "psd_delta_band": record["psd_delta_band"],
+                "activity": activity_mapping.get(record["activity"], -1),  # Valore di default -1 se non trovato
+                "environment": environment_mapping.get(record["environment"], -1),  # Valore di default -1 se non trovato
+                "label": record["label"]
+            }
+            for record in current_set
+        ])
+
+        # Separazione delle caratteristiche (features) e delle etichette (labels)
+        #features = pd.DataFrame(data["features"].to_list())
+        features = current_data.drop(columns=["label"])
+        labels = current_data["label"]
+
+        # Restituzione di un vettore di due elementi
+        return [features, labels]
+
 
 # Example to test the class
 if __name__ == "__main__":

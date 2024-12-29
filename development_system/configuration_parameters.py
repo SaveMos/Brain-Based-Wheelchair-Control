@@ -18,8 +18,9 @@ class ConfigurationParameters:
     def load_configuration():
         """Load configuration parameters from a JSON file."""
         read_conf = JsonHandler()  # instance of JsonHandler class
+        read_conf.validate_json("conf/development_parameters.json", "schemas/development_parameters_schema.json")
         filepath = "conf/development_parameters.json"
-        params = {}
+
         params = read_conf.read_configuration_parameters(filepath)
 
         ConfigurationParameters.min_layers = params["min_layers"]

@@ -1,6 +1,6 @@
 {
-  "Start": 0,
-  "IterationCheck": 1,
+  "Start": 1,
+  "IterationCheck": 0,
   "Validation" : 0,
   "ClassifierCheck" : 0,
   "GenerateTest": 0,

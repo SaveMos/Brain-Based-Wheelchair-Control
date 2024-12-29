@@ -3,9 +3,9 @@
         {
             "index": 1,
             "num_iterations": 150,
-            "validation_error": 0.6599212523579977,
-            "training_error": 0.6988246157162413,
-            "difference": -0.05895152371474031,
+            "validation_error": 0.00011896767018076656,
+            "training_error": 0.005011491255613248,
+            "difference": -41.12481633033991,
             "num_layers": 22,
             "num_neurons": 12,
             "network_complexity": 264
@@ -13,9 +13,9 @@
         {
             "index": 2,
             "num_iterations": 150,
-            "validation_error": 0.6602506697843101,
-            "training_error": 0.6989636069387579,
-            "difference": -0.05863369614921327,
+            "validation_error": 0.00427699813452526,
+            "training_error": 0.022889973493759243,
+            "difference": -4.351878297300215,
             "num_layers": 22,
             "num_neurons": 12,
             "network_complexity": 264
@@ -23,9 +23,9 @@
         {
             "index": 3,
             "num_iterations": 150,
-            "validation_error": 0.6678828710405904,
-            "training_error": 0.6991958794277028,
-            "difference": -0.04688398182502473,
+            "validation_error": 0.20130968488602083,
+            "training_error": 0.10687192340856612,
+            "difference": 0.46911683126881976,
             "num_layers": 22,
             "num_neurons": 12,
             "network_complexity": 264
@@ -33,9 +33,9 @@
         {
             "index": 4,
             "num_iterations": 150,
-            "validation_error": 0.669471264639094,
-            "training_error": 0.6987763551647104,
-            "difference": -0.043773485246472045,
+            "validation_error": 0.6531291513078129,
+            "training_error": 0.700166716211472,
+            "difference": -0.0720187803736397,
             "num_layers": 22,
             "num_neurons": 12,
             "network_complexity": 264
@@ -43,9 +43,9 @@
         {
             "index": 5,
             "num_iterations": 150,
-            "validation_error": 0.6741641379180184,
-            "training_error": 0.6990264740606846,
-            "difference": -0.036878758071360915,
+            "validation_error": 0.6531459205105722,
+            "training_error": 0.7000677570070437,
+            "difference": -0.07183974518250401,
             "num_layers": 22,
             "num_neurons": 12,
             "network_complexity": 264

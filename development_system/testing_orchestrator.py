@@ -24,6 +24,7 @@ class TestingOrchestrator:
 
     def test(self):
         """ """
+        self.json_handler.validate_json("intermediate_results/winner_network.json", "schemas/winner_network_schema.json")
         data = self.json_handler.read_json_file("intermediate_results/winner_network.json")
         classifier_index = data["index"]
         self.winner_network: Classifier = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
@@ -54,8 +55,11 @@ class TestingOrchestrator:
         #print("loss curve:", network.get_loss_curve())
         #print("------------------------------------")
 
+        self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
         test_data = self.json_handler.read_json_file("data/test_set.json")
 
+        result = self.json_handler.extract_features_and_labels(test_data, "test_set")
+        """
         # Estrazione del test set
         test_set = test_data["test_set"]
 
@@ -65,8 +69,8 @@ class TestingOrchestrator:
              "psd_beta_band": record["psd_beta_band"],
              "psd_theta_band": record["psd_theta_band"],
              "psd_delta_band": record["psd_delta_band"],
-             # "activity": record["activity"],
-             # "environment": record["environment"],
+             "activity": record["activity"],
+             "environment": record["environment"],
              "label": record["label"]}
 
             for record in test_set
@@ -76,6 +80,9 @@ class TestingOrchestrator:
         #test_features = pd.DataFrame(test_data["features"].to_list())
         test_features = test_data.drop(columns=["label"])
         test_labels = test_data["label"]
+        """
+        test_features = result[0]
+        test_labels = result[1]
 
         true_labels = []
         for label in test_labels:

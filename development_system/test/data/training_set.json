@@ -7,8 +7,8 @@
             "psd_beta_band": 0.2,
             "psd_theta_band": 0.3,
             "psd_delta_band": 0.4,
-            "activity": "activity1",
-            "environment": "environment1"
+            "activity": "relax",
+            "environment": "house"
         },
         {
             "uuid": "2",
@@ -17,8 +17,8 @@
             "psd_beta_band": 0.6,
             "psd_theta_band": 0.7,
             "psd_delta_band": 0.8,
-            "activity": "activity2",
-            "environment": "environment2"
+            "activity": "gaming",
+            "environment": "track"
         }
     ]
 }

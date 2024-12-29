@@ -35,6 +35,7 @@ class DevelopmentSystemOrchestrator:
 
         json_handler = JsonHandler()
         # Read the responses of the user for the stop and go
+        json_handler.validate_json("responses/user_responses.json", "schemas/user_responses_schema.json")
         user_responses = json_handler.read_json_file("responses/user_responses.json")
         print("Start: ", user_responses["Start"])
 
@@ -60,6 +61,7 @@ class DevelopmentSystemOrchestrator:
                 #IMPLEMENTARE IL SALVATAGGIO DEI TRE SET IN TRE FILE JSON DIFFERENTI
                 # Simulation of the reception of the learning set, to change in future
                 json_handler1 = JsonHandler()
+                json_handler1.validate_json("intermediate_results/dataset_split.json", "schemas/dataset_split_schema.json")
                 learning_set = json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
                 json_handler1.print_learning_set(learning_set)
                 json_handler1.save_learning_set(learning_set)
@@ -97,6 +99,7 @@ class DevelopmentSystemOrchestrator:
             # SEND CONFIGURATION
 
             # Retrieve ip address and port of the target system
+            self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
             endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
 
             # Create a MessageBroker instance and start the server
@@ -109,6 +112,7 @@ class DevelopmentSystemOrchestrator:
             # SEND CLASSIFIER
 
             # Retrieve ip address and port of the target system
+            self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
             endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
 
             # Create a MessageBroker instance and start the server

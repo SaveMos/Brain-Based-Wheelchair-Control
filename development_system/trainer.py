@@ -18,6 +18,7 @@ class Trainer:
 
     def read_number_iterations(self):
         """Set the number of iterations."""
+        self.json_handler.validate_json("intermediate_results/iterations.json", "schemas/iterations_schema.json")
         data=self.json_handler.read_json_file("intermediate_results/iterations.json")
         iterations =  data["iterations"]
         return iterations
@@ -32,6 +33,7 @@ class Trainer:
         print("avg_neurons: ", avg_neurons)
 
         #save the values in the file so that can be used after the stop
+        self.json_handler.validate_json("intermediate_results/average_hyperparams.json", "schemas/average_hyperparams_schema.json")
         self.json_handler.save_average_hyperparams(avg_neurons, avg_layers, "intermediate_results/average_hyperparams.json")
 
     def set_hyperparameters(self, num_layers: int, num_neurons: int):
@@ -41,8 +43,11 @@ class Trainer:
 
     def train(self, iterations, validation: bool = False):
         """Train the classifier."""
-        data = self.json_handler.read_json_file("data/training_set.json")
+        self.json_handler.validate_json("data/training_set.json","schemas/generic_set_schema.json")
+        training_data = self.json_handler.read_json_file("data/training_set.json")
 
+        result = self.json_handler.extract_features_and_labels(training_data, "training_set")
+        """
         # Estrazione del training set
         training_set = data["training_set"]
 
@@ -63,6 +68,11 @@ class Trainer:
         #training_features = pd.DataFrame(training_data["features"].to_list())  # Convertiamo le liste in colonne
         training_features = training_data.drop(columns=["label"])
         training_labels = training_data["label"]
+         """
+        training_features = result[0]
+        training_labels = result[1]
+
+        self.json_handler.validate_json("intermediate_results/average_hyperparams.json","schemas/average_hyperparams_schema.json")
         data = self.json_handler.read_json_file("intermediate_results/average_hyperparams.json")
 
         self.classifier.set_num_neurons(data["avg_neurons"])
@@ -78,8 +88,11 @@ class Trainer:
         return self.classifier
 
     def validate(self):
-        data = self.json_handler.read_json_file("data/validation_set.json")
+        self.json_handler.validate_json("data/validation_set.json", "schemas/generic_set_schema.json")
+        validation_data = self.json_handler.read_json_file("data/validation_set.json")
 
+        result = self.json_handler.extract_features_and_labels(validation_data, "validation_set")
+        """
         # Estrazione del validation set
         validation_set = data["validation_set"]
 
@@ -99,6 +112,9 @@ class Trainer:
         #validation_features = pd.DataFrame(validation_data["features"].to_list())
         validation_features = validation_data.drop(columns=["label"])
         validation_labels = validation_data["label"]
+        """
+        validation_features = result[0]
+        validation_labels = result[1]
 
         true_labels = []
         for label in validation_labels:
