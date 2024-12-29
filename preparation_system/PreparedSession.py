@@ -1,4 +1,4 @@
-class RawSession:
+class PreparedSession:
     """
     Represents a raw session, which aggregates records and stores session data.
 
@@ -10,19 +10,15 @@ class RawSession:
         label (str): Label for evaluation purposes.
     """
 
-    def __init__(self, uuid, environment, eeg_data, activity, label=None):
+    def __init__(self, uuid, features, label=None):
         """
         Initialize a raw session instance.
 
         Args:
             uuid (str): Unique session identifier.
-            environment (str): Session environment.
-            eeg_data (list): EEG data samples.
-            activity(str): Recorded activity.
+            features(np.ndarray): extracted features
             label (str, optional): Label for evaluation. Defaults to None.
         """
         self.uuid = uuid
-        self.environment = environment
-        self.eeg_data = eeg_data
-        self.activity = activity
+        self.features = features
         self.label = label

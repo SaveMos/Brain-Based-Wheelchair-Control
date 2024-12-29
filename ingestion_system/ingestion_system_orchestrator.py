@@ -106,7 +106,7 @@ class IngestionSystemOrchestrator:
                 if self.parameters.evaluation_phase:
                     label = {
                         "uuid": marked_raw_session.uuid,
-                        "label": marked_raw_session.label
+                        "movements": marked_raw_session.label
                     }
                     #print("json_label prima della conversione da dizionario a json ", label)
                     json_label = handler.convert_dictionary_to_json(label) #json

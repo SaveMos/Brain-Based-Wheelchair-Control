@@ -85,7 +85,7 @@ class SessionAndRecordExchanger:
         :return: A dictionary containing the sender's IP, port, and the message content, or None if timed out.
         """
         try:
-            return self.message_queue.get(timeout=timeout)
+            return self.message_queue.get(timeout=timeout, block=True)
         except Empty:
             print("No messages received within the timeout period.")
             return None
