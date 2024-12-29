@@ -6,7 +6,8 @@
 import sys
 from production_system.configuration_parameters import ConfigurationParameters
 from production_system.production_system_communication import ProductionSystemIO
-from production_system.classifier_controller import ClassifierController
+from production_system.classification import Classification
+from production_system.deployment import Deployment
 from production_system.json_validation import JsonHandler
 from production_system.classifier import Classifier
 from production_system.prepared_session import PreparedSession
@@ -26,7 +27,7 @@ class ProductionOrchestrator:
 
         self._configuration = ConfigurationParameters()
         self._prod_sys_io = ProductionSystemIO()
-        self._classifier_controller = ClassifierController()
+
 
         # configure parameters
         result = self._configuration.get_config_params()
@@ -55,7 +56,8 @@ class ProductionOrchestrator:
                 #convert json message in object class
                 msg_json = message['message']
                 classifier = Classifier(msg_json['num_iteration'], msg_json['num_layers'], msg_json['num_neurons'], msg_json['test_error'], msg_json['validation_error'], msg_json['training_error'])
-                self._classifier_controller.deploy(classifier)
+                deployment = Deployment()
+                deployment.deploy(classifier)
 
                 # send start configuration to messaging system
                 print("Send start configuration")
@@ -76,7 +78,8 @@ class ProductionOrchestrator:
                 #convert prepared session json in python object
                 prepared_session = PreparedSession(ps_json['uuid'], ps_features)
 
-                label = self._classifier_controller.classify(prepared_session)
+                classification = Classification()
+                label = classification.classify(prepared_session)
 
                 #if evaluation phase parameter is true label is sent also to Evaluation System
                 if self._configuration.evaluation_phase:
