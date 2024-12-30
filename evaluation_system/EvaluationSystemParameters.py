@@ -23,6 +23,7 @@ class EvaluationSystemParameters:
     # Global parameters
     GLOBAL_PARAMETERS_PATH = "../global_netconf.json"
     GLOBAL_PARAMETERS_SCHEMA_PATH = "../global_netconf_schema.json"
+    EVALUATION_SYSTEM_PORT = None
     INGESTION_SYSTEM_IP = None
     PRODUCTION_SYSTEM_IP = None
     MESSAGING_SYSTEM_IP = None
@@ -55,6 +56,7 @@ class EvaluationSystemParameters:
                 data = json.load(global_parameters)
 
                 if EvaluationSystemParameters._validate_json(data, "global", basedir):
+                    EvaluationSystemParameters.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]
                     EvaluationSystemParameters.INGESTION_SYSTEM_IP = data["Ingestion System"]["ip"]
                     EvaluationSystemParameters.PRODUCTION_SYSTEM_IP = data["Production System"]["ip"]
                     EvaluationSystemParameters.MESSAGING_SYSTEM_IP = data["Messaging System"]["ip"]
