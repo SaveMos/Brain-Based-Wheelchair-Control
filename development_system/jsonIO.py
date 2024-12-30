@@ -204,6 +204,7 @@ class JsonHandler:
             params["step_neurons"] = neurons.get('step_neurons')
             params["overfitting_tolerance"] = tolerance.get('overfitting_tolerance')
             params["generalization_tolerance"] = tolerance.get('generalization_tolerance')
+            params["service_flag"] = filecontent.get('service_flag')
 
             return params
 

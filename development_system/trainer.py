@@ -1,5 +1,6 @@
 import math
 
+import joblib
 from numpy import ravel
 import pandas as pd
 from sklearn.metrics import log_loss
@@ -31,10 +32,11 @@ class Trainer:
         avg_neurons = math.ceil((ConfigurationParameters.max_neurons + ConfigurationParameters.min_neurons) / 2)
         avg_layers = math.ceil((ConfigurationParameters.max_layers + ConfigurationParameters.min_layers) / 2)
         print("avg_neurons: ", avg_neurons)
-
+        self.classifier.set_num_neurons(avg_neurons)
+        self.classifier.set_num_layers(avg_layers)
         #save the values in the file so that can be used after the stop
-        self.json_handler.validate_json("intermediate_results/average_hyperparams.json", "schemas/average_hyperparams_schema.json")
-        self.json_handler.save_average_hyperparams(avg_neurons, avg_layers, "intermediate_results/average_hyperparams.json")
+        #self.json_handler.validate_json("intermediate_results/average_hyperparams.json", "schemas/average_hyperparams_schema.json")
+        #self.json_handler.save_average_hyperparams(avg_neurons, avg_layers, "intermediate_results/average_hyperparams.json")
 
     def set_hyperparameters(self, num_layers: int, num_neurons: int):
         """Set the hyperparameters."""
@@ -72,12 +74,18 @@ class Trainer:
         training_features = result[0]
         training_labels = result[1]
 
-        self.json_handler.validate_json("intermediate_results/average_hyperparams.json","schemas/average_hyperparams_schema.json")
-        data = self.json_handler.read_json_file("intermediate_results/average_hyperparams.json")
+        if not validation:
+            """
+                self.json_handler.validate_json("intermediate_results/average_hyperparams.json","schemas/average_hyperparams_schema.json")
+                data = self.json_handler.read_json_file("intermediate_results/average_hyperparams.json")
+                self.classifier.set_num_neurons(data["avg_neurons"])
+                self.classifier.set_num_layers(data["avg_layers"])
+            """
+            self.classifier =  joblib.load("data/classifier_trainer")
 
-        self.classifier.set_num_neurons(data["avg_neurons"])
-        self.classifier.set_num_layers(data["avg_layers"])
         self.classifier.set_num_iterations(iterations)
+        print("num neurons: ", self.classifier.get_num_neurons())
+        print("num layers: ", self.classifier.get_num_layers())
 
         # Train the classifier
         self.classifier.fit(x=training_features, y=ravel(training_labels))

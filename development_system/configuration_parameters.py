@@ -13,6 +13,7 @@ class ConfigurationParameters:
     step_neurons = None
     overfitting_tolerance = None
     generalization_tolerance = None
+    service_flag = None
 
     @staticmethod
     def load_configuration():
@@ -31,4 +32,5 @@ class ConfigurationParameters:
         ConfigurationParameters.step_neurons = params['step_neurons']
         ConfigurationParameters.overfitting_tolerance = params['overfitting_tolerance']
         ConfigurationParameters.generalization_tolerance = params['generalization_tolerance']
+        ConfigurationParameters.service_flag = params['service_flag']
 
