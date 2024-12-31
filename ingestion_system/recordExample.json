@@ -21,7 +21,7 @@
 },
 //calendar record:
 {
-  "source": "third_source",
+  "source": "calendar",
   "value": {
     "UUID": "a923-45b7-gh12-166",
     "VAR1": "shopping" //activity

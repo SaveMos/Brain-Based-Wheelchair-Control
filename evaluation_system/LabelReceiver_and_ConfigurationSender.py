@@ -19,7 +19,7 @@ class LabelReceiver_and_ConfigurationSender:
     Evaluation System module responsible for receiving labels and sending configuration.
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 8006, basedir: str = "."):
+    def __init__(self, host: str = '0.0.0.0', port: int = EvaluationSystemParameters.EVALUATION_SYSTEM_PORT, basedir: str = "."):
         """
         Initialize the Flask communication server.
 
@@ -125,21 +125,21 @@ class LabelReceiver_and_ConfigurationSender:
 
 
     # Testing method
-    def send_timestamp(self, timestamp: float, phase: str) -> bool:
+    def send_timestamp(self, timestamp: float, status: str) -> bool:
         """
         Send the timestamp to the Service Class.
 
         :param timestamp: The timestamp to send.
-        :param phase: The phase of the timestamp
+        :param status: The status of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
         url = f"http://{EvaluationSystemParameters.SERVICE_CLASS_IP}:\
-              {EvaluationSystemParameters.SERVICE_CLASS_PORT}/ServiceClass"
+              {EvaluationSystemParameters.SERVICE_CLASS_PORT}/Timestamp"
 
         timestamp_message = {
-            "system": "Evaluation System",
             "timestamp": timestamp,
-            "phase": phase
+            "system_name": "Evaluation System",
+            "status": status
         }
 
         try:

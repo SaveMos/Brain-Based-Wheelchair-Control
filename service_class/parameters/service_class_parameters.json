@@ -1,0 +1,6 @@
+{
+  "development_phase" : true,
+  "development_sessions" : 100,
+  "production_sessions" : 5000,
+  "evaluation_sessions" : 50
+}

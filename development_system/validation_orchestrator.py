@@ -1,6 +1,8 @@
 import copy
 import itertools
 
+import joblib
+
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.trainer import Trainer
@@ -18,16 +20,22 @@ class ValidationOrchestrator:
         self.validation_report_model = ValidationReportModel()
         self.validation_report_view = ValidationReportView()
         self.config_params = ConfigurationParameters()
+        self.service_flag = None
 
     def validation(self):    # It performs the grid search and generates the validation report
         """ """
+        # load the configurations
+        self.config_params.load_configuration()
+        self.service_flag = self.config_params.service_flag
+
         # Grid Search
         classifier_trainer = Trainer()
-        iterations = classifier_trainer.read_number_iterations()
-        #classifier_trainer.set_num_iterations(num_iterations)
-
-        #load the configurations
-        self.config_params.load_configuration()
+        if self.service_flag:
+            iterations = classifier_trainer.read_number_iterations()
+            # classifier_trainer.set_num_iterations(num_iterations)
+        else:
+            classifier = joblib.load("data/classifier_trainer")
+            iterations = classifier.get_num_iterations()
 
         # Compute all possible combinations of hyperparameters
         layers = []

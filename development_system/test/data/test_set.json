@@ -7,8 +7,8 @@
             "psd_beta_band": 1.4,
             "psd_theta_band": 1.5,
             "psd_delta_band": 1.6,
-            "activity": "activity4",
-            "environment": "environment4"
+            "activity": "relax",
+            "environment": "track"
         }
     ]
 }

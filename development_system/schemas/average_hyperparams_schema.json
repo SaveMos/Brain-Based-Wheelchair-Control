@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "avg_neurons": { "type": "integer" },
+    "avg_layers": { "type": "integer" }
+  },
+  "required": ["avg_neurons", "avg_layers"],
+  "additionalProperties": false
+}

@@ -11,7 +11,7 @@ class Parameters:
     Loads and stores configuration parameters for the ingestion system.
     """
 
-    def __init__(self, filepath="config.json"):
+    def __init__(self):
         """
         Initialize parameters with default values or load from a configuration file.
         """

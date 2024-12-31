@@ -1,13 +1,50 @@
 import json
+import pandas as pd
+
 from typing import Any
 
+from jsonschema import validate, ValidationError, SchemaError
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.learning_set import LearningSet
 from development_system.classifier import Classifier
+
 class JsonHandler:
     """
         A class to read and save file json
     """
+
+
+    @staticmethod
+    def validate_json(json_file: str, schema_file: str) -> bool:
+        """
+        Validate a JSON file against a JSON schema.
+
+        :param json_file: Path to the JSON file to validate.
+        :param schema_file: Path to the JSON schema file.
+        :return: True if the JSON is valid, False otherwise.
+        """
+        try:
+            # Load JSON data
+            with open(json_file, 'r') as jf:
+                json_data = json.load(jf)
+
+            # Load JSON schema
+            with open(schema_file, 'r') as sf:
+                json_schema = json.load(sf)
+
+            # Validate JSON against schema
+            validate(instance=json_data, schema=json_schema)
+            print("JSON is valid.")
+            return True
+
+        except ValidationError as e:
+            print(f"Validation Error: {e.message}")
+        except SchemaError as e:
+            print(f"Schema Error: {e.message}")
+        except Exception as e:
+            print(f"Error: {e}")
+
+        return False
 
     def json_to_learning_set(self, json_file_path: str) -> LearningSet:
         """
@@ -167,6 +204,7 @@ class JsonHandler:
             params["step_neurons"] = neurons.get('step_neurons')
             params["overfitting_tolerance"] = tolerance.get('overfitting_tolerance')
             params["generalization_tolerance"] = tolerance.get('generalization_tolerance')
+            params["service_flag"] = filecontent.get('service_flag')
 
             return params
 
@@ -281,6 +319,52 @@ class JsonHandler:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             return None
+
+    @staticmethod
+    def extract_features_and_labels(data_set, set_type):
+        """
+        Estrae features e labels da un set di dati.
+
+        Args:
+            data_set (dict): Un dizionario contenente un set di dati (ad es. "test_set").
+            set_type (str): Type da dizionario contenente un set.
+
+        Returns:
+            list: Una lista contenente due elementi:
+                  - features (pd.DataFrame): Un DataFrame con le caratteristiche.
+                  - labels (pd.Series): Una Serie con le etichette.
+        """
+        # Dizionari di mappatura
+        activity_mapping = {"shopping": 0, "sport": 1, "cooking": 2, "relax": 3, "gaming": 4}
+
+        environment_mapping = {"slippery": 0, "plain": 1, "slope": 2, "house": 3, "track": 4}
+
+
+        # Estrazione del test set dal dizionario
+        current_set = data_set[set_type]
+
+        # Creazione del DataFrame dai record del test set
+        current_data = pd.DataFrame([
+            {
+                "psd_alpha_band": record["psd_alpha_band"],
+                "psd_beta_band": record["psd_beta_band"],
+                "psd_theta_band": record["psd_theta_band"],
+                "psd_delta_band": record["psd_delta_band"],
+                "activity": activity_mapping.get(record["activity"], -1),  # Valore di default -1 se non trovato
+                "environment": environment_mapping.get(record["environment"], -1),  # Valore di default -1 se non trovato
+                "label": record["label"]
+            }
+            for record in current_set
+        ])
+
+        # Separazione delle caratteristiche (features) e delle etichette (labels)
+        #features = pd.DataFrame(data["features"].to_list())
+        features = current_data.drop(columns=["label"])
+        labels = current_data["label"]
+
+        # Restituzione di un vettore di due elementi
+        return [features, labels]
+
 
 # Example to test the class
 if __name__ == "__main__":

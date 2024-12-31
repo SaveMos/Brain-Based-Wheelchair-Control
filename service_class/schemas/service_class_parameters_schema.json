@@ -1,0 +1,25 @@
+{
+  "title": "ServiceClassParameters",
+  "type": "object",
+  "required": [
+    "development_phase",
+    "development_sessions",
+    "production_sessions",
+    "evaluation_sessions"
+  ],
+  "properties": {
+    "development_phase": {
+      "type": "boolean"
+    },
+    "development_sessions": {
+      "type": "integer"
+    },
+    "production_sessions": {
+      "type": "integer"
+    },
+    "evaluation_sessions": {
+      "type": "integer"
+    }
+  }
+}
+
