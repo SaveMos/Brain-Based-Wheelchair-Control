@@ -92,10 +92,9 @@ class DevelopmentSystemOrchestrator:
                 set_average_hyperparams = False  # in this case, the average hyperparams are already setted
                 result = self.training_orchestrator.train_classifier(set_average_hyperparams)
                 if not orchestrator.get_testing():
-                    if result:
-                        for key in user_responses.keys():
-                            user_responses[key] = 0
-                        user_responses["Validation"] = 1
+                    for key in user_responses.keys():
+                        user_responses[key] = 0
+                    user_responses["Validation"] = 1
 
             elif user_responses["Validation"] == 1:
                 print("Validation")
@@ -103,13 +102,28 @@ class DevelopmentSystemOrchestrator:
                 # TRAIN               (loop)
                     # GENERATE VALIDATION REPORT
                     # CHECK VALIDATION RESULT
-                self.validation_orchestrator.validation()
+                result = self.validation_orchestrator.validation()
+
+                if not orchestrator.get_testing():
+                    for key in user_responses.keys():
+                        user_responses[key] = 0
+                    if result:
+                        user_responses["GenerateTest"] = 1
+                    else:
+                        user_responses["ClassifierCheck"] = 1
 
             elif user_responses["GenerateTest"] == 1:
                 print("GenerateTest")
                 # GENERATE TEST REPORT
                 # CHECK TEST RESULT
-                self.testing_orchestrator.test()
+                result = self.testing_orchestrator.test()
+
+                if not orchestrator.get_testing():
+                    for key in user_responses.keys():
+                        user_responses[key] = 0
+                    if result:
+                        user_responses["TestOK"] = 1
+
             elif user_responses["TestOK"] == 0:
                 print("TestNotOK")
                 # SEND CONFIGURATION
@@ -123,6 +137,8 @@ class DevelopmentSystemOrchestrator:
                 #self.response = dev_mess_broker.send_configuration(target_ip=endpoint["ip"], target_port=endpoint["port"])
                 #self.print("Response from Module Production System:", response)
 
+                break
+
             elif user_responses["TestOK"] == 1:
                 print("TestOK")
                 # SEND CLASSIFIER
@@ -135,6 +151,8 @@ class DevelopmentSystemOrchestrator:
                 #self.dev_mess_broker.start_server()
                 #response = self.dev_mess_broker.send_classifier(target_ip=endpoint["ip"], target_port=endpoint["port"], classifier_file="data/classifier.sav")
                 #print("Response from Module Production System:", response)
+
+                break
 
             # if testing is true, the loop must end
             if self.testing:

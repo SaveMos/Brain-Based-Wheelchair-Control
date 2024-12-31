@@ -81,7 +81,7 @@ class Trainer:
                 self.classifier.set_num_neurons(data["avg_neurons"])
                 self.classifier.set_num_layers(data["avg_layers"])
             """
-            self.classifier =  joblib.load("data/classifier_trainer")
+            self.classifier =  joblib.load("data/classifier_trainer.sav")
 
         self.classifier.set_num_iterations(iterations)
         print("num neurons: ", self.classifier.get_num_neurons())

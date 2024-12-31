@@ -1,8 +1,11 @@
+import random
+
 import joblib
 import pandas as pd
 from sklearn.metrics import log_loss
 
 from development_system.classifier import Classifier
+from development_system.configuration_parameters import ConfigurationParameters
 from development_system.jsonIO import JsonHandler
 from development_system.test_report import TestReport
 from development_system.test_report_model import TestReportModel
@@ -21,12 +24,19 @@ class TestingOrchestrator:
         self.test_report_model = TestReportModel()
         self.test_report_view = TestReportView()
         self.file_manager = Utils()
+        ConfigurationParameters.load_configuration()
+        # Assegnare il valore di service_flag alla proprietà di istanza
+        self.service_flag: bool = ConfigurationParameters.service_flag
 
     def test(self):
         """ """
-        self.json_handler.validate_json("intermediate_results/winner_network.json", "schemas/winner_network_schema.json")
-        data = self.json_handler.read_json_file("intermediate_results/winner_network.json")
-        classifier_index = data["index"]
+        if self.service_flag:
+            self.json_handler.validate_json("intermediate_results/winner_network.json", "schemas/winner_network_schema.json")
+            data = self.json_handler.read_json_file("intermediate_results/winner_network.json")
+            classifier_index = data["index"]
+        else:
+            classifier_index = random.randint(1, 5)
+
         self.winner_network: Classifier = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
 
         #print("OUTPUT CLASSIFIER NEL .SAV")
@@ -116,5 +126,15 @@ class TestingOrchestrator:
 
         # CHECK TEST RESULT
         self.test_report_view.show_test_report(self.test_report)
-        #useful only for the test of the test report format
-        return self.test_report
+
+
+        if self.service_flag:
+            # useful only for the test of the test report format
+            return self.test_report
+        else:
+            # restituisce true se il test è passato, false altrimenti
+            index = int(random.random() <= 0.99)
+            if index == 1:
+                return True
+            else:
+                return False

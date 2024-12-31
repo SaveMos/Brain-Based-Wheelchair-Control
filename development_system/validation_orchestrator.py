@@ -1,5 +1,6 @@
 import copy
 import itertools
+import random
 
 import joblib
 
@@ -32,9 +33,9 @@ class ValidationOrchestrator:
         classifier_trainer = Trainer()
         if self.service_flag:
             iterations = classifier_trainer.read_number_iterations()
-            # classifier_trainer.set_num_iterations(num_iterations)
+
         else:
-            classifier = joblib.load("data/classifier_trainer")
+            classifier = joblib.load("data/classifier_trainer.sav")
             iterations = classifier.get_num_iterations()
 
         # Compute all possible combinations of hyperparameters
@@ -66,5 +67,14 @@ class ValidationOrchestrator:
         print("validation report =", self.validation_report)
         # CHECK VALIDATION RESULT
         self.validation_report_view.show_validation_report(self.validation_report)
-        #it is useful only for testing the creation of validation report
-        return self.validation_report
+
+        if self.service_flag:
+            # it is useful only for testing the creation of validation report
+            return self.validation_report
+        else:
+            #restituisce true se tutti i classificatori nel report sono validi, se anche uno non è valido, false
+            index = int(random.random() <= 0.95)
+            if index == 0:  #5%
+                return False
+            else:
+                return True

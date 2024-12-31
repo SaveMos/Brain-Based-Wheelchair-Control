@@ -2,53 +2,53 @@
     "report": [
         {
             "index": 1,
-            "num_iterations": 150,
-            "validation_error": 2.0950274404309087e-05,
-            "training_error": 0.005717526382429636,
-            "difference": -271.9093792324575,
-            "num_layers": 20,
-            "num_neurons": 20,
-            "network_complexity": 400
-        },
-        {
-            "index": 2,
-            "num_iterations": 150,
-            "validation_error": 0.0013869295332215308,
-            "training_error": 0.005448890277057527,
-            "difference": -2.9287434195744315,
+            "num_iterations": 95,
+            "validation_error": 0.008343333629133955,
+            "training_error": 0.026021162531557167,
+            "difference": -2.118796836877562,
             "num_layers": 16,
             "num_neurons": 16,
             "network_complexity": 256
         },
         {
+            "index": 2,
+            "num_iterations": 95,
+            "validation_error": 0.23252021522241936,
+            "training_error": 0.2590272361995923,
+            "difference": -0.11399878050094432,
+            "num_layers": 12,
+            "num_neurons": 20,
+            "network_complexity": 240
+        },
+        {
             "index": 3,
-            "num_iterations": 150,
-            "validation_error": 0.0030285630372902024,
-            "training_error": 0.005295496961809585,
-            "difference": -0.7485179923967227,
+            "num_iterations": 95,
+            "validation_error": 0.2364114088141805,
+            "training_error": 0.24948623798983122,
+            "difference": -0.05530540696505704,
             "num_layers": 16,
             "num_neurons": 20,
             "network_complexity": 320
         },
         {
             "index": 4,
-            "num_iterations": 150,
-            "validation_error": 0.007078302987837689,
-            "training_error": 0.008663319314770306,
-            "difference": -0.2239260356127839,
-            "num_layers": 12,
-            "num_neurons": 20,
+            "num_iterations": 95,
+            "validation_error": 0.31910546555050867,
+            "training_error": 0.1692406580588538,
+            "difference": 0.46964036555473526,
+            "num_layers": 20,
+            "num_neurons": 12,
             "network_complexity": 240
         },
         {
             "index": 5,
-            "num_iterations": 150,
-            "validation_error": 0.018705933250744704,
-            "training_error": 0.10866711201697343,
-            "difference": -4.8092323200526375,
-            "num_layers": 12,
-            "num_neurons": 12,
-            "network_complexity": 144
+            "num_iterations": 95,
+            "validation_error": 0.38755525204853863,
+            "training_error": 0.7638328694944722,
+            "difference": -0.9709005760004701,
+            "num_layers": 28,
+            "num_neurons": 4,
+            "network_complexity": 112
         }
     ],
     "overfitting_tolerance": 0.2
