@@ -70,19 +70,19 @@ class EvaluationSystemParameters:
             print(f"Error loading parameters: {e}")
 
     @staticmethod
-    def _validate_json(json_parameters: dict, type: str, basedir: str = ".") -> bool:
+    def _validate_json(json_parameters: dict, param_type: str, basedir: str = ".") -> bool:
         """
         Validate JSON parameters read from a file.
 
         :param json_parameters: The JSON parameters to validate.
-        :param type: The type of the parameters (local or global).
+        :param param_type: The type of the parameters (local or global).
         :param basedir: The base directory from which to look for the different parameters files.
         :return: True if the JSON parameters are valid, False otherwise.
         """
 
-        if type == "local":
+        if param_type == "local":
             schema_path = f"{basedir}/{EvaluationSystemParameters.LOCAL_PARAMETERS_SCHEMA_PATH}"
-        elif type == "global":
+        elif param_type == "global":
             schema_path = f"{basedir}/{EvaluationSystemParameters.GLOBAL_PARAMETERS_SCHEMA_PATH}"
         else:
             return False
@@ -94,8 +94,8 @@ class EvaluationSystemParameters:
             jsonschema.validate(json_parameters, schema)
             return True
         except jsonschema.ValidationError as e:
-            if type == "local":
+            if param_type == "local":
                 print(f"Invalid local parameters: {e}")
-            elif type == "global":
+            elif param_type == "global":
                 print(f"Invalid global parameters: {e}")
             return False

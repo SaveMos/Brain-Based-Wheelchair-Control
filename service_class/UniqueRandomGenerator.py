@@ -1,5 +1,8 @@
-import random
+"""
+Author: Giovanni Ligato
+"""
 
+import random
 
 class UniqueRandomGenerator:
     def __init__(self, lower_bound, upper_bound):

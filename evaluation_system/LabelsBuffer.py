@@ -3,7 +3,7 @@ Author: Giovanni Ligato
 """
 
 import sqlite3
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple
 from evaluation_system.Label import Label
 
 class LabelsBuffer:

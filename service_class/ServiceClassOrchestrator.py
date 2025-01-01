@@ -1,7 +1,6 @@
 """
 Author: Giovanni Ligato
 """
-from traceback import print_tb
 
 from service_class.ServiceClassParameters import ServiceClassParameters
 from service_class.ServiceReceiver import ServiceReceiver

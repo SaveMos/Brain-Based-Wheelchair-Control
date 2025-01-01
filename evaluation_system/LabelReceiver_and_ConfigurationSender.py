@@ -3,15 +3,15 @@ Author: Giovanni Ligato
 """
 
 
-from flask import Flask, request, jsonify
+from typing import Optional, Dict
+import json
+import queue
 import threading
 import requests
-from typing import Optional, Dict
-import queue
 import jsonschema
+from flask import Flask, request, jsonify
 from evaluation_system.EvaluationSystemParameters import EvaluationSystemParameters
 from evaluation_system.Label import Label
-import json
 
 
 class LabelReceiver_and_ConfigurationSender:

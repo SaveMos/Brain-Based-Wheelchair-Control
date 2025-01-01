@@ -4,7 +4,6 @@ Author: Giovanni Ligato
 
 from flask import Flask, request, jsonify
 import threading
-import queue
 import jsonschema
 import json
 from service_class.ServiceClassParameters import ServiceClassParameters

@@ -1,12 +1,18 @@
+"""
+Author: Giovanni Ligato
+"""
+
+import os
 import random
 import time
-from evaluation_system.EvaluationSystemParameters import EvaluationSystemParameters
-from evaluation_system.LabelsBuffer import LabelsBuffer
-from evaluation_system.LabelReceiver_and_ConfigurationSender import LabelReceiver_and_ConfigurationSender
 import json
 import jsonschema
+
+from evaluation_system.EvaluationSystemParameters import EvaluationSystemParameters
+from evaluation_system.LabelReceiver_and_ConfigurationSender import LabelReceiver_and_ConfigurationSender
+from evaluation_system.LabelsBuffer import LabelsBuffer
 from evaluation_system.EvaluationReportModel import EvaluationReportModel
-import os
+
 
 class EvaluationSystemOrchestrator:
     """
@@ -49,7 +55,7 @@ class EvaluationSystemOrchestrator:
                     jsonschema.validate(data, schema)
 
                 return True, data
-        except:
+        except Exception:
             return False, None
 
 
