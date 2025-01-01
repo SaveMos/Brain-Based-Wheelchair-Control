@@ -2,7 +2,7 @@ from development_system.jsonIO import JsonHandler
 
 
 class ConfigurationParameters:
-    """Class representing configuration parameters."""
+    """Class representing configuration parameters of the development system."""
 
     """Initialize configuration parameters with default values."""
     min_layers = None

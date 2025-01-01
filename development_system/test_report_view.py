@@ -11,7 +11,21 @@ class TestReportView:
         self.json_handler = JsonHandler()
 
     def show_test_report(self, test_report: TestReport):
-        """ """
+        """
+        Displays and saves the test report.
+
+        This method creates a dictionary containing key metrics from the provided
+        `TestReport` instance, such as generalization tolerance, validation error,
+        test error, and the difference between validation and test errors. It then
+        saves this dictionary as a JSON file.
+
+        Args:
+            test_report (TestReport): An instance of `TestReport` containing the
+            metrics to be displayed and saved.
+
+        Returns:
+            None
+        """
         report = {'generalization_tolerance': ConfigurationParameters.generalization_tolerance,
                 'validation_error': test_report.get_validation_error(),
                 'test_error': test_report.get_test_error(),

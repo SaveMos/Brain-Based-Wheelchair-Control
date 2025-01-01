@@ -8,11 +8,11 @@ from segregation_system.prepared_session import PreparedSession
 from segregation_system.learning_set import LearningSet
 from development_system.classifier import Classifier
 
+
 class JsonHandler:
     """
         A class to read and save file json
     """
-
 
     @staticmethod
     def validate_json(json_file: str, schema_file: str) -> bool:
@@ -37,18 +37,18 @@ class JsonHandler:
             print("JSON is valid.")
             return True
 
-        except ValidationError as e:
-            print(f"Validation Error: {e.message}")
-        except SchemaError as e:
-            print(f"Schema Error: {e.message}")
-        except Exception as e:
-            print(f"Error: {e}")
+        except ValidationError as ex:
+            print(f"Validation Error: {ex.message}")
+        except SchemaError as ex:
+            print(f"Schema Error: {ex.message}")
+        except Exception as ex:
+            print(f"Error: {ex}")
 
         return False
-
-    def json_to_learning_set(self, json_file_path: str) -> LearningSet:
+    @staticmethod
+    def json_to_learning_set(json_file_path: str) -> LearningSet:
         """
-        Convert a JSON file in a LearningSet obgect.
+        Convert a JSON file in a LearningSet object.
 
         Args:
             json_file_path (str): The path to the JSON file.
@@ -58,16 +58,16 @@ class JsonHandler:
         """
         # Reading of the JSON
         with open(json_file_path, "r") as file:
-            data = json.load(file)
+            current_data = json.load(file)
 
         # Helper function to create a list of PreparedSession
         def parse_sessions(session_list):
             return [PreparedSession(**session_data) for session_data in session_list]
 
         # Parsing of the dataset
-        training_set = parse_sessions(data.get("training_set", []))
-        validation_set = parse_sessions(data.get("validation_set", []))
-        test_set = parse_sessions(data.get("test_set", []))
+        training_set = parse_sessions(current_data.get("training_set", []))
+        validation_set = parse_sessions(current_data.get("validation_set", []))
+        test_set = parse_sessions(current_data.get("test_set", []))
 
         # Creation of the LearningSet
         learning_set = LearningSet(
@@ -78,12 +78,8 @@ class JsonHandler:
 
         return learning_set
 
-    import json
-    from typing import List
-    from segregation_system.prepared_session import PreparedSession
-    from segregation_system.learning_set import LearningSet
-
-    def create_learning_set_from_json(self, json_file_path: str) -> LearningSet:
+    @staticmethod
+    def create_learning_set_from_json(json_file_path: str) -> LearningSet:
         """
         Converts a JSON file to a LearningSet object.
 
@@ -100,9 +96,9 @@ class JsonHandler:
         """
         try:
             with open(json_file_path, 'r') as file:
-                data = json.load(file)
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"File not found: {e}")
+                current_data = json.load(file)
+        except FileNotFoundError as ex:
+            raise FileNotFoundError(f"File not found: {ex}")
 
         # Helper function to convert a dictionary to a PreparedSession object
         def dict_to_prepared_session(session_dict: dict) -> PreparedSession:
@@ -120,19 +116,39 @@ class JsonHandler:
                     )
                 ]
                 return PreparedSession(uuid=uuid, features=features, label=label)
-            except KeyError as e:
-                raise KeyError(f"Missing key in session dictionary: {e}")
+            except KeyError as er:
+                raise KeyError(f"Missing key in session dictionary: {er}")
 
         # Convert each set in the JSON to a list of PreparedSession objects
-        training_set = [dict_to_prepared_session(session) for session in data.get('training_set', [])]
-        validation_set = [dict_to_prepared_session(session) for session in data.get('validation_set', [])]
-        test_set = [dict_to_prepared_session(session) for session in data.get('test_set', [])]
+        training_set = [dict_to_prepared_session(session) for session in current_data.get('training_set', [])]
+        validation_set = [dict_to_prepared_session(session) for session in current_data.get('validation_set', [])]
+        test_set = [dict_to_prepared_session(session) for session in current_data.get('test_set', [])]
 
         # Create and return the LearningSet object
         return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
 
-    def save_learning_set(self, learning_set: LearningSet):
+
+    @staticmethod
+    def save_learning_set(learning_set: LearningSet):
+        """
+           Saves the training, validation, and test sets of a LearningSet instance to JSON files.
+
+           Args:
+               learning_set (LearningSet): An instance containing training, validation, and test sets.
+
+           Returns:
+               None
+           """
         def session_to_dict(session: PreparedSession) -> dict:
+            """
+                Converts a PreparedSession object into a dictionary.
+
+                Args:
+                    session (PreparedSession): The session to convert.
+
+                Returns:
+                    dict: A dictionary representation of the session.
+            """
             return {
                 "uuid": session.uuid,
                 "label": session.label,
@@ -157,11 +173,31 @@ class JsonHandler:
         with open('data/test_set.json', 'w') as f:
             json.dump({"test_set": test_data}, f, indent=4)
 
-    def print_learning_set(self, learning_set: LearningSet):
-        def print_session(session: PreparedSession):
-            print(f"UUID: {session.uuid}")
-            print(f"Label: {session.label}")
-            print(f"Features: {session.features}")
+
+    @staticmethod
+    def print_learning_set(learning_set: LearningSet):
+        """
+           Prints the contents of the training, validation, and test sets in a LearningSet instance.
+
+           Args:
+               learning_set (LearningSet): An instance containing training, validation, and test sets.
+
+           Returns:
+               None
+        """
+        def print_session(current_session: PreparedSession):
+            """
+                Prints the details of a single PreparedSession.
+
+                Args:
+                    current_session (PreparedSession): The session whose details are to be printed.
+
+                Returns:
+                    None
+            """
+            print(f"UUID: {current_session.uuid}")
+            print(f"Label: {current_session.label}")
+            print(f"Features: {current_session.features}")
             print()
 
         print("Training Set:")
@@ -176,25 +212,27 @@ class JsonHandler:
         for session in learning_set.test_set:
             print_session(session)
 
-    def read_configuration_parameters(self, filepath):
+
+    @staticmethod
+    def read_configuration_parameters(filepath):
         """
-        Read a json file.
+        Read a json file that contains the parameters.
 
         Returns:
-            filecontent: content of json file.
+            file_content: content of json file.
 
         """
         """
-            dictionary that contains all the values of the configutation parameters
+            dictionary that contains all the values of the configure parameters
         """
         params = {}
         try:
             with open(filepath, "r") as f:
-                filecontent = json.load(f)
+                file_content = json.load(f)
 
-            layers = filecontent.get('layers', {})
-            neurons = filecontent.get('neurons', {})
-            tolerance = filecontent.get('tolerance', {})
+            layers = file_content.get('layers', {})
+            neurons = file_content.get('neurons', {})
+            tolerance = file_content.get('tolerance', {})
 
             params["min_layers"] = layers.get('min_layers')
             params["max_layers"] = layers.get('max_layers')
@@ -204,15 +242,17 @@ class JsonHandler:
             params["step_neurons"] = neurons.get('step_neurons')
             params["overfitting_tolerance"] = tolerance.get('overfitting_tolerance')
             params["generalization_tolerance"] = tolerance.get('generalization_tolerance')
-            params["service_flag"] = filecontent.get('service_flag')
+            params["service_flag"] = file_content.get('service_flag')
 
             return params
 
-        except Exception as e:
-            print("Error to read file at path " + filepath + ": " + e)
+        except Exception as ex:
+            print("Error to read file at path " + filepath + str(ex))
             return None
 
-    def save_average_hyperparams(self, avg_neurons, avg_layers, filepath):
+
+    @staticmethod
+    def save_average_hyperparams(avg_neurons, avg_layers, filepath):
         """
             Args:
                 avg_neurons: avg_neurons value to write into json file
@@ -222,39 +262,40 @@ class JsonHandler:
             Returns:
                 bool: True if the file is written successfully, False otherwise.
         """
-        # Struttura dei dati da scrivere nel file JSON
+
         data = {
             "avg_neurons": avg_neurons,
             "avg_layers": avg_layers
         }
 
         try:
-            # Scrittura nel file JSON
             with open(filepath, "w") as json_file:
                 json.dump(data, json_file, ensure_ascii=False, indent=4)
                 return True
         except Exception as e:
-            print("Error to save file at path " + filepath + ": " + e)
+            print("Error to save file at path " + filepath + ": " + str(e))
             return False
 
-    def read_json_file(self, filepath):
+    @staticmethod
+    def read_json_file(filepath):
         """
         Read a json file.
 
         Returns:
-            filecontent: content of json file.
+            file_content: content of json file.
 
         """
         try:
             with open(filepath, "r") as f:
-                filecontent = json.load(f)
-            return filecontent
+                file_content = json.load(f)
+            return file_content
 
         except Exception as e:
-            print("Error to read file at path " + filepath + ": " + e)
+            print("Error to read file at path " + filepath + ": " + str(e))
             return None
 
-    def write_json_file(self, data, filepath):
+    @staticmethod
+    def write_json_file(data, filepath):
         """
             Args:
                 data: data to write into json file
@@ -269,10 +310,11 @@ class JsonHandler:
                 json.dump(data, f, ensure_ascii=False, indent=4)
                 return True
         except Exception as e:
-            print("Error to save file at path " + filepath + ": " + e)
+            print("Error to save file at path " + filepath + ": " + str(e))
             return False
 
-    def read_winner_network(self, filepath):
+    @staticmethod
+    def read_winner_network(filepath):
         with open(filepath, 'r') as file:
             data = json.load(file)
 
@@ -323,65 +365,40 @@ class JsonHandler:
     @staticmethod
     def extract_features_and_labels(data_set, set_type):
         """
-        Estrae features e labels da un set di dati.
+        Extracts features and labels from a set of data.
 
         Args:
-            data_set (dict): Un dizionario contenente un set di dati (ad es. "test_set").
-            set_type (str): Type da dizionario contenente un set.
+            data_set (dict): A dictionary which contains a set of data (ex. "test_set").
+            set_type (str): Type of dictionary that contains a set.
 
         Returns:
-            list: Una lista contenente due elementi:
-                  - features (pd.DataFrame): Un DataFrame con le caratteristiche.
-                  - labels (pd.Series): Una Serie con le etichette.
+            list: A list containing two elements:
+                  - features (pd.DataFrame): A DataFrame with the characteristics.
+                  - labels (pd.Series): Series with the labels.
         """
-        # Dizionari di mappatura
+
         activity_mapping = {"shopping": 0, "sport": 1, "cooking": 2, "relax": 3, "gaming": 4}
 
         environment_mapping = {"slippery": 0, "plain": 1, "slope": 2, "house": 3, "track": 4}
 
-
-        # Estrazione del test set dal dizionario
         current_set = data_set[set_type]
 
-        # Creazione del DataFrame dai record del test set
         current_data = pd.DataFrame([
             {
                 "psd_alpha_band": record["psd_alpha_band"],
                 "psd_beta_band": record["psd_beta_band"],
                 "psd_theta_band": record["psd_theta_band"],
                 "psd_delta_band": record["psd_delta_band"],
-                "activity": activity_mapping.get(record["activity"], -1),  # Valore di default -1 se non trovato
-                "environment": environment_mapping.get(record["environment"], -1),  # Valore di default -1 se non trovato
+                "activity": activity_mapping.get(record["activity"], -1),  # Default value -1 if doesn't find
+                "environment": environment_mapping.get(record["environment"], -1),  # Default value -1 if doesn't find
                 "label": record["label"]
             }
             for record in current_set
         ])
 
-        # Separazione delle caratteristiche (features) e delle etichette (labels)
+        # Separation of the features and labels
         #features = pd.DataFrame(data["features"].to_list())
         features = current_data.drop(columns=["label"])
         labels = current_data["label"]
 
-        # Restituzione di un vettore di due elementi
         return [features, labels]
-
-
-# Example to test the class
-if __name__ == "__main__":
-    handler = JsonHandler()
-
-    # Writing a json file
-    data = {"name": "Mario", "age": 30, "hobby": ["sport", "coocking"]}
-    handler.write_json_file(data, "esempio.json")
-
-    # Reading a json file
-    try:
-        content = handler.read_json_file("esempio.json")
-        print(content)
-    except Exception as e:
-        print(f"Errore: {e}")
-
-
-
-
-

@@ -1,13 +1,13 @@
 import threading
 
-from development_system.development_system_message_broker import DevelopmentSystemMessageBroker
+from development_system.label_receiver_and_classifier_sender import LabelReceiverAndClassifierSender
 
 
 class TestMessageBroker:
     @staticmethod
     def receive_message():
         # Create the main broker instance on port 5001
-        broker_5001 = DevelopmentSystemMessageBroker(port=5001)
+        broker_5001 = LabelReceiverAndClassifierSender(port=5001)
         broker_5001.start_server()
 
         print("Receiver instance created, waiting for messages...")
@@ -23,7 +23,7 @@ class TestMessageBroker:
     @staticmethod
     def send_classifier():
         # Create the first sender instance on port 5002
-        classifier_sender = DevelopmentSystemMessageBroker(host='127.0.0.1', port=5002)
+        classifier_sender = LabelReceiverAndClassifierSender(host='127.0.0.1', port=5002)
         classifier_sender.start_server()
 
         classifier_file = "data/mock_classifier.json"
@@ -37,7 +37,7 @@ class TestMessageBroker:
     @staticmethod
     def send_configuration():
         # Create the second sender instance on port 5003
-        configuration_sender = DevelopmentSystemMessageBroker(host='127.0.0.1', port=5003)
+        configuration_sender = LabelReceiverAndClassifierSender(host='127.0.0.1', port=5003)
         configuration_sender.start_server()
 
         print("Sending configuration...")

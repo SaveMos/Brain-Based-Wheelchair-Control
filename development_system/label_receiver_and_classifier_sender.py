@@ -3,7 +3,7 @@ import threading
 import requests
 from typing import Optional, Dict
 
-class DevelopmentSystemMessageBroker:
+class LabelReceiverAndClassifierSender:
     """The messaging broker of the development system"""
 
     """
@@ -59,7 +59,7 @@ class DevelopmentSystemMessageBroker:
 
         :param target_ip: The IP address of the target module.
         :param target_port: The port of the target module.
-        :param classifier_file: The message to send (typically a JSON string).
+        :param classifier_file: The message to send (a file that contains the data of a classifier).
         :return: The response from the target, if any.
         """
 
