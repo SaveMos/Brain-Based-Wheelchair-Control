@@ -58,16 +58,16 @@ class ProductionSystemIO:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_configuration(self, message: str) -> Optional[Dict]:
+    def send_configuration(self) -> Optional[Dict]:
         """
         Send start configuration to messaging system.
 
-        :param message: The message to send (JSON string).
         :return: The response from the target, if any.
         """
 
         # recover messaging system information
         configuration = ConfigurationParameters()
+        message = configuration.start_config()
         msg_sys_ip = configuration.MESSAGING_SYSTEM_IP
         msg_sys_port = configuration.MESSAGING_SYSTEM_PORT
         url = f"http://{msg_sys_ip}:{msg_sys_port}/send"
@@ -127,3 +127,31 @@ class ProductionSystemIO:
 
 
             return message
+
+    # Testing method
+    def send_timestamp(self, timestamp: float, status: str) -> bool:
+        """
+        Send the timestamp to the Service Class.
+
+        :param timestamp: The timestamp to send.
+        :param status: The status of the timestamp
+        :return: True if the timestamp was sent successfully, False otherwise.
+        """
+
+        configuration = ConfigurationParameters()
+        url = f"http://{configuration.SERVICE_CLASS_IP}:\
+                          {configuration.SERVICE_CLASS_PORT}/Timestamp"
+
+        timestamp_message = {
+            "timestamp": timestamp,
+            "system_name": "Evaluation System",
+            "status": status
+        }
+
+        try:
+            response = requests.post(url, json=timestamp_message)
+            if response.status_code == 200:
+                return True
+        except requests.RequestException as e:
+            print(f"Error sending timestamp: {e}")
+        return False

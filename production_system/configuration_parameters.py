@@ -1,7 +1,7 @@
-from jsonschema.benchmarks.useless_keywords import schema
+
 
 from production_system.json_validation import JsonHandler
-import json
+
 
 class ConfigurationParameters:
     """
@@ -59,6 +59,7 @@ class ConfigurationParameters:
         prod_sys_conf = handler.read_json_file(path)
         schema_path = "production_schema/configSchema.json"
         if handler.validate_json(prod_sys_conf, schema_path):
+            print("json non valido")
             return False
 
         self._evaluation_phase = prod_sys_conf['evaluation_phase']

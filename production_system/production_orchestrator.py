@@ -4,6 +4,7 @@
     Author: Alessandro Ascani
 """
 import sys
+import time
 from production_system.configuration_parameters import ConfigurationParameters
 from production_system.production_system_communication import ProductionSystemIO
 from production_system.classification import Classification
@@ -33,7 +34,7 @@ class ProductionOrchestrator:
         result = self._configuration.get_config_params()
 
         # json isn't valid
-        if result is False:
+        if result is False :
             sys.exit(0)
 
 
@@ -43,28 +44,50 @@ class ProductionOrchestrator:
         Start production process.
 
         """
-
+        print("Start production process")
         while True:
             # receive classifier or prepared session
             message = self._prod_sys_io.get_last_message()
+            if not message:
+                print("message not valid")
+                break
+
+            if self._testing:
+                print("Send start message to service class")
+                self._prod_sys_io.send_timestamp(time.time(), "start")
+
+
             handler = JsonHandler()
 
 
-            if message['ip'] == "Develop" :
+
+            #develop session
+            if message['ip'] == self._configuration.DEVELOP_SYSTEM_IP :
                 #deploy operation
                 print("Classifier received")
                 #convert json message in object class
                 msg_json = message['message']
+                cl_schemas_path = "production_schema/ClassifierSchema.json"
+                result = handler.validate_json(msg_json, cl_schemas_path)
+                if result is False:
+                    print("classifier not valid")
+                    break
+
                 classifier = Classifier(msg_json['num_iteration'], msg_json['num_layers'], msg_json['num_neurons'], msg_json['test_error'], msg_json['validation_error'], msg_json['training_error'])
+
                 deployment = Deployment()
                 deployment.deploy(classifier)
 
+                if self._testing:
+                    print("Send end message to Service Class")
+                    self._prod_sys_io.send_timestamp(time.time(), "end")
+
                 # send start configuration to messaging system
                 print("Send start configuration")
-                config = self._configuration.start_config()
-                self._prod_sys_io.send_configuration(config)
+                self._prod_sys_io.send_configuration()
 
-            elif message['ip'] == "Preparation" :
+            # classify session
+            elif message['ip'] == self._configuration.PREPARATION_SYSTEM_IP :
                 #classify operation
                 print("Prepared session received")
                 ps_json = message['message']
@@ -72,27 +95,36 @@ class ProductionOrchestrator:
                 schemas_path = "production_schema/PreparedSessionSchema.json"
                 result = handler.validate_json(ps_json, schemas_path)
                 if result is False:
-                    continue
+                    print("prepared session not valid")
+                    break
 
                 ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_tetha_band'], ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
                 #convert prepared session json in python object
                 prepared_session = PreparedSession(ps_json['uuid'], ps_features)
 
+
                 classification = Classification()
                 label = classification.classify(prepared_session)
 
-                #if evaluation phase parameter is true label is sent also to Evaluation System
+            #if evaluation phase parameter is true label is sent also to Evaluation System
                 if self._configuration.evaluation_phase:
                     eval_sys_ip = ConfigurationParameters.EVALUATION_SYSTEM_IP
                     eval_sys_port = ConfigurationParameters.EVALUATION_SYSTEM_PORT
                     print("Send label to evaluate session")
                     self._prod_sys_io.send_label(eval_sys_ip, eval_sys_port, label)
 
+                if self._testing:
+                    print("Send end message to Service Class")
+                    self._prod_sys_io.send_timestamp(time.time(), "end")
+
                 # Send label to client
                 serv_cl_ip = ConfigurationParameters.SERVICE_CLASS_IP
                 serv_cl_port = ConfigurationParameters.SERVICE_CLASS_PORT
                 print("Send label to service class")
                 self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
+
+
+
 
 if __name__ == "__main__":
     prod = ProductionOrchestrator(False)
