@@ -15,7 +15,11 @@ class ValidationReportModel:
         self.top_5_classifiers = []
 
     def generate_validation_report(self, classifiers: List[Classifier]):
-        """Generate the validation report."""
+        """
+            Generate the validation report.
+            Returns:
+                   validation_report: is the validation report object.
+        """
         validation_report = ValidationReport()
         # Assuming at least 5 classifiers
         for i in range(1, 6):

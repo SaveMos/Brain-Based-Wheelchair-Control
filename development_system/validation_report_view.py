@@ -1,4 +1,4 @@
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 from development_system.validation_report import ValidationReport
 
 class ValidationReportView:
@@ -6,10 +6,16 @@ class ValidationReportView:
 
     def __init__(self):
         """ """
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
 
     def show_validation_report(self, validation_report: ValidationReport):
-        """ """
+        """
+            Display and save the validation report.
+
+            Args:
+                validation_report (ValidationReport):
+                    The validation report object containing the results of the validation process.
+        """
         report = {'report': validation_report.get_validation_report(),
                              'overfitting_tolerance': validation_report.get_overfitting_tolerance(),}
 

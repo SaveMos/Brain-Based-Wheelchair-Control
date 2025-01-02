@@ -5,8 +5,8 @@ class Classifier(MLPClassifier):
     """Class representing a classifier."""
 
     def __init__(self):
-        super(Classifier, self).__init__()
         """Initialize classifier attributes."""
+        super(Classifier, self).__init__()
         self.num_layers = None
         self.num_neurons = None
         self.training_error = None
@@ -138,4 +138,5 @@ class Classifier(MLPClassifier):
     #curve to show in the learning report view
     def get_loss_curve(self):
         """Get the MSE vector."""
+
         return self.loss_curve_

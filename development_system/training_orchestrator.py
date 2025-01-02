@@ -5,7 +5,7 @@ import joblib
 
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 from development_system.learning_plot_model import LearningPlotModel
 from development_system.learning_plot_view import LearningPlotView
 from development_system.trainer import Trainer
@@ -24,29 +24,28 @@ class TrainingOrchestrator:
         ConfigurationParameters.load_configuration()
         # Assegnare il valore di service_flag alla proprietà di istanza
         self.service_flag: bool = ConfigurationParameters.service_flag
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
 
     def train_classifier(self, set_average_hyperparams):
-        """ """
+        """
+            Train the classifier with specified or dynamically determined hyperparameters.
+
+            This function trains the classifier based on whether average hyperparameters
+            should be set or iterations should be dynamically adjusted. It handles both
+            the service and testing phases, and supports generating and checking learning reports.
+
+            Args:
+                set_average_hyperparams (bool):
+                    If True, sets average hyperparameters (neurons and layers)
+                    and saves the configured classifier. If False, adjusts the number of iterations dynamically.
+        """
         if set_average_hyperparams:
             self.trainer.set_average_hyperparameters()
             # both for the test and the service phase, we save the classifier with the layers and neurons setted
             self.classifier.set_num_neurons(self.trainer.classifier.get_num_neurons())
             self.classifier.set_num_layers(self.trainer.classifier.get_num_layers())
             joblib.dump(self.classifier, "data/classifier_trainer.sav")
-            """"
-            if self.service_flag:
-                # save the values in the file so that can be used after the stop
-                self.json_handler.validate_json("intermediate_results/average_hyperparams.json",
-                                                "schemas/average_hyperparams_schema.json")
-                self.json_handler.save_average_hyperparams( self.trainer.classifier.get_num_neurons(), self.trainer.classifier.get_num_layers(),
-                                                           "intermediate_results/average_hyperparams.json")
-            else:
-                self.classifier.set_num_neurons(self.trainer.classifier.get_num_neurons())
-                self.classifier.set_num_layers(self.trainer.classifier.get_num_layers())
-               
-                #return self.classifier
-                """
+
 
         else:
             #if testing is true, the iterations are read from the file, otherwise are randomly generated

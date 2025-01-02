@@ -1,5 +1,5 @@
 from development_system.configuration_parameters import ConfigurationParameters
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 from development_system.test_report import TestReport
 
 
@@ -8,7 +8,7 @@ class TestReportView:
 
     def __init__(self):
         """ """
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
 
     def show_test_report(self, test_report: TestReport):
         """

@@ -3,14 +3,12 @@ import threading
 import requests
 from typing import Optional, Dict
 
-class LabelReceiverAndClassifierSender:
+class LearningSetReceiverAndClassifierSender:
     """The messaging broker of the development system"""
 
-    """
-       A utility class to enable inter-module communication using Flask.
+    #A utility class to enable inter-module communication using Flask.
 
-       This class supports sending and receiving messages in a blocking manner.
-       """
+    #This class supports sending and receiving messages in a blocking manner.
 
     def __init__(self, host: str = '0.0.0.0', port: int = 5000):
         """

@@ -1,10 +1,12 @@
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
-from development_system.jsonIO import JsonHandler
-from development_system.label_receiver_and_classifier_sender import LabelReceiverAndClassifierSender
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
+from development_system.learning_set import LearningSet
+from development_system.learning_set_receiver_and_classifier_sender import LearningSetReceiverAndClassifierSender
 from development_system.testing_orchestrator import TestingOrchestrator
 from development_system.training_orchestrator import TrainingOrchestrator
 from development_system.validation_orchestrator import ValidationOrchestrator
+
 
 class DevelopmentSystemOrchestrator:
     """Orchestrates the development system process."""
@@ -12,13 +14,14 @@ class DevelopmentSystemOrchestrator:
     def __init__(self):
         """Initialize the orchestrator."""
         self.testing = None
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
         self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
-        #self.dev_mess_broker = DevelopmentSystemMessageBroker(host='0.0.0.0', port=5002)  # instance of DevelopmentSystemMessageBroker class
+        #self.dev_mess_broker = LearningSetReceiverAndClassifierSender(host='0.0.0.0', port=5002)  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
         self.classifier = Classifier()
+        self.learning_set = LearningSet([], [], [])
 
 
     def set_testing(self, value):
@@ -34,10 +37,11 @@ class DevelopmentSystemOrchestrator:
         """Get the service flag value."""
         return self.testing
 
+
     def develop(self):
         """Handle development logic."""
 
-        json_handler = JsonHandler()
+        json_handler = JsonValidatorReaderAndWriter()
         # Read the responses of the user for the stop and go and the value to start the continuous execution
         json_handler.validate_json("responses/user_responses.json", "schemas/user_responses_schema.json")
         user_responses = json_handler.read_json_file("responses/user_responses.json")
@@ -64,18 +68,19 @@ class DevelopmentSystemOrchestrator:
                     # print("Message received:", message)
 
                     # Simulation of the reception of the learning set, to change in future
-                    json_handler1 = JsonHandler()
+                    json_handler1 = JsonValidatorReaderAndWriter()
                     json_handler1.validate_json("intermediate_results/dataset_split.json", "schemas/dataset_split_schema.json")
                     # returns a learning set object read from a Json file
-                    learning_set = json_handler1.create_learning_set_from_json("intermediate_results/dataset_split.json")
+                    learning_set = self.learning_set.create_learning_set_from_json("intermediate_results/dataset_split.json")
                     #print the sets received
                     #json_handler1.print_learning_set(learning_set)
                     # save the three type of sets in a different Json file
-                    json_handler1.save_learning_set(learning_set)
+                    self.learning_set.save_learning_set(learning_set)
 
                 # SET AVERAGE HYPERPARAMETERS
                 set_average_hyperparams = True #in this case at the start, the average hyperparams must be set
-                self.classifier = self.training_orchestrator.train_classifier(set_average_hyperparams)
+                #self.classifier = self.training_orchestrator.train_classifier(set_average_hyperparams)
+                self.training_orchestrator.train_classifier(set_average_hyperparams)
                 print("Average hyperparameters set")
                 #if service flag is true, ends. If it is false, go to the next step
                 if not orchestrator.get_testing():
