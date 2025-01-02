@@ -19,6 +19,7 @@ class TestEvaluationSystemParameters(unittest.TestCase):
             "testing": True
         }
         global_parameters = {
+            "Evaluation System": {"port": 5006},
             "Ingestion System": {"ip": "127.0.0.1"},
             "Production System": {"ip": "127.0.0.2"},
             "Messaging System": {"ip": "127.0.0.3", "port": 5000},
@@ -39,6 +40,7 @@ class TestEvaluationSystemParameters(unittest.TestCase):
         self.assertTrue(EvaluationSystemParameters.TESTING)
 
         # Assert global parameters
+        self.assertEqual(EvaluationSystemParameters.EVALUATION_SYSTEM_PORT, 5006)
         self.assertEqual(EvaluationSystemParameters.INGESTION_SYSTEM_IP, "127.0.0.1")
         self.assertEqual(EvaluationSystemParameters.PRODUCTION_SYSTEM_IP, "127.0.0.2")
         self.assertEqual(EvaluationSystemParameters.MESSAGING_SYSTEM_IP, "127.0.0.3")
@@ -57,6 +59,7 @@ class TestEvaluationSystemParameters(unittest.TestCase):
         # Mock invalid local JSON data
         local_parameters = {}
         global_parameters = {
+            "Evaluation System": {"port": 5006},
             "Ingestion System": {"ip": "127.0.0.1"},
             "Production System": {"ip": "127.0.0.2"},
             "Messaging System": {"ip": "127.0.0.3", "port": 5000},
@@ -77,6 +80,7 @@ class TestEvaluationSystemParameters(unittest.TestCase):
         self.assertIsNone(EvaluationSystemParameters.TESTING)
 
         # Assert global parameters are loaded
+        self.assertEqual(EvaluationSystemParameters.EVALUATION_SYSTEM_PORT, 5006)
         self.assertEqual(EvaluationSystemParameters.INGESTION_SYSTEM_IP, "127.0.0.1")
         self.assertEqual(EvaluationSystemParameters.PRODUCTION_SYSTEM_IP, "127.0.0.2")
         self.assertEqual(EvaluationSystemParameters.MESSAGING_SYSTEM_IP, "127.0.0.3")

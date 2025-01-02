@@ -71,8 +71,6 @@ class EvaluationSystemOrchestrator:
         while True:
             classifier_evaluation_exists, classifier_evaluation = self._get_classifier_evaluation()
 
-            print(f"Classifier evaluation exists: {classifier_evaluation_exists}")
-
             if not classifier_evaluation_exists:
                 # Evaluation Report has not been created yet.
 
@@ -123,6 +121,9 @@ class EvaluationSystemOrchestrator:
                     self.labelReceiver_and_configurationSender.send_configuration()
                     print("Configuration sent.")
 
+                # Remove the classifier_evaluation.json file to start a new evaluation
+                os.remove(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json")
+
                 return
 
             else:
@@ -150,3 +151,10 @@ class EvaluationSystemOrchestrator:
                 os.remove(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json")
 
                 return
+
+
+if __name__ == "__main__":
+
+    evaluation_system_orchestrator = EvaluationSystemOrchestrator()
+    evaluation_system_orchestrator.Evaluate()
+

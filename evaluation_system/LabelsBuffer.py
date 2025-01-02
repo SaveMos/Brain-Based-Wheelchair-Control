@@ -106,26 +106,6 @@ class LabelsBuffer:
         rows = self.fetch_query(query, (limit,))
         return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
 
-    # def get_all_classifier_labels(self) -> List[Label]:
-    #     """
-    #     Get all classifier labels (where expert is False) from the database.
-    #
-    #     :return: A list of Label instances.
-    #     """
-    #     query = "SELECT uuid, movements, expert FROM labels WHERE expert = 0 ORDER BY uuid"
-    #     rows = self.fetch_query(query)
-    #     return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
-
-    # def get_all_expert_labels(self) -> List[Label]:
-    #     """
-    #     Get all expert labels from the database.
-    #
-    #     :return: A list of Label instances.
-    #     """
-    #     query = "SELECT uuid, movements, expert FROM labels WHERE expert = 1 ORDER BY uuid"
-    #     rows = self.fetch_query(query)
-    #     return [Label(uuid=row[0], movements=row[1], expert=row[2]) for row in rows]
-
     def delete_labels(self, limit: int) -> None:
         """
         Delete the first limit labels from the database.
@@ -148,13 +128,6 @@ class LabelsBuffer:
         )
         """
         self.execute_query(query_expert, (limit,))
-
-    # def delete_all_labels(self) -> None:
-    #     """
-    #     Delete all labels from the database.
-    #     """
-    #     query = "DELETE FROM labels"
-    #     self.execute_query(query)
 
     def get_num_classifier_labels(self) -> int:
         """
