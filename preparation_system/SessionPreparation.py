@@ -1,7 +1,9 @@
-import numpy as np
 from typing import Union
+
+import numpy as np
+from mne.time_frequency.multitaper import psd_array_multitaper
 from scipy.integrate import simps
-from mne.time_frequency import psd_array_multitaper
+
 
 class SessionPreparation:
     def __init__(self, configuration):
@@ -16,18 +18,23 @@ class SessionPreparation:
         """
 
         # Find indices of null values in the list
-        null_indices = [i for i, value in enumerate(raw_session['eeg']) if value is placeholder]
+        null_indices = [i for i, value in enumerate(raw_session['eeg_data']) if value is placeholder]
 
         # Create an array of indices for the non-null values
-        other_indices = [i for i in range(len(raw_session['eeg'])) if i not in null_indices]
+        other_indices = [i for i in range(len(raw_session['eeg_data'])) if i not in null_indices]
 
         # Perform linear interpolation for each null value and update the list in place
         for null_index in null_indices:
             # Use numpy.interp for linear interpolation
-            interpolated_value = np.interp(null_index, other_indices, [raw_session['eeg'][i] for i in other_indices])
+            # for interpolating it is necessary to use two sets of points:
+            # x is the set of points indexes with valid value
+            # y is the sets of corresponding values of indexes in x
+            # then the function computes the mid point null_index
+            interpolated_value = np.interp(null_index, other_indices, [raw_session['eeg_data'][i] for i in other_indices])
 
             # Update the value in the original data list
-            raw_session['eeg'][null_index] = interpolated_value
+            raw_session['eeg_data'][null_index] = interpolated_value
+
         return raw_session
 
     def correct_outliers(self, raw_session: dict) -> dict:
@@ -37,15 +44,28 @@ class SessionPreparation:
         :return: the corrected Raw session
         """
 
-        min_value, max_value = self.value_range
+        min_value = self.configuration['lower_bound']
+        max_value = self.configuration['upper_bound']
 
         # bound between min and max
-        raw_session['eeg'] = [min(max(value, min_value), max_value) for value in raw_session['eeg']]
+        raw_session['eeg_data'] = [min(max(value, min_value), max_value) for value in raw_session['eeg_data']]
         return raw_session
 
-    def extract_feature(self, time_series: list, sf: float, band: list, relative=False) -> float:
+    def extract_feature(self, time_series: np.array, sf: float, band: list, relative=False) -> float:
         """Compute the average power of the signal x in a specific frequency band.
-        Requires MNE-Python >= 0.14.
+            Parameters:
+                time_series: 1-d array
+                    Input signal in time-domain
+                sf : float
+                    sample frequency of the data
+                band: list
+                    lower and upper frequencies of the band of interest.
+                relative: boolean
+                    If True, return the relative power ( = divided by the total power of the signal).
+                    If False (default), return the absolute power
+            Return:
+                bp: float
+                    Absolute or relative band power
         """
         band = np.asarray(band)
         low, high = band
@@ -70,12 +90,16 @@ class SessionPreparation:
                 "label": raw_session["label"],
             }
 
-            time_series = np.array(raw_session['eeg'])
+            #create a numpy array
+            time_series = np.array(raw_session['eeg_data'])
+            #four main bandwidths to extract from eeg_data
+            bandwidths = ["psd_alpha_band", "psd_beta_band", "psd_theta_band", "psd_delta_band"]
 
-            for band in self.bandwidths:
-                prepared_session[band] = self.extract_feature(time_series, self.sf, self.bandwidths[band])
+            for band in bandwidths:
+                prepared_session[band] = self.extract_feature\
+                    (time_series, self.configuration["sampling_frequency"], self.configuration["bandwidths"][band])
 
             prepared_session["activity"] = raw_session["activity"]
-            prepared_session["genre"] = raw_session["genre"]
+            prepared_session["environment"] = raw_session["environment"]
 
             return prepared_session
