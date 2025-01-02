@@ -4,7 +4,6 @@ import random
 
 import joblib
 
-from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.trainer import Trainer
 from development_system.validation_report_model import ValidationReportModel
@@ -24,7 +23,14 @@ class ValidationOrchestrator:
         self.service_flag = None
 
     def validation(self):    # It performs the grid search and generates the validation report
-        """ """
+        """
+            Perform a grid search for hyperparameters and generate the validation report.
+
+            Returns:
+                ValidationReport or bool:
+                    - If in service mode, returns the generated validation report.
+                    - If in testing mode, returns `True` if all classifiers in the report are valid, otherwise `False`.
+        """
         # load the configurations
         self.config_params.load_configuration()
         self.service_flag = self.config_params.service_flag

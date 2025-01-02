@@ -1,4 +1,4 @@
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 
 
 class SegregationSystemConfiguration:
@@ -105,7 +105,7 @@ class SegregationSystemConfiguration:
         """
 
         # Initialize JsonHandler to read the JSON file
-        json_handler = JsonHandler()
+        json_handler = JsonValidatorReaderAndWriter()
         config_data = json_handler.read_json_file(file_path)
 
         # Extract and assign values to instance variables
