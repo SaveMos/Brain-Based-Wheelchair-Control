@@ -86,7 +86,7 @@ class SessionReceiverAndConfigurationSender:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        return self.label_queue.get(block=True)
+        return self.queue.get(block=True)
 
 
     def send_configuration(self) -> bool:
