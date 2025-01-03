@@ -47,7 +47,7 @@ class TestSegregationSystemDatabaseController(TestCase):
     def test_initialize_prepared_session_database(self):
         """Test if the initialize_prepared_session_database method creates the table."""
         # Call the method
-        self.db_controller.drop_table()
+        self.db_controller.drop_prepared_session_table()
         self.db_controller.initialize_prepared_session_database()
 
         # Store the prepared session into the database
@@ -64,12 +64,12 @@ class TestSegregationSystemDatabaseController(TestCase):
     def test_drop_table(self):
         """Test if the drop_table method drops the table."""
         self.db_controller.initialize_prepared_session_database()
-        self.db_controller.drop_table()
+        self.db_controller.drop_prepared_session_table()
 
         try:
             # Query the sqlite_master table to check if the 'prepared_session' table exists
             query = f"SELECT 1 FROM prepared_session"
-            result = self.db_controller.get_db().fetch_query(query)
+            result = self.db_controller.fetch_query(query)
 
             # If the result is non-empty, the table still exists.
             self.assertEqual(len(result), 0)
@@ -80,7 +80,7 @@ class TestSegregationSystemDatabaseController(TestCase):
     def test_get_all_prepared_sessions(self):
         """Test if the get_all_prepared_sessions method fetches data and converts it correctly."""
         # Drop the table and re-initialize it to start fresh
-        self.db_controller.drop_table()
+        self.db_controller.drop_prepared_session_table()
         self.db_controller.initialize_prepared_session_database()
 
         # Store two prepared sessions into the database
@@ -147,7 +147,7 @@ class TestSegregationSystemDatabaseController(TestCase):
 
     def test_get_number_of_prepared_session_stored(self):
         """Test if the get_number_of_prepared_session_stored method returns the correct count."""
-        self.db_controller.drop_table()
+        self.db_controller.drop_prepared_session_table()
         self.db_controller.initialize_prepared_session_database()
 
         num_0 = self.db_controller.get_number_of_prepared_session_stored()
