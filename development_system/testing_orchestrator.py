@@ -1,14 +1,18 @@
+import glob
+import os
 import random
+import shutil
+
 import joblib
 
 from sklearn.metrics import log_loss
 
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 from development_system.test_report_model import TestReportModel
 from development_system.test_report_view import TestReportView
-from utility.utils import Utils
+from development_system.learning_set import LearningSet
 
 
 class TestingOrchestrator:
@@ -16,14 +20,22 @@ class TestingOrchestrator:
 
     def __init__(self):
         """ """
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
         self.winner_network = None
         self.test_report = None
         self.test_report_model = TestReportModel()
         self.test_report_view = TestReportView()
-        self.file_manager = Utils()
         ConfigurationParameters.load_configuration()
         self.service_flag: bool = ConfigurationParameters.service_flag
+        self.learning_set = LearningSet([], [], [])
+
+    @staticmethod
+    def _delete_files_pattern(pattern):
+        for file_path in glob.glob(pattern):
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            else:
+                shutil.rmtree(file_path)
 
     def test(self):
         """
@@ -58,7 +70,7 @@ class TestingOrchestrator:
         self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
         test_data = self.json_handler.read_json_file("data/test_set.json")
 
-        result = self.json_handler.extract_features_and_labels(test_data, "test_set")
+        result = self.learning_set.extract_features_and_labels(test_data, "test_set")
 
         test_features = result[0]
         test_labels = result[1]
@@ -78,7 +90,7 @@ class TestingOrchestrator:
         print("test error =", self.test_report.get_test_error())
 
         #remove all saved classifiers
-        self.file_manager.delete_files_pattern("data/classifier*.sav")
+        self._delete_files_pattern("data/classifier*.sav")
 
         # save winner network (we have to save again it because, now the test_error is updated)
         joblib.dump(self.winner_network, "data/classifier.sav")

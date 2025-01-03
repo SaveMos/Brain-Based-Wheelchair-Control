@@ -1,6 +1,6 @@
 import threading
 
-from development_system.label_receiver_and_classifier_sender import LabelReceiverAndClassifierSender
+from development_system.learning_set_receiver_and_classifier_sender import LabelReceiverAndClassifierSender
 
 
 class TestMessageBroker:

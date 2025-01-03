@@ -110,11 +110,15 @@ class IngestionSystemOrchestrator:
                     }
                     #print("json_label prima della conversione da dizionario a json ", label)
                     json_label = handler.convert_dictionary_to_json(label) #json
+
+                    #da commentare per il test
                     self.json_io.send_message(target_ip="127.0.0.1", target_port=5013, message=json_label)
 
                 # sends raw sessions
                 json_raw_session = marked_raw_session.to_json()
-                self.json_io.send_message(target_ip="127.0.0.1", target_port=5012, message=json_raw_session)
+                #5005 test preparation
+                #5012 test ingestion
+                self.json_io.send_message(target_ip="127.0.0.1", target_port=5015, message=json_raw_session)
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")

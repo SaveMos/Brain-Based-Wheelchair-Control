@@ -1,10 +1,9 @@
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 
 
 class ConfigurationParameters:
     """Class representing configuration parameters of the development system."""
 
-    """Initialize configuration parameters with default values."""
     min_layers = None
     max_layers = None
     step_layers = None
@@ -18,7 +17,7 @@ class ConfigurationParameters:
     @staticmethod
     def load_configuration():
         """Load configuration parameters from a JSON file."""
-        read_conf = JsonHandler()  # instance of JsonHandler class
+        read_conf = JsonValidatorReaderAndWriter()  # instance of JsonHandler class
         read_conf.validate_json("conf/development_parameters.json", "schemas/development_parameters_schema.json")
         filepath = "conf/development_parameters.json"
 
@@ -33,4 +32,3 @@ class ConfigurationParameters:
         ConfigurationParameters.overfitting_tolerance = params['overfitting_tolerance']
         ConfigurationParameters.generalization_tolerance = params['generalization_tolerance']
         ConfigurationParameters.service_flag = params['service_flag']
-
