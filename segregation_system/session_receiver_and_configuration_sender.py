@@ -1,3 +1,4 @@
+import queue
 import threading
 from typing import Optional, Dict
 
@@ -25,6 +26,7 @@ class SessionReceiverAndConfigurationSender:
         self.host = host
         self.port = port
         self.last_message = None
+        self.queue = queue.Queue()
 
         # Lock and condition for blocking behavior
         self.message_condition = threading.Condition()
@@ -43,6 +45,7 @@ class SessionReceiverAndConfigurationSender:
                     'port': sender_port,
                     'message': message
                 }
+                self.queue.put(self.last_message)
                 # Notify any threads waiting for a message
                 self.message_condition.notify_all()
 
@@ -83,15 +86,7 @@ class SessionReceiverAndConfigurationSender:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        with self.message_condition:
-            # Wait until a message is received
-            while self.last_message is None:
-                self.message_condition.wait()
-
-            # Retrieve and clear the last message
-            message = self.last_message
-            self.last_message = None
-            return message
+        return self.label_queue.get(block=True)
 
 
     def send_configuration(self) -> bool:
@@ -102,7 +97,7 @@ class SessionReceiverAndConfigurationSender:
         """
 
         json_handler = SegregationSystemJsonHandler()
-        network_info = json_handler.get_system_address("../global_netconf.json", "Segregation System")
+        network_info = json_handler.get_system_address("../global_netconf.json", "Messaging System")
 
         url = f"http://{network_info.get('ip')}:\
               {network_info.get('port')}/MessagingSystem"
@@ -129,7 +124,7 @@ class SessionReceiverAndConfigurationSender:
         :return: True if the timestamp was sent successfully, False otherwise.
         """
         json_handler = SegregationSystemJsonHandler()
-        network_info = json_handler.get_system_address("../global_netconf.json", "Segregation System")
+        network_info = json_handler.get_system_address("../global_netconf.json", "Service Class")
 
         url = f"http://{network_info.get('ip')}:\
                       {network_info.get('port')}/Timestamp"

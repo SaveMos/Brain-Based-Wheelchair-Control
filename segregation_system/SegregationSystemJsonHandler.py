@@ -9,6 +9,7 @@ class SegregationSystemJsonHandler:
         A class to read and save file json
     """
 
+
     def read_json_file(self, filepath):
         """
         Read a json file.
@@ -178,24 +179,6 @@ class SegregationSystemJsonHandler:
             return json.dumps(dictionary, indent=4)
         except TypeError as e:
             raise ValueError(f"Unable to convert dictionary to string: {e}")
-
-
-# Example to test the class
-if __name__ == "__main__":
-    handler = JsonHandler()
-
-    # Writing a json file
-    data = {"name": "Mario", "age": 30, "hobby": ["sport", "coocking"]}
-    handler.write_json_file(data, "esempio.json")
-
-    # Reading a json file
-    try:
-        content = handler.read_json_file("esempio.json")
-        print(content)
-    except Exception as e:
-        print(f"Errore: {e}")
-
-
 
 
 

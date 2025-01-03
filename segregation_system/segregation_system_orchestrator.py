@@ -51,9 +51,7 @@ class SegregationSystemOrchestrator:
         balancing_report_status = json_handler.read_field_from_json(execution_state_file_path, "balancing_report")
         coverage_report_status = json_handler.read_field_from_json(execution_state_file_path, "coverage_report")
 
-        if number_of_session_status == "-" or balancing_report_status == "-" or self.get_testing():
-            # The first phase must be done.
-
+        if (number_of_session_status == "-" or balancing_report_status == "-") or self.get_testing():
             # Create a Configuration object, to load the system configuration.
             config = SegregationSystemConfiguration()
             # Configure the system parameters from the configuration file.
@@ -61,55 +59,36 @@ class SegregationSystemOrchestrator:
 
             # Create a MessageBroker instance to send and receive messages.
             message_broker = SessionReceiverAndConfigurationSender()
-
-            new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
-            # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
-
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
 
-            # Store the new prepared session in the database.
-            db.store_prepared_session(new_prepared_session.to_dictionary())
+            while db.get_number_of_prepared_session_stored() < config.minimum_number_of_collected_sessions:
+                # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
+                new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
 
-            # OPTIMIZATION
-            # If the check has already been passed in the past, it is not necessary to do another read from the database.
-            if number_of_session_status == "OK":
-                # Assign the minimum number to pass the test.
-                number_of_prepared_sessions_stored = config.minimum_number_of_collected_sessions
-            else:
-                # Get the number of stored prepared sessions in the database.
-                number_of_prepared_sessions_stored = db.get_number_of_prepared_session_stored()
+                # Store the new prepared session in the database.
+                db.store_prepared_session(new_prepared_session.to_dictionary())
 
-            if number_of_prepared_sessions_stored >= config.minimum_number_of_collected_sessions or self.get_testing():
-                # The number is sufficient, we can continue.
-                json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
-                                                 "OK")  # Register this, so we do not have to make the check again.
+            json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
+                                                     "OK")  # Register this, so we do not have to make the check again.
 
-                # Get all the prepared sessions in the database.
-                all_prepared_sessions = db.get_all_prepared_sessions()
+            # Get all the prepared sessions in the database.
+            all_prepared_sessions = db.get_all_prepared_sessions()
 
-                print("Generating the balancing report...")
-                report_model = BalancingReportModel(all_prepared_sessions,
-                                                    config)  # Create the BalancingReportModel Object.
-                report_model.generateBalancingReport()  # Generate the Balancing Report.
-                print("Balancing report generated!")
+            print("Generating the balancing report...")
+            report_model = BalancingReportModel(all_prepared_sessions,
+                                                        config)  # Create the BalancingReportModel Object.
+            report_model.generateBalancingReport()  # Generate the Balancing Report.
+            print("Balancing report generated!")
 
-                #wait_for_input("Press Enter to launch the BalancingReport application...")  # Wait the user response.
+        if coverage_report_status == "-" and balancing_report_status == "NOT OK" and not self.get_testing():
+            db = SegregationSystemDatabaseController()
+            db.reset_session_database()
+            message_broker = SessionReceiverAndConfigurationSender()
+            message_broker.send_configuration()
+            self.reset_execution_state()
 
-                #report_view = BalancingReportView()
-                #report_view.open_balancing_report()  # Open the balancing report with the Windows default application.
-
-                # The image will be open in the default viewer but the application will terminate here.
-
-                #resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
-
-                #json_handler.write_field_to_json(execution_state_file_path, "balancing_report", resp)  # Register the response.
-
-            else:
-                pass
-                #json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions","NOT OK")  # Register this.
-
-        if coverage_report_status == "-" or self.get_testing():
+        if (coverage_report_status == "-" and balancing_report_status == "OK") or self.get_testing():
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
 
@@ -133,6 +112,13 @@ class SegregationSystemOrchestrator:
             #resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
 
             #json_handler.write_field_to_json(execution_state_file_path, "coverage_report", resp)  # Register the response.
+
+        if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and not self.get_testing():
+            db = SegregationSystemDatabaseController()
+            db.reset_session_database()
+            message_broker = SessionReceiverAndConfigurationSender()
+            message_broker.send_configuration()
+            self.reset_execution_state()
 
         if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # The final phase.
@@ -187,25 +173,16 @@ class SegregationSystemOrchestrator:
             raise ValueError("Testing mode must be a boolean value.")
         self.testing = testing
 
+    def reset_execution_state(self):
+        json_handler = SegregationSystemJsonHandler()
+        execution_state_file_path = "user/user_responses.json"
+        json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions" , "-")
+        json_handler.write_field_to_json(execution_state_file_path, "balancing_report", "-")
+        json_handler.write_field_to_json(execution_state_file_path, "coverage_report", "-")
 
-def wait_for_input(prompt: str = "Press Enter to continue or provide a value: ") -> str:
-    """
-    Waits for user input from the keyboard.
 
-    Args:
-        prompt (str): The message displayed to the user while waiting for input.
-
-    Returns:
-        str: The input provided by the user. Returns an empty string if no input is provided.
-
-    Handles:
-        KeyboardInterrupt: If the user presses Ctrl+C, a message is printed, and an empty string is returned.
-    """
-    try:
-        # Display the prompt and wait for user input
-        user_input = input(prompt)
-        return user_input
-    except KeyboardInterrupt:
-        # Handle Ctrl+C gracefully and avoid crashing the program
-        print("\nKeyboard interruption detected. Exiting.")
-        return ""
+# Example to test the class
+if __name__ == "__main__":
+    orchestrator = SegregationSystemOrchestrator(True)
+    orchestrator.reset_execution_state()
+    orchestrator.run()
