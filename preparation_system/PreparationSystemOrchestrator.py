@@ -1,3 +1,11 @@
+"""
+
+Module: PreparationSystemOrchestrator
+Orchestrates the preparation system workflow.
+
+Author: Francesco Taverna
+"""
+
 import json
 import sys
 

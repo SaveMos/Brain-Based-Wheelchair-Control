@@ -1,6 +1,9 @@
 """
 Module: PreparationSystemParameters
 Loads and manages configuration parameters for the preparation system.
+
+Author: Francesco Taverna
+
 """
 from ingestion_system.ingestion_json_handler.json_handler import JsonHandler
 from preparation_system import ING_MAN_CONFIG_FILE_PATH

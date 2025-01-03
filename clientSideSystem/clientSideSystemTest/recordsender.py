@@ -1,3 +1,8 @@
+"""
+Module: recordsender
+Test the record sender
+Author: Francesco Taverna
+"""
 import pytest
 import logging
 import json

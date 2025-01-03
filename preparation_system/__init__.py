@@ -1,4 +1,10 @@
+"""
+Author: Francesco Taverna
+"""
+
 import os
+
+
 
 
 def _get_data_file_absolute_path(relative_path: str) -> str:

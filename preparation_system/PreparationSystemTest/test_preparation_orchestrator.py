@@ -1,3 +1,9 @@
+"""
+Module: test_preparation_orchestrator
+Test the preparation system workflow.
+Author: Francesco Taverna
+"""
+
 import json
 import logging
 from multiprocessing import Process

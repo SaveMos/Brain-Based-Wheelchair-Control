@@ -1,3 +1,7 @@
+"""
+Author: Francesco Taverna
+"""
+
 from .client import ClientSideOrchestrator
 
 if __name__ == "__main__":

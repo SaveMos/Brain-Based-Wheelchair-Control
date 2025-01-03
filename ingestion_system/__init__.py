@@ -1,4 +1,6 @@
-
+"""
+Author: Francesco Taverna
+"""
 import os
 
 

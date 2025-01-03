@@ -1,3 +1,9 @@
+"""
+Module: SessionPreparation
+Prepare session correcting samples, outliers and extracting features
+Author: Francesco Taverna
+"""
+
 from typing import Union
 
 import numpy as np
