@@ -1,4 +1,6 @@
 """
+Module: SessionPreparation
+Prepare session correcting samples, outliers and extracting features
 Author: Francesco Taverna
 """
 

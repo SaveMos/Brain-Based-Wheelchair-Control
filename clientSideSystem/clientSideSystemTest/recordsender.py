@@ -1,4 +1,6 @@
 """
+Module: recordsender
+Test the record sender
 Author: Francesco Taverna
 """
 import pytest

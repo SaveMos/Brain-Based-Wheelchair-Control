@@ -1,4 +1,6 @@
 """
+Module: client
+Manage the client side system
 Author: Francesco Taverna
 """
 
