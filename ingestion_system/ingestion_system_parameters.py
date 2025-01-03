@@ -1,6 +1,9 @@
 """
 Module: ingestion_system_parameters
 Loads and manages configuration parameters for the ingestion system.
+
+Author: Francesco Taverna
+
 """
 from ingestion_system import ING_MAN_CONFIG_FILE_PATH
 from ingestion_system.ingestion_json_handler.json_handler import JsonHandler
@@ -16,13 +19,9 @@ class Parameters:
         Initialize parameters with default values or load from a configuration file.
         """
 
-        self.number_of_records_to_store = 3
-        #4 in the evaluation phase, expert label included
-        #3 in production phase because it's without label from the expert
-
         self.missing_samples_threshold_interval = 10
 
-        self.evaluation_phase = True#if True send label to evaluation system
+        self.evaluation_phase = True #if True send label to evaluation system
 
         self.load_parameters()  #try to load parameters from json
 

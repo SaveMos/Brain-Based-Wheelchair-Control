@@ -1,3 +1,6 @@
+"""
+Author: Francesco Taverna
+"""
 import pytest
 import logging
 import json

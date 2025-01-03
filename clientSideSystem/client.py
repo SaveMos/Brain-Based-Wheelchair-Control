@@ -1,4 +1,7 @@
-import os
+"""
+Author: Francesco Taverna
+"""
+
 import time
 import json
 from threading import Thread

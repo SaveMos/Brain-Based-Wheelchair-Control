@@ -1,3 +1,6 @@
+"""
+Author: Francesco Taverna
+"""
 import contextlib
 import os
 import sqlite3

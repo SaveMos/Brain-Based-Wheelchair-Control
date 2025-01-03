@@ -1,3 +1,7 @@
+"""
+Author: Francesco Taverna
+"""
+
 import json
 import sys
 

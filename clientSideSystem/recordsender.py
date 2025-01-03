@@ -1,5 +1,8 @@
+"""
+Author: Francesco Taverna
+"""
+
 import random
-import copy
 import pandas as pd
 
 

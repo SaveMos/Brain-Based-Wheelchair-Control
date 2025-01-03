@@ -1,6 +1,10 @@
 """
 Module: record_buffer_controller
 This module handles the buffering of records in the ingestion system.
+
+Author: Francesco Taverna
+
+
 """
 import json
 

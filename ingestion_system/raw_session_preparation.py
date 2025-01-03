@@ -1,6 +1,9 @@
 """
 Module: raw_session_preparation
 Handles the preparation of raw sessions from records.
+
+Author: Francesco Taverna
+
 """
 import math
 

@@ -1,6 +1,9 @@
 """
 Module: raw_session
 This module represents a raw session composed of multiple records (3/4).
+
+Author: Francesco Taverna
+
 """
 import json
 

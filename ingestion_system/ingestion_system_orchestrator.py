@@ -1,6 +1,9 @@
 """
 Module: ingestion_system_orchestrator
 Orchestrates the ingestion system workflow.
+
+Author: Francesco Taverna
+
 """
 
 # import classes
