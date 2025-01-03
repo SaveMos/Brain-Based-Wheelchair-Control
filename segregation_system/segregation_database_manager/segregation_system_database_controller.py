@@ -1,255 +1,164 @@
-import uuid
-from typing import Any, Dict, List
-
+import sqlite3
+from typing import Any, Dict, List, Tuple
 from segregation_system.prepared_session import PreparedSession
-from utility.database.database_manager import DatabaseManager
 
 
 class SegregationSystemDatabaseController:
     """
-    A general-purpose SQLite database manager class.
+    A unified class for managing SQLite databases and handling prepared sessions.
 
     This class provides methods to interact with a SQLite database, including
-    creating tables, inserting records, updating, deleting, and fetching data
-    related to the `prepared_session` table.
-
-    Author: Saverio Mosti
-
-    Creation Date: 2024-12-19
-
-    Attributes:
-        __database_name (str): The name of the SQLite database.
-        __table_name (str): The name of the table in the database where prepared sessions are stored.
-        __db (DatabaseManager): An instance of DatabaseManager for interacting with the database.
-
-    Methods:
-        __init__(): Initializes the controller and ensures the database is set up.
-        get_db(): Returns the DatabaseManager instance.
-        get_table_name(): Returns the name of the table used for prepared sessions.
-        store_prepared_session(data: Dict[str, Any]): Stores a prepared session in the database.
-        initialize_prepared_session_database(): Ensures the `prepared_session` table exists in the database.
-        drop_table(): Drops the `prepared_session` table from the database if it exists.
-        get_all_prepared_sessions(): Retrieves all prepared sessions from the database as `PreparedSession` objects.
-        get_number_of_prepared_session_stored(): Returns the total number of prepared sessions in the database.
-        remove_prepared_session(session_uuid: str): Removes a prepared session from the database based on its UUID.
+    creating tables, inserting records, updating, deleting, and fetching data.
+    It also manages specific operations for the `prepared_session` table.
     """
 
-    def __init__(self):
+    def __init__(self, db_name: str = "prepared_session_database"):
         """
-        Initializes the SegregationSystemDatabaseController, setting up the database and table.
-
-        This constructor ensures that the `prepared_session` table is created in the database
-        upon initialization if it does not already exist.
-        """
-        self.__database_name = "prepared_session_database"  # The name of the SQLite database.
-        self.__table_name = "prepared_session"  # PreparedSession table name.
-        self.__db = DatabaseManager(self.__database_name) # Instantiate a DatabaseManager object.
-        self.initialize_prepared_session_database() # Create if not exists the table.
-
-    def get_db(self) -> DatabaseManager:
-        """
-        Returns the DatabaseManager instance associated with this controller.
-
-        Returns:
-            DatabaseManager: The instance of DatabaseManager for interacting with the database.
-        """
-        return self.__db
-
-    def get_table_name(self) -> str:
-        """
-        Returns the name of the table used for storing prepared sessions.
-
-        Returns:
-            str: The table name, which is 'prepared_session' in this case.
-        """
-        return self.__table_name
-
-    def store_prepared_session(self, data: Dict[str, Any]) -> None:
-        """
-        Stores a prepared session into the `prepared_session` table in the database.
+        Initialize the unified database controller.
 
         Args:
-            data (Dict[str, Any]): A dictionary containing the session data to be stored.
-            This dictionary should match the expected schema for a prepared session.
+            db_name (str): The name of the SQLite database file.
         """
-        self.__db.insert(self.__table_name, data)
+        self.__database_name = db_name
+        self.__table_name = "prepared_session"
+        self.initialize_prepared_session_database()
 
+    def _connect(self):
+        """Establish a connection to the database."""
+        return sqlite3.connect(self.__database_name)
+
+    # Generic database methods
+    def execute_query(self, query: str, params: Tuple = ()) -> None:
+        """Execute a single query that does not return results."""
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+
+    def execute_script(self, script: str) -> None:
+        """Execute a script containing multiple SQL statements."""
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.executescript(script)
+                conn.commit()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+
+    def fetch_query(self, query: str, params: Tuple = ()) -> List[Tuple]:
+        """Execute a query and return the results."""
+        try:
+            with self._connect() as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                return cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return []
+
+    def create_table(self, table_name: str, columns: Dict[str, str]) -> None:
+        """Create a new table in the database."""
+        columns_def = ", ".join([f"{col} {dtype}" for col, dtype in columns.items()])
+        query = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_def})"
+        self.execute_query(query)
+
+    def insert(self, table_name: str, data: Dict[str, Any]) -> None:
+        """Insert a record into a table."""
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join(["?" for _ in data])
+        query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+        self.execute_query(query, tuple(data.values()))
+
+    def update(self, table_name: str, data: Dict[str, Any], condition: str, condition_params: Tuple) -> None:
+        """Update records in a table based on a condition."""
+        set_clause = ", ".join([f"{col} = ?" for col in data])
+        query = f"UPDATE {table_name} SET {set_clause} WHERE {condition}"
+        params = tuple(data.values()) + condition_params
+        self.execute_query(query, params)
+
+    def delete(self, table_name: str, condition: str, condition_params: Tuple) -> None:
+        """Delete records from a table based on a condition."""
+        query = f"DELETE FROM {table_name} WHERE {condition}"
+        self.execute_query(query, condition_params)
+
+    def fetch_all(self, table_name: str) -> List[Tuple]:
+        """Fetch all records from a table."""
+        query = f"SELECT * FROM {table_name}"
+        return self.fetch_query(query)
+
+    def fetch_where(self, table_name: str, condition: str, condition_params: Tuple) -> List[Tuple]:
+        """Fetch records from a table based on a condition."""
+        query = f"SELECT * FROM {table_name} WHERE {condition}"
+        return self.fetch_query(query, condition_params)
+
+    def drop_table(self, table_name: str) -> None:
+        """Drop a table from the database."""
+        query = f"DROP TABLE IF EXISTS {table_name}"
+        self.execute_query(query)
+
+    def drop_prepared_session_table(self) -> None:
+        self.drop_table(self.__table_name)
+
+    # Specific methods for prepared sessions
     def initialize_prepared_session_database(self):
-        """
-        Ensures that the `prepared_session` table exists in the database.
-        If the table does not exist, this method creates it.
-
-        The table has the following columns:
-            - uuid (TEXT, Primary Key)
-            - label (TEXT)
-            - psd_alpha_band (REAL)
-            - psd_beta_band (REAL)
-            - psd_theta_band (REAL)
-            - psd_delta_band (REAL)
-            - activity (TEXT)
-            - environment (TEXT)
-        """
+        """Ensure the `prepared_session` table exists."""
         create_table_query = f"""
-                CREATE TABLE IF NOT EXISTS prepared_session (
-                    uuid TEXT PRIMARY KEY,
-                    label TEXT CHECK(label IN ('move', 'turn_left', 'turn_right')) NOT NULL,
-                    psd_alpha_band REAL NOT NULL,
-                    psd_beta_band REAL NOT NULL,
-                    psd_theta_band REAL NOT NULL,
-                    psd_delta_band REAL NOT NULL,
-                    activity TEXT CHECK(activity IN ('shopping', 'sport', 'cooking', 'gaming', 'relax')) NOT NULL,
-                    environment TEXT CHECK(environment IN ('slippery', 'plain', 'slope', 'house', 'track')) NOT NULL
-                );
-                """
-        # Execute the query to create the table if it does not exist
-        self.__db.execute_query(create_table_query)
-
-    def drop_table(self):
+            CREATE TABLE IF NOT EXISTS {self.__table_name} (
+                uuid TEXT PRIMARY KEY,
+                label TEXT CHECK(label IN ('move', 'turn_left', 'turn_right')) NOT NULL,
+                psd_alpha_band REAL NOT NULL,
+                psd_beta_band REAL NOT NULL,
+                psd_theta_band REAL NOT NULL,
+                psd_delta_band REAL NOT NULL,
+                activity TEXT CHECK(activity IN ('shopping', 'sport', 'cooking', 'gaming', 'relax')) NOT NULL,
+                environment TEXT CHECK(environment IN ('slippery', 'plain', 'slope', 'house', 'track')) NOT NULL
+            );
         """
-        Drops the `prepared_session` table from the database if it exists.
+        self.execute_query(create_table_query)
 
-        This method ensures that if the table exists, it is removed to reset the database state.
-
-        Returns:
-            bool: True if the table was dropped successfully, False otherwise.
-        """
-        self.__db.drop_table(self.__table_name)
+    def store_prepared_session(self, data: Dict[str, Any]) -> None:
+        """Store a prepared session into the `prepared_session` table."""
+        self.insert(self.__table_name, data)
 
     def get_all_prepared_sessions(self) -> List[PreparedSession]:
-        """
-        Retrieves all prepared sessions from the database and converts them into `PreparedSession` objects.
-
-        This method fetches all rows from the `prepared_session` table, maps the raw data to dictionaries,
-        and then converts them into `PreparedSession` objects with the appropriate attributes.
-
-        Returns:
-            List[PreparedSession]: A list of `PreparedSession` objects corresponding to the rows in the database.
-        """
-        raw_prepared_sessions = self.__db.fetch_all(self.__table_name)
-
-        # Define the column names manually (or dynamically if your database structure is more complex)
+        """Retrieve all prepared sessions as `PreparedSession` objects."""
+        raw_prepared_sessions = self.fetch_all(self.__table_name)
         column_names = [
-            "uuid",
-            "label",
-            "psd_alpha_band",
-            "psd_beta_band",
-            "psd_theta_band",
-            "psd_delta_band",
-            "activity",
-            "environment"
+            "uuid", "label", "psd_alpha_band", "psd_beta_band",
+            "psd_theta_band", "psd_delta_band", "activity", "environment"
         ]
-
-        # Convert tuples to dictionaries
         converted_sessions = [
             dict(zip(column_names, row)) for row in raw_prepared_sessions
         ]
-
-        if not converted_sessions:  # Handle the case of an empty database
-            print("No prepared sessions found in the database.")
-            return []
-
-        # Convert dictionaries to PreparedSession objects
-        all_prepared_sessions = [
+        return [
             PreparedSession(
-                uuid = session["uuid"],
-                features = [session["psd_alpha_band"], session["psd_beta_band"], session["psd_theta_band"],
-                          session["psd_delta_band"], session["activity"] , session["environment"]],
-                label = session["label"]
+                uuid=session["uuid"],
+                features=[
+                    session["psd_alpha_band"], session["psd_beta_band"],
+                    session["psd_theta_band"], session["psd_delta_band"],
+                    session["activity"], session["environment"]
+                ],
+                label=session["label"]
             )
             for session in converted_sessions
         ]
 
-        # Assign additional attributes
-        for session, raw in zip(all_prepared_sessions, converted_sessions):
-            session.activity = raw["activity"]
-            session.environment = raw["environment"]
-
-        return all_prepared_sessions
-
     def get_number_of_prepared_session_stored(self) -> int:
-        """
-        Returns the number of records stored in the `prepared_session` table.
-
-        Returns:
-            int: The total number of prepared sessions in the table.
-        """
+        """Return the total number of prepared sessions."""
         query = f"SELECT COUNT(*) FROM {self.__table_name}"
-
-        # Fetch the result of the query and extract the first value from the first row
-        result = self.__db.fetch_query(query)
-
-        # Extract and return the first value (COUNT) from the first row (tuple)
-        return result[0][0] if result else 0  # Return 0 if no result is found
+        result = self.fetch_query(query)
+        return result[0][0] if result else 0
 
     def remove_prepared_session(self, session_uuid: str) -> bool:
-        """
-        Removes a prepared session from the database based on its UUID.
-
-        Args:
-            session_uuid (str): The UUID of the session to be removed.
-
-        Returns:
-            bool: True if the session was removed successfully, False otherwise.
-        """
-        # Ensure the UUID is valid (optional validation based on the expected format)
-        if not session_uuid:
-            raise ValueError("Invalid UUID")
-
-        # Create the query to delete the session from the database
+        """Remove a prepared session based on its UUID."""
         delete_query = f"DELETE FROM {self.__table_name} WHERE uuid = ?"
-
-        # Execute the query
-        self.__db.execute_query(delete_query, (session_uuid,))
+        self.execute_query(delete_query, (session_uuid,))
         return True
 
     def reset_session_database(self):
-        """
-        Drops the `prepared_session` table from the database, and it creates it again.
-        Use this function to reset the prepared session database.
-        """
-        self.drop_table()
+        """Reset the `prepared_session` database by dropping and recreating the table."""
+        self.drop_prepared_session_table()
         self.initialize_prepared_session_database()
-
-
-# Example to test the class
-if __name__ == "__main__":
-    """
-    Test the `store_prepared_session` method of the SegregationSystemDatabaseController class.
-    """
-    # Initialize the database controller
-    db_controller = SegregationSystemDatabaseController()
-
-    # Create a test dictionary matching the required schema
-    test_data = {
-        "uuid": str(uuid.uuid4()),  # Generate a unique UUID
-        "label": "move",  # Valid label
-        "psd_alpha_band": 0.25,  # Example numerical value
-        "psd_beta_band": 0.30,  # Example numerical value
-        "psd_theta_band": 0.45,  # Example numerical value
-        "psd_delta_band": 0.60,  # Example numerical value
-        "activity": "gaming",  # Valid activity
-        "environment": "plain"  # Valid environment
-    }
-
-    # Store the prepared session into the database
-    db_controller.store_prepared_session(test_data)
-    print("Prepared session inserted into the database.")
-
-    # Retrieve all records from the database
-    all_sessions = db_controller.get_all_prepared_sessions()
-    print(f"Total sessions in the database: {len(all_sessions)}")
-
-    # Verify if the last inserted record matches the test data
-    last_session = all_sessions[-1]
-    assert last_session.uuid is not None, "Session ID should not be None."
-    assert last_session.features == [
-        test_data["psd_alpha_band"],
-        test_data["psd_beta_band"],
-        test_data["psd_theta_band"],
-        test_data["psd_delta_band"],
-        test_data["activity"],
-        test_data["environment"]
-    ], "Features do not match the test data."
-    assert last_session.label == test_data["label"], "Label does not match the test data."
-
-    print("Test passed!")

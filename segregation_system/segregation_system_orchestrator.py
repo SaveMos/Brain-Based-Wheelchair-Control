@@ -1,12 +1,11 @@
+from segregation_system.SegregationSystemJsonHandler import SegregationSystemJsonHandler
 from segregation_system.balancing_report_model import BalancingReportModel
 from segregation_system.coverage_report_model import CoverageReportModel
 from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.prepared_session import PreparedSession
 from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.segregation_database_manager.segregation_system_database_controller import SegregationSystemDatabaseController
-
-from utility.json_handler.json_handler import JsonHandler
-from utility.message_broker.message_broker import MessageBroker
+from segregation_system.session_receiver_and_configuration_sender import SessionReceiverAndConfigurationSender
 
 
 class SegregationSystemOrchestrator:
@@ -45,14 +44,14 @@ class SegregationSystemOrchestrator:
         Example:
             orchestrator.run()
         """
-        json_handler = JsonHandler()
+        json_handler = SegregationSystemJsonHandler()
         execution_state_file_path = "user/user_responses.json"
 
         number_of_session_status = json_handler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
         balancing_report_status = json_handler.read_field_from_json(execution_state_file_path, "balancing_report")
         coverage_report_status = json_handler.read_field_from_json(execution_state_file_path, "coverage_report")
 
-        if number_of_session_status != "OK" or balancing_report_status != "OK"or self.get_testing():
+        if number_of_session_status == "-" or balancing_report_status == "-" or self.get_testing():
             # The first phase must be done.
 
             # Create a Configuration object, to load the system configuration.
@@ -61,7 +60,7 @@ class SegregationSystemOrchestrator:
             config.configure_parameters()
 
             # Create a MessageBroker instance to send and receive messages.
-            message_broker = MessageBroker()
+            message_broker = SessionReceiverAndConfigurationSender()
 
             new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
             # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
@@ -110,8 +109,7 @@ class SegregationSystemOrchestrator:
                 pass
                 #json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions","NOT OK")  # Register this.
 
-
-        elif coverage_report_status != "OK" or self.get_testing():
+        if coverage_report_status == "-" or self.get_testing():
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
 
@@ -136,7 +134,7 @@ class SegregationSystemOrchestrator:
 
             #json_handler.write_field_to_json(execution_state_file_path, "coverage_report", resp)  # Register the response.
 
-        elif (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
+        if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # The final phase.
             # Create a Configuration object, to load the system configuration.
             config = SegregationSystemConfiguration()
@@ -154,13 +152,13 @@ class SegregationSystemOrchestrator:
             learning_sets = report_model.generateLearningSets(all_prepared_sessions)
 
             # Create a MessageBroker instance to send and receive messages.
-            message_broker = MessageBroker()
+            message_broker = SessionReceiverAndConfigurationSender()
 
-            # Get development IP
+            # Get development IP.
             network_info = json_handler.get_system_address("../global_netconf.json", "Development System")
 
             # Send the learning sets to the Development System.
-            message_broker.send_message(network_info.get("ip"), network_info.get("port"), JsonHandler.dict_to_string(learning_sets.to_dict()))
+            message_broker.send_message(network_info.get("ip"), network_info.get("port"), SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
 
 
 
