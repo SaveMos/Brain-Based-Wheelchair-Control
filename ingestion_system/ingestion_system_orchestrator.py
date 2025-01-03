@@ -69,10 +69,6 @@ class IngestionSystemOrchestrator:
         while True:  # receive records iteratively
             try:
                 message = self.json_io.get_message()  # Get record message
-                #print("record ricevuto dall'ingestion proveniente dal client:", message)
-
-                # Debug: Verifica la struttura del messaggio
-                #print(f"Message structure: {type(message)}, Content: {message}")
 
                 record_message = message['message'] #json
                 handler = JsonHandler()
@@ -109,12 +105,11 @@ class IngestionSystemOrchestrator:
                 if self.parameters.evaluation_phase:
                     label = {
                         "uuid": marked_raw_session.uuid,
-                        "movements": marked_raw_session.label
+                        "label": marked_raw_session.label
                     }
-                    #print("json_label prima della conversione da dizionario a json ", label)
                     json_label = handler.convert_dictionary_to_json(label) #json
 
-                    #da commentare per il test
+                    #to comment for the preparation system test
                     self.json_io.send_message(target_ip="127.0.0.1", target_port=5013, message=json_label)
 
                 # sends raw sessions

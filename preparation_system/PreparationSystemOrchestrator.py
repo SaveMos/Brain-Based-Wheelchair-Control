@@ -61,6 +61,6 @@ class PreparationSystemOrchestrator:
             if self.parameters.development_phase:
                 #send to segregation system
                 self.communication.send_message('127.0.0.1', 5041, json_prepared_session)
-            else: #commentare per il test
+            else: #to comment for the preparation test
                 #send to production system
                 self.communication.send_message('127.0.0.1', 5045, json_prepared_session)
