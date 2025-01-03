@@ -1,3 +1,5 @@
+import time
+
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
@@ -16,7 +18,7 @@ class DevelopmentSystemOrchestrator:
         self.testing = None
         self.json_handler = JsonValidatorReaderAndWriter()
         self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
-        #self.dev_mess_broker = LearningSetReceiverAndClassifierSender(host='0.0.0.0', port=5002)  # instance of DevelopmentSystemMessageBroker class
+        self.dev_mess_broker = LearningSetReceiverAndClassifierSender(host='0.0.0.0', port=5002)  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
@@ -50,6 +52,14 @@ class DevelopmentSystemOrchestrator:
         orchestrator.set_testing(self.config_params.service_flag)
         print("Service Flag: ", self.testing)
         #loop for the non-stop-and-go execution
+        if self.testing:
+
+            # Create a MessageBroker instance and start the server
+            #self.dev_mess_broker.start_server()
+            #response = self.dev_mess_broker.send_timestamp(time.time(), "start")
+            print("Start timestamp sent")
+            #print("Response from Module Production System:", response)
+
         while True:
 
             # Definition of the stop&go structure
@@ -69,11 +79,10 @@ class DevelopmentSystemOrchestrator:
 
                     # Simulation of the reception of the learning set, to change in future
                     json_handler1 = JsonValidatorReaderAndWriter()
+                    #json_handler1.write_json_file(message['message'], "intermediate_results/dataset_split.json")
                     json_handler1.validate_json("intermediate_results/dataset_split.json", "schemas/dataset_split_schema.json")
                     # returns a learning set object read from a Json file
                     learning_set = self.learning_set.create_learning_set_from_json("intermediate_results/dataset_split.json")
-                    #print the sets received
-                    #json_handler1.print_learning_set(learning_set)
                     # save the three type of sets in a different Json file
                     self.learning_set.save_learning_set(learning_set)
 
@@ -83,7 +92,7 @@ class DevelopmentSystemOrchestrator:
                 self.training_orchestrator.train_classifier(set_average_hyperparams)
                 print("Average hyperparameters set")
                 #if service flag is true, ends. If it is false, go to the next step
-                if not orchestrator.get_testing():
+                if self.testing:
                     for key in user_responses.keys():
                         user_responses[key] = 0
                     user_responses["IterationCheck"] = 1
@@ -98,7 +107,7 @@ class DevelopmentSystemOrchestrator:
                 self.training_orchestrator.train_classifier(set_average_hyperparams)
                 print("Number of iterations set")
                 # if the testing is false, go to the validation phase
-                if not orchestrator.get_testing():
+                if self.testing:
                     for key in user_responses.keys():
                         user_responses[key] = 0
                     user_responses["Validation"] = 1
@@ -113,7 +122,7 @@ class DevelopmentSystemOrchestrator:
                 print("Validation phase done")
                 # if the testing is false and the validation is correct, go to the test phase.
                 # if the testing is false and the validation is not correct, go at the beginning.
-                if not orchestrator.get_testing():
+                if self.testing:
                     for key in user_responses.keys():
                         user_responses[key] = 0
                     if result:
@@ -129,7 +138,7 @@ class DevelopmentSystemOrchestrator:
                 print("Test phase done")
                 # if the testing is false and the test is correct, send the classifier to production system.
                 # if the testing is false and the test is not correct, send the configuration to messaging system.
-                if not orchestrator.get_testing():
+                if self.testing:
                     for key in user_responses.keys():
                         user_responses[key] = 0
                     if result:
@@ -139,13 +148,9 @@ class DevelopmentSystemOrchestrator:
                 print("TestNotOK")
                 # SEND CONFIGURATION
 
-                # Retrieve ip address and port of the target system
-                self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
-                endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
-
                 # Create a MessageBroker instance and start the server
                 #self.dev_mess_broker.start_server()
-                #self.response = dev_mess_broker.send_configuration(target_ip=endpoint["ip"], target_port=endpoint["port"])
+                #self.response = dev_mess_broker.send_configuration()
                 #self.print("Response from Module Production System:", response)
                 # exit the loop
                 break
@@ -154,20 +159,23 @@ class DevelopmentSystemOrchestrator:
                 print("TestOK")
                 # SEND CLASSIFIER
 
-                # Retrieve ip address and port of the target system
-                self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
-                endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
-
                 # Create a MessageBroker instance and start the server
                 #self.dev_mess_broker.start_server()
-                #response = self.dev_mess_broker.send_classifier(target_ip=endpoint["ip"], target_port=endpoint["port"], classifier_file="data/classifier.sav")
+                #response = self.dev_mess_broker.send_classifier(classifier_file="data/classifier.sav")
                 #print("Response from Module Production System:", response)
                 # exit the loop
                 break
 
-            # if testing is true, the loop must end
-            if self.testing:
+            # if testing is false, the loop must end
+            if not self.testing:
                 break
+
+        if self.testing:
+            print("End timestamp sent")
+            # Create a MessageBroker instance and start the server
+            # self.dev_mess_broker.start_server()
+            # response = self.dev_mess_broker.send_timestamp(time.time(), "end")
+            # print("Response from Module Production System:", response)
 
 
 if __name__ == "__main__":

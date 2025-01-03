@@ -1,13 +1,13 @@
 import threading
 
-from development_system.learning_set_receiver_and_classifier_sender import LabelReceiverAndClassifierSender
+from development_system.learning_set_receiver_and_classifier_sender import LearningSetReceiverAndClassifierSender
 
 
 class TestMessageBroker:
     @staticmethod
     def receive_message():
         # Create the main broker instance on port 5001
-        broker_5001 = LabelReceiverAndClassifierSender(port=5001)
+        broker_5001 = LearningSetReceiverAndClassifierSender(port=5001)
         broker_5001.start_server()
 
         print("Receiver instance created, waiting for messages...")
@@ -23,7 +23,7 @@ class TestMessageBroker:
     @staticmethod
     def send_classifier():
         # Create the first sender instance on port 5002
-        classifier_sender = LabelReceiverAndClassifierSender(host='127.0.0.1', port=5002)
+        classifier_sender = LearningSetReceiverAndClassifierSender(host='127.0.0.1', port=5002)
         classifier_sender.start_server()
 
         classifier_file = "data/mock_classifier.json"
@@ -31,17 +31,17 @@ class TestMessageBroker:
             file.write("{\"classifier\": \"MockClassifier\"}")
 
         print("Sending classifier...")
-        response = classifier_sender.send_classifier("127.0.0.1", 5001, classifier_file)
+        response = classifier_sender.send_classifier(classifier_file, True)
         print(f"send_classifier response: {response}")
 
     @staticmethod
     def send_configuration():
         # Create the second sender instance on port 5003
-        configuration_sender = LabelReceiverAndClassifierSender(host='127.0.0.1', port=5003)
+        configuration_sender = LearningSetReceiverAndClassifierSender(host='127.0.0.1', port=5003)
         configuration_sender.start_server()
 
         print("Sending configuration...")
-        response = configuration_sender.send_configuration("127.0.0.1", 5001)
+        response = configuration_sender.send_configuration(True)
         print(f"send_configuration response: {response}")
 
 

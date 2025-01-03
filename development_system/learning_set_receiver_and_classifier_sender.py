@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify
 import threading
 import requests
+from queue import Queue
 from typing import Optional, Dict
+
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
+
 
 class LearningSetReceiverAndClassifierSender:
     """The messaging broker of the development system"""
@@ -20,10 +24,10 @@ class LearningSetReceiverAndClassifierSender:
         self.app = Flask(__name__)
         self.host = host
         self.port = port
-        self.last_message = None
+        self.json_handler = JsonValidatorReaderAndWriter()
 
-        # Lock and condition for blocking behavior
-        self.message_condition = threading.Condition()
+        # Queue to hold received messages
+        self.message_queue = Queue()
 
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
@@ -33,14 +37,12 @@ class LearningSetReceiverAndClassifierSender:
             sender_port = data.get('port')
             message = data.get('message')
 
-            with self.message_condition:
-                self.last_message = {
-                    'ip': sender_ip,
-                    'port': sender_port,
-                    'message': message
-                }
-                # Notify any threads waiting for a message
-                self.message_condition.notify_all()
+            # Put the received message in the queue
+            self.message_queue.put({
+                'ip': sender_ip,
+                'port': sender_port,
+                'message': message
+            })
 
             return jsonify("Development System: learning set received"), 200
 
@@ -51,15 +53,24 @@ class LearningSetReceiverAndClassifierSender:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_classifier(self, target_ip: str, target_port: int, classifier_file: str) -> Optional[Dict]:
+    def send_classifier(self, classifier_file: str, test=False) -> Optional[Dict]:
         """
         Send the winner classifier to the target module production system.
-
-        :param target_ip: The IP address of the target module.
-        :param target_port: The port of the target module.
         :param classifier_file: The message to send (a file that contains the data of a classifier).
+        :param test: Boolean which is True only to test the function locally
         :return: The response from the target, if any.
         """
+        # Retrieve ip address and port of the target system
+        if not test:
+            self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
+            endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
+
+            target_ip = endpoint["ip"]
+            target_port = endpoint["port"]
+        else:
+            #this is true only for the local testing
+            target_ip = "127.0.0.1"
+            target_port = 5001
 
         with open(classifier_file, "rb") as f:
             file_content = f.read()
@@ -80,14 +91,22 @@ class LearningSetReceiverAndClassifierSender:
             print(f"Error processing file: {e}")
         return None
 
-    def send_configuration(self, target_ip: str, target_port: int) -> Optional[Dict]:
+    def send_configuration(self, test=False) -> Optional[Dict]:
         """
         Send the configuration to the target module messaging system.
-
-        :param target_ip: The IP address of the target module.
-        :param target_port: The port of the target module.
+        :param test: Boolean which is True only to test the function locally
         :return: The response from the target, if any.
         """
+        if not test:
+            self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
+            endpoint = self.json_handler.get_system_address("../global_netconf.json", "Messaging System")
+
+            target_ip = endpoint["ip"]
+            target_port = endpoint["port"]
+        else:
+            # this is true only for the local testing
+            target_ip = "127.0.0.1"
+            target_port = 5001
 
         restart_config = {"action": "restart"}
 
@@ -112,12 +131,36 @@ class LearningSetReceiverAndClassifierSender:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        with self.message_condition:
-            # Wait until a message is received
-            while self.last_message is None:
-                self.message_condition.wait()
+        # Block until a message is available in the queue
+        message = self.message_queue.get()
+        return message
 
-            # Retrieve and clear the last message
-            message = self.last_message
-            self.last_message = None
-            return message
+    def send_timestamp(self, timestamp: float, status: str) -> bool:
+        """
+        Send the timestamp to the Service Class.
+
+        :param timestamp: The timestamp to send.
+        :param status: The status of the timestamp
+        :return: True if the timestamp was sent successfully, False otherwise.
+        """
+        # Retrieve ip address and port of the target system
+        self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
+        endpoint = self.json_handler.get_system_address("../global_netconf.json", "Service Class")
+        target_ip = endpoint["ip"]
+        target_port = endpoint["port"]
+
+        url = f"http://{target_ip}:{target_port}/Timestamp"
+
+        timestamp_message = {
+            "timestamp": timestamp,
+            "system_name": "Evaluation System",
+            "status": status
+        }
+
+        try:
+            response = requests.post(url, json=timestamp_message)
+            if response.status_code == 200:
+                return True
+        except requests.RequestException as e:
+            print(f"Error sending timestamp: {e}")
+        return False

@@ -58,11 +58,11 @@ class TestingOrchestrator:
                 a boolean indicating the test result (if `service_flag` is False).
         """
         if self.service_flag:
-            self.json_handler.validate_json("intermediate_results/winner_network.json", "schemas/winner_network_schema.json")
+            classifier_index = random.randint(1, 5)
+        else:
+            self.json_handler.validate_json("intermediate_results/winner_network.json","schemas/winner_network_schema.json")
             data = self.json_handler.read_json_file("intermediate_results/winner_network.json")
             classifier_index = data["index"]
-        else:
-            classifier_index = random.randint(1, 5)
 
         self.winner_network: Classifier = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
 
@@ -100,12 +100,12 @@ class TestingOrchestrator:
 
 
         if self.service_flag:
-            # useful only for the test of the test report format
-            return self.test_report
-        else:
             # true if the test is passed, false otherwise
             index = int(random.random() <= 0.99)
             if index == 1:
                 return True
             else:
                 return False
+        else:
+            # useful only for the test of the test report format
+            return self.test_report

@@ -38,11 +38,11 @@ class ValidationOrchestrator:
         # Grid Search
         classifier_trainer = Trainer()
         if self.service_flag:
-            iterations = classifier_trainer.read_number_iterations()
-
-        else:
             classifier = joblib.load("data/classifier_trainer.sav")
             iterations = classifier.get_num_iterations()
+
+        else:
+            iterations = classifier_trainer.read_number_iterations()
 
         # Compute all possible combinations of hyperparameters
         layers = []
@@ -75,12 +75,13 @@ class ValidationOrchestrator:
         self.validation_report_view.show_validation_report(self.validation_report)
 
         if self.service_flag:
-            # it is useful only for testing the creation of validation report
-            return self.validation_report
-        else:
-            #restituisce true se tutti i classificatori nel report sono validi, se anche uno non è valido, false
+            # restituisce true se tutti i classificatori nel report sono validi, se anche uno non è valido, false
             index = int(random.random() <= 0.95)
-            if index == 0:  #5%
+            if index == 0:  # 5%
                 return False
             else:
                 return True
+
+        else:
+            # it is useful only for testing the creation of validation report
+            return self.validation_report
