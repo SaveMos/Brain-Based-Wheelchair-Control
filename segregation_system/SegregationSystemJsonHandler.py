@@ -179,6 +179,3 @@ class SegregationSystemJsonHandler:
             return json.dumps(dictionary, indent=4)
         except TypeError as e:
             raise ValueError(f"Unable to convert dictionary to string: {e}")
-
-
-
