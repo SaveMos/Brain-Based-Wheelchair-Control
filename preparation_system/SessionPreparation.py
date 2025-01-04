@@ -3,7 +3,7 @@ Module: SessionPreparation
 Prepare session correcting samples, outliers and extracting features
 Author: Francesco Taverna
 """
-
+import json
 from typing import Union
 
 import numpy as np
@@ -54,6 +54,22 @@ class SessionPreparation:
 
         # bound between min and max
         raw_session['eeg_data'] = [min(max(value, min_value), max_value) for value in raw_session['eeg_data']]
+        #if activity is not defined insert last value
+        if(raw_session['activity'] == "null"):
+            try:
+                with open("last_activity.json" , "r") as file:
+                    raw_session['activity'] = json.load(file)['activity']
+            except FileNotFoundError:
+                print("File not found")
+
+        #if environment is not defined insert last value
+        if(raw_session['environment'] == "null"):
+            try:
+                with open("last_environment.json", "r") as file:
+                    raw_session['environment'] = json.load(file)['environment']
+            except FileNotFoundError:
+                print("File not found")
+
         return raw_session
 
     def extract_feature(self, time_series: np.array, sf: float, band: list, relative=False) -> float:
