@@ -1,5 +1,9 @@
+import json
 from typing import List
-from segregation_system.prepared_session import PreparedSession
+
+import pandas as pd
+
+from development_system.prepared_session import PreparedSession
 
 class LearningSet:
     """
@@ -14,9 +18,9 @@ class LearningSet:
     """
 
     def __init__(self,
-                 training_set: List[PreparedSession],
-                 validation_set: List[PreparedSession],
-                 test_set: List[PreparedSession]):
+        training_set: List[PreparedSession],
+        validation_set: List[PreparedSession],
+        test_set: List[PreparedSession]):
         """
         Initializes a new instance of the `LearningSet` class.
 
@@ -28,6 +32,47 @@ class LearningSet:
         self._training_set = training_set
         self._validation_set = validation_set
         self._test_set = test_set
+
+    @staticmethod
+    def extract_features_and_labels(data_set, set_type):
+        """
+        Extracts features and labels from a set of data.
+
+        Args:
+            data_set (dict): A dictionary which contains a set of data (ex. "test_set").
+            set_type (str): Type of dictionary that contains a set.
+
+        Returns:
+            list: A list containing two elements:
+                  - features (pd.DataFrame): A DataFrame with the characteristics.
+                  - labels (pd.Series): Series with the labels.
+        """
+
+        activity_mapping = {"shopping": 0, "sport": 1, "cooking": 2, "relax": 3, "gaming": 4}
+
+        environment_mapping = {"slippery": 0, "plain": 1, "slope": 2, "house": 3, "track": 4}
+
+        current_set = data_set[set_type]
+
+        current_data = pd.DataFrame([
+            {
+                "psd_alpha_band": record["psd_alpha_band"],
+                "psd_beta_band": record["psd_beta_band"],
+                "psd_theta_band": record["psd_theta_band"],
+                "psd_delta_band": record["psd_delta_band"],
+                "activity": activity_mapping.get(record["activity"], -1),  # Default value -1 if doesn't find
+                "environment": environment_mapping.get(record["environment"], -1),  # Default value -1 if doesn't find
+                "label": record["label"]
+            }
+            for record in current_set
+        ])
+
+        # Separation of the features and labels
+        # features = pd.DataFrame(data["features"].to_list())
+        features = current_data.drop(columns=["label"])
+        labels = current_data["label"]
+
+        return [features, labels]
 
     @property
     def training_set(self) -> List[PreparedSession]:
@@ -103,3 +148,66 @@ class LearningSet:
         if not isinstance(value, list) or not all(isinstance(item, PreparedSession) for item in value):
             raise ValueError("test_set must be a list of PreparedSession objects.")
         self._test_set = value
+
+
+    @staticmethod
+    def create_learning_set_from_json(json_file_path: str):
+        """
+        Converts a JSON file to a LearningSet object.
+
+        Args:
+            json_file_path (str): Path to the JSON file containing the data.
+
+        Returns:
+            LearningSet: An instance of the LearningSet class populated with the data from the JSON file.
+
+        Raises:
+            FileNotFoundError: If the JSON file does not exist.
+            KeyError: If required keys are missing in the JSON data.
+            ValueError: If the data types do not match the expected structure.
+        """
+        try:
+            # Carica i dati dal file JSON
+            with open(json_file_path, 'r') as file:
+                current_data = json.load(file)
+        except FileNotFoundError as ex:
+            raise FileNotFoundError(f"File not found: {ex}")
+        except json.JSONDecodeError as ex:
+            raise ValueError(f"Error decoding JSON: {ex}")
+
+        # Converti ciascun set nel JSON in una lista di oggetti PreparedSession
+        training_set = [PreparedSession.from_dictionary(session) for session in current_data.get('training_set', [])]
+        validation_set = [PreparedSession.from_dictionary(session) for session in
+                          current_data.get('validation_set', [])]
+        test_set = [PreparedSession.from_dictionary(session) for session in current_data.get('test_set', [])]
+
+        # Crea e restituisci l'oggetto LearningSet
+        return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
+
+
+    @staticmethod
+    def save_learning_set(learning_set):
+        """
+        Saves the training, validation, and test sets of a LearningSet instance to JSON files.
+
+        Args:
+            learning_set (LearningSet): An instance containing training, validation, and test sets.
+
+        Returns:
+            None
+        """
+        # Converte i dati utilizzando il metodo to_dictionary
+        training_data = [session.to_dictionary() for session in learning_set.training_set]
+        validation_data = [session.to_dictionary() for session in learning_set.validation_set]
+        test_data = [session.to_dictionary() for session in learning_set.test_set]
+
+        # Salva i dati nei rispettivi file JSON
+        with open('data/training_set.json', 'w') as f:
+            json.dump({"training_set": training_data}, f, indent=4)
+
+        with open('data/validation_set.json', 'w') as f:
+            json.dump({"validation_set": validation_data}, f, indent=4)
+
+        with open('data/test_set.json', 'w') as f:
+            json.dump({"test_set": test_data}, f, indent=4)
+

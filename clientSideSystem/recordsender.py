@@ -1,5 +1,11 @@
+"""
+Module: recordsender
+Send records to ingestion system gathering them from csv files.
+
+Author: Francesco Taverna
+"""
+
 import random
-import copy
 import pandas as pd
 
 

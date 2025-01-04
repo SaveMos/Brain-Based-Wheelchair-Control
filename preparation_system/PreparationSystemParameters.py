@@ -1,6 +1,9 @@
 """
 Module: PreparationSystemParameters
 Loads and manages configuration parameters for the preparation system.
+
+Author: Francesco Taverna
+
 """
 from ingestion_system.ingestion_json_handler.json_handler import JsonHandler
 from preparation_system import ING_MAN_CONFIG_FILE_PATH
@@ -19,8 +22,14 @@ class PreparationSystemParameters:
         self.testing = False
         self.upper_bound = 0.99
         self.lower_bound = 0.01
-        self.missing_samples_correction = "interpolate"
+        self.sampling_frequency = 100.0
         self.development_phase = True
+        self.bandwidths = {
+                             "psd_alpha_band": [8, 12],
+                             "psd_beta_band": [12, 30],
+                             "psd_theta_band": [1, 4],
+                             "psd_delta_band": [4, 8]
+                          }
 
 
     def load_parameters(self):
@@ -37,6 +46,7 @@ class PreparationSystemParameters:
         self.testing = configuration["testing"]
         self.upper_bound = configuration["upper_bound"]
         self.lower_bound = configuration["lower_bound"]
-        self.missing_samples_correction = configuration["missing_samples_correction"]
+        self.sampling_frequency = configuration["sampling_frequency"]
+        self.bandwidths = configuration["bandwidths"]
 
 

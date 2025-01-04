@@ -2,12 +2,12 @@ import math
 
 import joblib
 from numpy import ravel
-import pandas as pd
 from sklearn.metrics import log_loss
 
 from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
+from development_system.learning_set import LearningSet
 
 class Trainer:
     """Class responsible for training a classifier."""
@@ -15,10 +15,19 @@ class Trainer:
     def __init__(self):
         """Initialize trainer parameters."""
         self.classifier = Classifier()
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
+        self.learning_set = LearningSet([], [], [])
 
     def read_number_iterations(self):
-        """Set the number of iterations."""
+        """
+            Set the number of iterations.
+            This function validates the JSON file containing the iteration details
+            using a predefined schema and then reads the data to extract and return
+            the number of iterations.
+
+            Returns:
+                int: The number of iterations.
+        """
         self.json_handler.validate_json("intermediate_results/iterations.json", "schemas/iterations_schema.json")
         data=self.json_handler.read_json_file("intermediate_results/iterations.json")
         iterations =  data["iterations"]
@@ -39,49 +48,34 @@ class Trainer:
         #self.json_handler.save_average_hyperparams(avg_neurons, avg_layers, "intermediate_results/average_hyperparams.json")
 
     def set_hyperparameters(self, num_layers: int, num_neurons: int):
-        """Set the hyperparameters."""
+        """ Set the hyperparameters.
+             Args:
+                num_layers (int): The number of layers to set.
+                num_neurons (int): The number of neurons to set.
+        """
         self.classifier.set_num_layers(num_layers)
         self.classifier.set_num_neurons(num_neurons)
 
     def train(self, iterations, validation: bool = False):
-        """Train the classifier."""
+        """
+            Train the classifier.
+            Args:
+                iterations (int): The number of iterations for training.
+                validation (bool, optional): Whether to perform validation after training. Defaults to False.
+
+            Returns:
+                object: The trained classifier.
+        """
         self.json_handler.validate_json("data/training_set.json","schemas/generic_set_schema.json")
         training_data = self.json_handler.read_json_file("data/training_set.json")
 
-        result = self.json_handler.extract_features_and_labels(training_data, "training_set")
-        """
-        # Estrazione del training set
-        training_set = data["training_set"]
+        result = self.learning_set.extract_features_and_labels(training_data, "training_set")
 
-        # Creazione del DataFrame da training_set
-        training_data = pd.DataFrame([
-            {"psd_alpha_band": record["psd_alpha_band"],
-            "psd_beta_band": record["psd_beta_band"],
-            "psd_theta_band": record["psd_theta_band"],
-            "psd_delta_band": record["psd_delta_band"],
-            #"activity": record["activity"],
-            #"environment": record["environment"],
-            "label": record["label"]}
-
-            for record in training_set
-        ])
-
-        # Separazione delle caratteristiche (X) e delle etichette (y)
-        #training_features = pd.DataFrame(training_data["features"].to_list())  # Convertiamo le liste in colonne
-        training_features = training_data.drop(columns=["label"])
-        training_labels = training_data["label"]
-         """
         training_features = result[0]
         training_labels = result[1]
 
         if not validation:
-            """
-                self.json_handler.validate_json("intermediate_results/average_hyperparams.json","schemas/average_hyperparams_schema.json")
-                data = self.json_handler.read_json_file("intermediate_results/average_hyperparams.json")
-                self.classifier.set_num_neurons(data["avg_neurons"])
-                self.classifier.set_num_layers(data["avg_layers"])
-            """
-            self.classifier =  joblib.load("data/classifier_trainer")
+            self.classifier =  joblib.load("data/classifier_trainer.sav")
 
         self.classifier.set_num_iterations(iterations)
         print("num neurons: ", self.classifier.get_num_neurons())
@@ -96,31 +90,18 @@ class Trainer:
         return self.classifier
 
     def validate(self):
+        """
+            Validate the classifier.
+
+            This function loads validation data, extracts features and labels,
+            and computes the validation error using log loss. The validation error
+            is then set for the classifier.
+        """
         self.json_handler.validate_json("data/validation_set.json", "schemas/generic_set_schema.json")
         validation_data = self.json_handler.read_json_file("data/validation_set.json")
 
-        result = self.json_handler.extract_features_and_labels(validation_data, "validation_set")
-        """
-        # Estrazione del validation set
-        validation_set = data["validation_set"]
+        result = self.learning_set.extract_features_and_labels(validation_data, "validation_set")
 
-        # Creazione del DataFrame da validation_set
-        validation_data = pd.DataFrame([
-            {"psd_alpha_band": record["psd_alpha_band"],
-             "psd_beta_band": record["psd_beta_band"],
-             "psd_theta_band": record["psd_theta_band"],
-             "psd_delta_band": record["psd_delta_band"],
-              #"activity": record["activity"],
-             # "environment": record["environment"],
-             "label": record["label"]}
-            for record in validation_set
-        ])
-
-        # Separazione delle caratteristiche (X) e delle etichette (y)
-        #validation_features = pd.DataFrame(validation_data["features"].to_list())
-        validation_features = validation_data.drop(columns=["label"])
-        validation_labels = validation_data["label"]
-        """
         validation_features = result[0]
         validation_labels = result[1]
 

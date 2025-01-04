@@ -12,6 +12,11 @@ class LearningPlotView:
     # It takes as input an object of type LearningError, which stores the training error for each iteration
     @staticmethod
     def show_learning_plot(learning_error: LearningPlot):
+        """
+            Generates the report for the learning plot
+            Parameters:
+                learning_error (LearningPlot): the learning plot object used to create the plot
+        """
         error_curve = learning_error.get_learning_error()
         plt.plot(range(1, len(error_curve) + 1), error_curve, label="Training error")
         plt.xlabel('# Iterations')

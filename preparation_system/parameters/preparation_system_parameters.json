@@ -1,7 +1,13 @@
 {
-  "development_phase": false,
-  "missing_samples_correction": "interpolate",
+  "development_phase": "False",
   "upper_bound": 0.99,
   "lower_bound": 0.01,
-  "testing" : false
+  "testing": "False",
+  "sampling_frequency": 100.0,
+  "bandwidths": {
+    "psd_alpha_band": [8, 12],
+    "psd_beta_band": [12, 30],
+    "psd_theta_band": [1, 4],
+    "psd_delta_band": [4, 8]
+  }
 }

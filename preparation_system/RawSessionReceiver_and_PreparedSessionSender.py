@@ -1,6 +1,9 @@
 """
-Module: ingestion_system_json_io
-Handles JSON-based input and output operations for the ingestion system.
+Module: RawSessionReceiver_and_PreparedSessionSender
+Handles JSON-based input and output operations for the preparation system.
+
+Author: Francesco Taverna
+
 """
 from flask import Flask, request, jsonify
 import threading

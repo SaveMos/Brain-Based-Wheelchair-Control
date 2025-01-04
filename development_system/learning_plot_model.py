@@ -9,6 +9,10 @@ class LearningPlotModel:
         """ """
     @staticmethod
     def generate_learning_report(classifier: Classifier):
-        """ """
+        """
+            Generates the report for the learning plot
+            Parameters:
+                classifier (Classifier): classifier object
+        """
         learning_report = LearningPlot(classifier.get_loss_curve())
         return learning_report

@@ -11,7 +11,22 @@ class TestReportModel:
         self.config_params = ConfigurationParameters()
 
     def generate_test_report(self, classifier: Classifier):
-        """ """
+        """
+            Generates a test report for the given classifier.
+
+            This method configures the system, retrieves the relevant metrics from the
+            provided classifier, and creates a `TestReport` instance populated with these values.
+            It also prints the difference between validation and test errors for reference.
+
+            Args:
+                classifier (Classifier): An instance of a classifier that provides
+                validation and test error metrics.
+
+            Returns:
+                TestReport: An instance of `TestReport` containing the generalization
+                tolerance, validation error, test error, and the difference between
+                validation and test errors.
+        """
         self.config_params.load_configuration()
         test_report = TestReport()
         test_report.set_generalization_tolerance(ConfigurationParameters.generalization_tolerance)
@@ -20,8 +35,3 @@ class TestReportModel:
         test_report.set_difference(classifier.get_valid_test_error_difference())
         print("difference = ", test_report.get_difference())
         return test_report
-
-        #return {'generalization_tolerance': ConfigurationParameters.generalization_tolerance,
-        #        'validation_error': classifier.get_validation_error(),
-        #        'test_error': classifier.get_test_error(),
-        #        'difference': classifier.get_valid_test_error_difference()}

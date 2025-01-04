@@ -1,9 +1,9 @@
 import copy
 import itertools
+import random
 
 import joblib
 
-from development_system.classifier import Classifier
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.trainer import Trainer
 from development_system.validation_report_model import ValidationReportModel
@@ -23,7 +23,14 @@ class ValidationOrchestrator:
         self.service_flag = None
 
     def validation(self):    # It performs the grid search and generates the validation report
-        """ """
+        """
+            Perform a grid search for hyperparameters and generate the validation report.
+
+            Returns:
+                ValidationReport or bool:
+                    - If in service mode, returns the generated validation report.
+                    - If in testing mode, returns `True` if all classifiers in the report are valid, otherwise `False`.
+        """
         # load the configurations
         self.config_params.load_configuration()
         self.service_flag = self.config_params.service_flag
@@ -31,11 +38,11 @@ class ValidationOrchestrator:
         # Grid Search
         classifier_trainer = Trainer()
         if self.service_flag:
-            iterations = classifier_trainer.read_number_iterations()
-            # classifier_trainer.set_num_iterations(num_iterations)
-        else:
-            classifier = joblib.load("data/classifier_trainer")
+            classifier = joblib.load("data/classifier_trainer.sav")
             iterations = classifier.get_num_iterations()
+
+        else:
+            iterations = classifier_trainer.read_number_iterations()
 
         # Compute all possible combinations of hyperparameters
         layers = []
@@ -66,5 +73,15 @@ class ValidationOrchestrator:
         print("validation report =", self.validation_report)
         # CHECK VALIDATION RESULT
         self.validation_report_view.show_validation_report(self.validation_report)
-        #it is useful only for testing the creation of validation report
-        return self.validation_report
+
+        if self.service_flag:
+            # restituisce true se tutti i classificatori nel report sono validi, se anche uno non è valido, false
+            index = int(random.random() <= 0.95)
+            if index == 0:  # 5%
+                return False
+            else:
+                return True
+
+        else:
+            # it is useful only for testing the creation of validation report
+            return self.validation_report

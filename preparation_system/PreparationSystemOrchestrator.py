@@ -1,3 +1,11 @@
+"""
+
+Module: PreparationSystemOrchestrator
+Orchestrates the preparation system workflow.
+
+Author: Francesco Taverna
+"""
+
 import json
 import sys
 
@@ -22,10 +30,11 @@ class PreparationSystemOrchestrator:
         self.parameters = PreparationSystemParameters()
 
         #instantiate message exchanger
-        self.communication = RawSessionReceiver_and_PrepareSessionSender(host='127.0.0.1', port=5005)
+        self.communication = RawSessionReceiver_and_PrepareSessionSender(host='127.0.0.1', port=5015)
         self.communication.start_server()
-        #prepare SessionPreparation istance
-        self.session_preparation= SessionPreparation(configuration)
+        #prepare SessionPreparation istance with all configuration parameters
+        self.session_preparation = SessionPreparation(configuration) #da modificare
+
         print("-- PREPARATION SYSTEM INITIALIZED --")
 
     def run(self) -> None:
@@ -35,7 +44,7 @@ class PreparationSystemOrchestrator:
             new_raw_session = json.loads(message["message"])
 
             # validate json
-            handler= JsonHandler
+            handler = JsonHandler()
             is_valid = handler.validate_json(new_raw_session, RAW_SESS_SCHEMA_FILE_PATH)
             if is_valid is False:
                 continue
@@ -50,6 +59,8 @@ class PreparationSystemOrchestrator:
 
             # send prepared session
             if self.parameters.development_phase:
-                self.communication.send_message('127.0.0.1', 5040, json_prepared_session)
-            else:
-                self.communication.send_message('127.0.0.1', 5045,json_prepared_session)
+                #send to segregation system
+                self.communication.send_message('127.0.0.1', 5041, json_prepared_session)
+            else: #to comment for the preparation test
+                #send to production system
+                self.communication.send_message('127.0.0.1', 5045, json_prepared_session)

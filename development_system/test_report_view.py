@@ -1,5 +1,5 @@
 from development_system.configuration_parameters import ConfigurationParameters
-from development_system.jsonIO import JsonHandler
+from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 from development_system.test_report import TestReport
 
 
@@ -8,10 +8,24 @@ class TestReportView:
 
     def __init__(self):
         """ """
-        self.json_handler = JsonHandler()
+        self.json_handler = JsonValidatorReaderAndWriter()
 
     def show_test_report(self, test_report: TestReport):
-        """ """
+        """
+        Displays and saves the test report.
+
+        This method creates a dictionary containing key metrics from the provided
+        `TestReport` instance, such as generalization tolerance, validation error,
+        test error, and the difference between validation and test errors. It then
+        saves this dictionary as a JSON file.
+
+        Args:
+            test_report (TestReport): An instance of `TestReport` containing the
+            metrics to be displayed and saved.
+
+        Returns:
+            None
+        """
         report = {'generalization_tolerance': ConfigurationParameters.generalization_tolerance,
                 'validation_error': test_report.get_validation_error(),
                 'test_error': test_report.get_test_error(),

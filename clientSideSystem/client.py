@@ -1,4 +1,9 @@
-import os
+"""
+Module: client
+Manage the client side system
+Author: Francesco Taverna
+"""
+
 import time
 import json
 from threading import Thread

@@ -2,9 +2,9 @@
 Author: Giovanni Ligato
 """
 
+import json
 from evaluation_system.Label import Label
 from evaluation_system.EvaluationReport import EvaluationReport
-import json
 
 class EvaluationReportModel:
     """
