@@ -25,8 +25,9 @@ class TestingOrchestrator:
         self.test_report = None
         self.test_report_model = TestReportModel()
         self.test_report_view = TestReportView()
-        ConfigurationParameters.load_configuration()
-        self.service_flag: bool = ConfigurationParameters.service_flag
+        #ConfigurationParameters.load_configuration()
+        #self.service_flag: bool = ConfigurationParameters.service_flag
+        self.service_flag = None
         self.learning_set = LearningSet([], [], [])
 
     @staticmethod
@@ -57,6 +58,12 @@ class TestingOrchestrator:
                 Union[TestReport, bool]: The test report (if `service_flag` is True) or
                 a boolean indicating the test result (if `service_flag` is False).
         """
+        #the configurations are loaded only in case of stop and go
+        #if ConfigurationParameters.params is None:
+            #ConfigurationParameters.load_configuration()
+
+        self.service_flag = ConfigurationParameters.params['service_flag']
+
         if self.service_flag:
             classifier_index = random.randint(1, 5)
         else:
@@ -86,7 +93,7 @@ class TestingOrchestrator:
 
         # GENERATE TEST REPORT
         self.test_report = self.test_report_model.generate_test_report(self.winner_network)
-        print("test report generated\n")
+        print("test report generated")
         print("test error =", self.test_report.get_test_error())
 
         #remove all saved classifiers

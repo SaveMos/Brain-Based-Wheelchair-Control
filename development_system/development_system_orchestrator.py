@@ -17,14 +17,14 @@ class DevelopmentSystemOrchestrator:
         """Initialize the orchestrator."""
         self.testing = None
         self.json_handler = JsonValidatorReaderAndWriter()
-        self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
+        #self.config_params = ConfigurationParameters() #instance of ConfigurationParameters class
         self.dev_mess_broker = LearningSetReceiverAndClassifierSender(host='0.0.0.0', port=5002)  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
         self.classifier = Classifier()
         self.learning_set = LearningSet([], [], [])
-
+        ConfigurationParameters.load_configuration()
 
     def set_testing(self, value):
         """Set the service flag value.
@@ -47,10 +47,11 @@ class DevelopmentSystemOrchestrator:
         # Read the responses of the user for the stop and go and the value to start the continuous execution
         json_handler.validate_json("responses/user_responses.json", "schemas/user_responses_schema.json")
         user_responses = json_handler.read_json_file("responses/user_responses.json")
-        #load the configurations and assign the value of the service flag to testing
-        self.config_params.load_configuration()
-        orchestrator.set_testing(self.config_params.service_flag)
+        #assign the value of the service flag to testing
+
+        orchestrator.set_testing(ConfigurationParameters.params['service_flag'])
         print("Service Flag: ", self.testing)
+
         #loop for the non-stop-and-go execution
         if self.testing:
 
@@ -75,7 +76,7 @@ class DevelopmentSystemOrchestrator:
 
                     # message = self.dev_mess_broker.rcv_learning_set()
                     # if message:
-                    # print("Message received:", message)
+                    # print("Learning set received:", message)
 
                     # Simulation of the reception of the learning set, to change in future
                     json_handler1 = JsonValidatorReaderAndWriter()
@@ -151,7 +152,7 @@ class DevelopmentSystemOrchestrator:
                 # Create a MessageBroker instance and start the server
                 #self.dev_mess_broker.start_server()
                 #self.response = dev_mess_broker.send_configuration()
-                #self.print("Response from Module Production System:", response)
+                #self.print("Response from Module Messaging System:", response)
                 # exit the loop
                 break
 

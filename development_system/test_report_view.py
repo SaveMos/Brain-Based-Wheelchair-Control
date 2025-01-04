@@ -26,7 +26,7 @@ class TestReportView:
         Returns:
             None
         """
-        report = {'generalization_tolerance': ConfigurationParameters.generalization_tolerance,
+        report = {'generalization_tolerance': ConfigurationParameters.params['generalization_tolerance'],
                 'validation_error': test_report.get_validation_error(),
                 'test_error': test_report.get_test_error(),
                 'difference': test_report.get_difference(),}

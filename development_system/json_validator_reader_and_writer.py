@@ -28,7 +28,7 @@ class JsonValidatorReaderAndWriter:
 
             # Validate JSON against schema
             validate(instance=json_data, schema=json_schema)
-            print("JSON is valid.")
+
             return True
 
         except ValidationError as ex:
