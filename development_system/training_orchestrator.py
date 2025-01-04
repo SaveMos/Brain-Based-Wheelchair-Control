@@ -46,18 +46,10 @@ class TrainingOrchestrator:
             self.classifier.set_num_layers(self.trainer.classifier.get_num_layers())
             joblib.dump(self.classifier, "data/classifier_trainer.sav")
 
-
         else:
             #if testing is true, the iterations are read from the file, otherwise are randomly generated
 
             if self.service_flag:
-                iterations = self.trainer.read_number_iterations()
-                classifier = self.trainer.train(iterations)
-                # GENERATE LEARNING REPORT
-                learning_error = self.plot_model.generate_learning_report(classifier)
-                # CHECK LEARNING PLOT
-                self.plot_view.show_learning_plot(learning_error)
-            else:
                 iterations = random.randint(50, 150)
 
                 while True:
@@ -82,6 +74,13 @@ class TrainingOrchestrator:
                     else:  # 40%
                         print("CHECK LEARNING PLOT decrease 1/3")
                         iterations = math.ceil(iterations * (1 - 1 / 3))
+            else:
+                iterations = self.trainer.read_number_iterations()
+                classifier = self.trainer.train(iterations)
+                # GENERATE LEARNING REPORT
+                learning_error = self.plot_model.generate_learning_report(classifier)
+                # CHECK LEARNING PLOT
+                self.plot_view.show_learning_plot(learning_error)
 
             print("number of iterations= ", iterations)
 

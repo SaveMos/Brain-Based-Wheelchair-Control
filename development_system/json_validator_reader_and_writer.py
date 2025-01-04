@@ -1,11 +1,7 @@
 import json
 from typing import Any
-import pandas as pd
 
 from jsonschema import validate, ValidationError, SchemaError
-from segregation_system.prepared_session import PreparedSession
-from segregation_system.learning_set import LearningSet
-from development_system.classifier import Classifier
 
 class JsonValidatorReaderAndWriter:
     """
@@ -42,57 +38,6 @@ class JsonValidatorReaderAndWriter:
 
         return False
 
-    """"
-    @staticmethod
-    def json_to_learning_set(json_file_path: str) -> LearningSet:
-        
-        # Reading of the JSON
-        with open(json_file_path, "r") as file:
-            current_data = json.load(file)
-
-        # Helper function to create a list of PreparedSession
-        def parse_sessions(session_list):
-            return [PreparedSession(**session_data) for session_data in session_list]
-
-        # Parsing of the dataset
-        training_set = parse_sessions(current_data.get("training_set", []))
-        validation_set = parse_sessions(current_data.get("validation_set", []))
-        test_set = parse_sessions(current_data.get("test_set", []))
-
-        # Creation of the LearningSet
-        learning_set = LearningSet(
-            training_set=training_set,
-            validation_set=validation_set,
-            test_set=test_set
-        )
-
-        return learning_set
-        """
-
-    """
-    @staticmethod
-    def print_learning_set(learning_set: LearningSet):
-        def print_session(current_session: PreparedSession):
-            
-            print(f"UUID: {current_session.uuid}")
-            print(f"Label: {current_session.label}")
-            print(f"Features: {current_session.features}")
-            print()
-
-        print("Training Set:")
-        for session in learning_set.training_set:
-            print_session(session)
-
-        print("Validation Set:")
-        for session in learning_set.validation_set:
-            print_session(session)
-
-        print("Test Set:")
-        for session in learning_set.test_set:
-            print_session(session)
-
-    """
-
     @staticmethod
     def read_configuration_parameters(filepath):
         """
@@ -128,24 +73,6 @@ class JsonValidatorReaderAndWriter:
             print("Error to read file at path " + filepath + str(ex))
             return None
 
-    """
-    @staticmethod
-    def save_average_hyperparams(avg_neurons, avg_layers, filepath):
-
-        data = {
-            "avg_neurons": avg_neurons,
-            "avg_layers": avg_layers
-        }
-
-        try:
-            with open(filepath, "w") as json_file:
-                json.dump(data, json_file, ensure_ascii=False, indent=4)
-                return True
-        except Exception as e:
-            print("Error to save file at path " + filepath + ": " + str(e))
-            return False
-    """
-
     @staticmethod
     def read_json_file(filepath):
        
@@ -177,22 +104,6 @@ class JsonValidatorReaderAndWriter:
         except Exception as e:
             print("Error to save file at path " + filepath + ": " + str(e))
             return False
-
-    """
-    @staticmethod
-    def read_winner_network(filepath):
-        with open(filepath, 'r') as file:
-            data = json.load(file)
-
-        classifier = Classifier()
-        classifier.set_num_iterations(data.get("num_iterations"))
-        classifier.set_validation_error(data.get("validation_error"))
-        classifier.set_training_error(data.get("training_error"))
-        classifier.set_num_layers(data.get("num_layers"))
-        classifier.set_num_neurons(data.get("num_neurons"))
-
-        return classifier
-    """
 
     def get_system_address(self , json_filepath: str, system_name: str) -> Any | None:
         """

@@ -3,7 +3,7 @@ from typing import List
 
 import pandas as pd
 
-from segregation_system.prepared_session import PreparedSession
+from development_system.prepared_session import PreparedSession
 
 class LearningSet:
     """
@@ -149,6 +149,7 @@ class LearningSet:
             raise ValueError("test_set must be a list of PreparedSession objects.")
         self._test_set = value
 
+
     @staticmethod
     def create_learning_set_from_json(json_file_path: str):
         """
@@ -166,75 +167,41 @@ class LearningSet:
             ValueError: If the data types do not match the expected structure.
         """
         try:
+            # Carica i dati dal file JSON
             with open(json_file_path, 'r') as file:
                 current_data = json.load(file)
         except FileNotFoundError as ex:
             raise FileNotFoundError(f"File not found: {ex}")
+        except json.JSONDecodeError as ex:
+            raise ValueError(f"Error decoding JSON: {ex}")
 
-        # Helper function to convert a dictionary to a PreparedSession object
-        def dict_to_prepared_session(session_dict: dict) -> PreparedSession:
-            try:
-                uuid = session_dict['uuid']
-                label = session_dict['label']
-                features = [
-                    (
-                        session_dict['psd_alpha_band'],
-                        session_dict['psd_beta_band'],
-                        session_dict['psd_theta_band'],
-                        session_dict['psd_delta_band'],
-                        session_dict['activity'],
-                        session_dict['environment'],
-                    )
-                ]
-                return PreparedSession(uuid=uuid, features=features, label=label)
-            except KeyError as er:
-                raise KeyError(f"Missing key in session dictionary: {er}")
+        # Converti ciascun set nel JSON in una lista di oggetti PreparedSession
+        training_set = [PreparedSession.from_dictionary(session) for session in current_data.get('training_set', [])]
+        validation_set = [PreparedSession.from_dictionary(session) for session in
+                          current_data.get('validation_set', [])]
+        test_set = [PreparedSession.from_dictionary(session) for session in current_data.get('test_set', [])]
 
-        # Convert each set in the JSON to a list of PreparedSession objects
-        training_set = [dict_to_prepared_session(session) for session in current_data.get('training_set', [])]
-        validation_set = [dict_to_prepared_session(session) for session in current_data.get('validation_set', [])]
-        test_set = [dict_to_prepared_session(session) for session in current_data.get('test_set', [])]
-
-        # Create and return the LearningSet object
+        # Crea e restituisci l'oggetto LearningSet
         return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
+
 
     @staticmethod
     def save_learning_set(learning_set):
         """
-           Saves the training, validation, and test sets of a LearningSet instance to JSON files.
+        Saves the training, validation, and test sets of a LearningSet instance to JSON files.
 
-           Args:
-               learning_set (LearningSet): An instance containing training, validation, and test sets.
+        Args:
+            learning_set (LearningSet): An instance containing training, validation, and test sets.
 
-           Returns:
-               None
-           """
+        Returns:
+            None
+        """
+        # Converte i dati utilizzando il metodo to_dictionary
+        training_data = [session.to_dictionary() for session in learning_set.training_set]
+        validation_data = [session.to_dictionary() for session in learning_set.validation_set]
+        test_data = [session.to_dictionary() for session in learning_set.test_set]
 
-        def session_to_dict(session: PreparedSession) -> dict:
-            """
-                Converts a PreparedSession object into a dictionary.
-
-                Args:
-                    session (PreparedSession): The session to convert.
-
-                Returns:
-                    dict: A dictionary representation of the session.
-            """
-            return {
-                "uuid": session.uuid,
-                "label": session.label,
-                "psd_alpha_band": session.features[0][0],
-                "psd_beta_band": session.features[0][1],
-                "psd_theta_band": session.features[0][2],
-                "psd_delta_band": session.features[0][3],
-                "activity": session.features[0][4],
-                "environment": session.features[0][5]
-            }
-
-        training_data = [session_to_dict(session) for session in learning_set.training_set]
-        validation_data = [session_to_dict(session) for session in learning_set.validation_set]
-        test_data = [session_to_dict(session) for session in learning_set.test_set]
-
+        # Salva i dati nei rispettivi file JSON
         with open('data/training_set.json', 'w') as f:
             json.dump({"training_set": training_data}, f, indent=4)
 
@@ -243,3 +210,4 @@ class LearningSet:
 
         with open('data/test_set.json', 'w') as f:
             json.dump({"test_set": test_data}, f, indent=4)
+

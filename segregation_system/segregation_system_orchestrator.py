@@ -146,6 +146,8 @@ class SegregationSystemOrchestrator:
             # Send the learning sets to the Development System.
             message_broker.send_message(network_info.get("ip"), network_info.get("port"), SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
 
+            db.reset_session_database()
+            self.reset_execution_state()
 
 
     # Getter for testing
