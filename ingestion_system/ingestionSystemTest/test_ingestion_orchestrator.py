@@ -11,14 +11,14 @@ from multiprocessing import Process
 import time
 
 from clientSideSystem.client import ClientSideOrchestrator
-from ingestion_system.SessionAndRecordExchanger import SessionAndRecordExchanger
+from ingestion_system.ingestionSystemTest.MessageBrokerTest import MessageBrokerTest
 from ingestion_system.ingestion_system_orchestrator import IngestionSystemOrchestrator
 
 logger = logging.getLogger()
 logger.level = logging.INFO
 
 def run_orchestrator():
-    orchestrator = IngestionSystemOrchestrator(False)
+    orchestrator = IngestionSystemOrchestrator()
     orchestrator.ingestion()
 
 
@@ -29,8 +29,8 @@ def run_client():
 
 def test_ingestion_system_orchestrator():
     # create receiver
-    receiver = SessionAndRecordExchanger(host='127.0.0.1', port=5012)
-    label_receiver = SessionAndRecordExchanger(host='127.0.0.1', port=5013)
+    receiver = MessageBrokerTest(host='127.0.0.1', port=5012)
+    label_receiver = MessageBrokerTest(host='127.0.0.1', port=5013)
     receiver.start_server()
     label_receiver.start_server()
 
@@ -51,9 +51,7 @@ def test_ingestion_system_orchestrator():
     # waits for the sessions
     for i in range(num_sessions):
         message = receiver.get_message()
-        #print("io preparation messaggio ricevuto dall'ingestion: ", message)
         raw_session = json.loads(message['message']) #convert to dictionary
-        #print("io preparation messaggio trasformato: ", message)
         raw_sessions.append(raw_session)
     # waits for labels
     for i in range(num_labels):

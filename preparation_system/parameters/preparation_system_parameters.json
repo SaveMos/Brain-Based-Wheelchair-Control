@@ -1,13 +1,9 @@
 {
-  "development_phase": "False",
-  "upper_bound": 0.99,
-  "lower_bound": 0.01,
-  "testing": "False",
-  "sampling_frequency": 100.0,
-  "bandwidths": {
-    "psd_alpha_band": [8, 12],
-    "psd_beta_band": [12, 30],
-    "psd_theta_band": [1, 4],
-    "psd_delta_band": [4, 8]
-  }
+  "development": "False",
+  "ip_preparation": "127.0.0.1",
+  "port_preparation": 5015,
+  "ip_segregation": "127.0.0.1",
+  "port_segregation": 5041,
+  "ip_production": "127.0.0.1",
+  "port_production": 5045
 }

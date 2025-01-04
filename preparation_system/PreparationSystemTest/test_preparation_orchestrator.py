@@ -12,7 +12,7 @@ import time
 from clientSideSystem.client import ClientSideOrchestrator
 from ingestion_system.ingestion_system_orchestrator import IngestionSystemOrchestrator
 from preparation_system.PreparationSystemOrchestrator import PreparationSystemOrchestrator
-from preparation_system.RawSessionReceiver_and_PreparedSessionSender import RawSessionReceiver_and_PrepareSessionSender
+from preparation_system.PreparationSystemTest.MessageBrokerTest import MessageBrokerTest
 
 logger = logging.getLogger()
 logger.level = logging.INFO
@@ -21,7 +21,7 @@ logger.level = logging.INFO
 
 
 def run_ingestion():
-    orchestrator = IngestionSystemOrchestrator(False)
+    orchestrator = IngestionSystemOrchestrator()
     orchestrator.ingestion()
 
 
@@ -37,9 +37,9 @@ def run_preparation():
 
 def test_preparation_system_orchestrator():
     # create receiver
-    receiver_segregation = RawSessionReceiver_and_PrepareSessionSender(host='127.0.0.1', port=5041)
+    receiver_segregation = MessageBrokerTest(host='127.0.0.1', port=5041)
     receiver_segregation.start_server()
-    receiver_production = RawSessionReceiver_and_PrepareSessionSender(host='127.0.0.1', port=5045)
+    receiver_production = MessageBrokerTest(host='127.0.0.1', port=5045)
     receiver_production.start_server()
 
     # Run the controller

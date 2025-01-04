@@ -5,11 +5,17 @@ Handles JSON-based input and output operations for the preparation system.
 Author: Francesco Taverna
 
 """
+import json
+
 from flask import Flask, request, jsonify
 import threading
 import requests
 from queue import Queue, Empty
 from typing import Optional, Dict
+
+from preparation_system.preparation_json_handler.json_handler import JsonHandler
+from preparation_system import RAW_SESS_SCHEMA_FILE_PATH
+
 
 class RawSessionReceiver_and_PrepareSessionSender:
     """
@@ -88,7 +94,16 @@ class RawSessionReceiver_and_PrepareSessionSender:
         :return: A dictionary containing the sender's IP, port, and the message content, or None if timed out.
         """
         try:
-            return self.message_queue.get(timeout=timeout, block=True)
+            message = self.message_queue.get(timeout=timeout, block=True)
+            new_raw_session = json.loads(message["message"])
+
+            # validate json
+            handler = JsonHandler()
+            is_valid = handler.validate_json(new_raw_session, RAW_SESS_SCHEMA_FILE_PATH)
+            if is_valid is False:
+                return True, new_raw_session
+            return False, new_raw_session
+
         except Empty:
             print("No messages received within the timeout period.")
             return None

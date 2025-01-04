@@ -6,11 +6,6 @@ Author: Francesco Taverna
 
 """
 
-# import classes
-import json
-import sys
-
-from . import ING_MAN_CONFIG_SCHEMA_FILE_PATH, ING_MAN_CONFIG_FILE_PATH, RECORD_SCHEMA_FILE_PATH
 from .ingestion_json_handler.json_handler import JsonHandler
 from .record_buffer_controller import RecordBufferController
 from .raw_session_preparation import RawSessionPreparation
@@ -24,24 +19,16 @@ class IngestionSystemOrchestrator:
     Manages instances of system components.
     """
 
-    def __init__(self, testing: bool):
+    def __init__(self):
         """
         Initializes the IngestionSystemOrchestrator object.
 
-        Args:
-            testing (bool): A flag to specify if the system is in testing mode.
 
         Example:
-            orchestrator = IngestionSystemOrchestrator(testing=True)
+            orchestrator = IngestionSystemOrchestrator()
         """
 
         print("INGESTION ORCHESTRATOR INITIALIZATION")
-        handler = JsonHandler()
-        # validate schema of configuration json
-        configuration = handler.read_json_file(ING_MAN_CONFIG_FILE_PATH)
-        is_valid = handler.validate_json(configuration, ING_MAN_CONFIG_SCHEMA_FILE_PATH)
-        if is_valid is False:
-            sys.exit(0)  # exit if not correct
 
         # parameters class configuration
         self.parameters = Parameters()
@@ -53,14 +40,30 @@ class IngestionSystemOrchestrator:
         self.session_preparation = RawSessionPreparation()
 
         # IO configuration
-        self.json_io = SessionAndRecordExchanger(host='127.0.0.1', port=5001)  # parameters of Ingestion server
+        self.json_io = SessionAndRecordExchanger(host= self.parameters.configuration["ip_ingestion"]
+                                                 , port=self.parameters.configuration["port_ingestion"])  # parameters of Ingestion server
         self.json_io.start_server()
         self.number_of_missing_samples = 0
 
-        # testing or not?
-        self.testing = testing
+        self.current_sessions = 0
 
         print("INGESTION ORCHESTRATOR INITIALIZED")
+
+    def _update_session(self):
+        # updates the number of session received and eventually changes the current phase
+        self.current_sessions += 1
+
+        #if we are in production and the number of sessions sent is reached, change to evaluation
+        if self.current_phase == "production" and self.current_sessions == self.parameters.configuration["production_sessions"]:
+            self.current_phase = "evaluation"
+            self.current_sessions = 0
+            print("CHANGED TO EVALUATION")
+        # if we are in evaluation and the number of sessions sent is reached, change to production
+        elif self.current_phase == "evaluation" and self.current_sessions == self.parameters.configuration["evaluation_sessions"]:
+            self.current_phase = "production"
+            self.current_sessions = 0
+            print("CHANGED TO PRODUCTION")
+
 
     def ingestion(self):
         """
@@ -68,15 +71,10 @@ class IngestionSystemOrchestrator:
         """
         while True:  # receive records iteratively
             try:
-                message = self.json_io.get_message()  # Get record message
-
-                record_message = message['message'] #json
+                #boo is True if the message doesn't have the correct record schema
+                boo, new_record = self.json_io.get_message()
                 handler = JsonHandler()
-
-                new_record = json.loads(record_message) #dictionary
-
-                is_valid = handler.validate_json(new_record, RECORD_SCHEMA_FILE_PATH)
-                if not is_valid:
+                if boo:
                     continue
 
                 # stores record
@@ -87,7 +85,13 @@ class IngestionSystemOrchestrator:
 
                 # if there is at least one None: not enough records
                 if None in stored_records:
-                    continue
+                    #if it is not production, so it is development or evaluation, wait for label and others
+                    #or if there are at least two None, so not only the label is missing, but others, wait for them
+                    #in this way, if it is production phase and there is only one None, it means that the label is
+                    #missing and given that in production is not required, the raw session is completed
+                    if self.parameters.configuration["current_phase"] != "production" or stored_records.count(None) >= 2:
+                        continue
+
 
                 # creates raw session
                 raw_session = self.session_preparation.create_raw_session(stored_records)
@@ -98,11 +102,11 @@ class IngestionSystemOrchestrator:
                 # marks missing samples with "None" and checks the number
                 self.number_of_missing_samples, marked_raw_session = self.session_preparation.mark_missing_samples(
                     raw_session, None)
-                if self.number_of_missing_samples >= self.parameters.missing_samples_threshold_interval:
+                if self.number_of_missing_samples >= self.parameters.configuration["missing_samples_threshold_interval"] :
                     continue  # do not send anything
 
                 # if in evaluation phase, sends labels to evaluation system
-                if self.parameters.evaluation_phase:
+                if self.parameters.configuration["current_phase"] == "evaluation":
                     label = {
                         "uuid": marked_raw_session.uuid,
                         "label": marked_raw_session.label
@@ -110,13 +114,23 @@ class IngestionSystemOrchestrator:
                     json_label = handler.convert_dictionary_to_json(label) #json
 
                     #to comment for the preparation system test
-                    self.json_io.send_message(target_ip="127.0.0.1", target_port=5013, message=json_label)
+                    self.json_io.send_message(target_ip=self.parameters.configuration["ip_evaluation"],
+                                              target_port=self.parameters.configuration["port_evaluation"], message=json_label)
 
                 # sends raw sessions
                 json_raw_session = marked_raw_session.to_json()
                 #5005 test preparation
                 #5012 test ingestion
-                self.json_io.send_message(target_ip="127.0.0.1", target_port=5015, message=json_raw_session)
+                self.json_io.send_message(target_ip=self.parameters.configuration["ip_preparation"],
+                                          target_port=self.parameters.configuration["port_preparation"], message=json_raw_session)
+
+                #update the session sent counter only it is production/evaluation
+                #because development is changed by the human
+                if self.current_phase != "development":
+                    #if it is not production testing phase, count sessions to change then phase
+                    #otherwise, if it is production testing, stop counting, no phase change needed
+                    if not self.parameters.configuration["service"]:
+                        self._update_session()
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")
