@@ -44,6 +44,7 @@ class IngestionSystemOrchestrator:
                                                  , port=self.parameters.configuration["port_ingestion"])  # parameters of Ingestion server
         self.json_io.start_server()
         self.number_of_missing_samples = 0
+        self.current_phase = self.parameters.configuration["current_phase"]
 
         self.current_sessions = 0
 
@@ -113,14 +114,11 @@ class IngestionSystemOrchestrator:
                     }
                     json_label = handler.convert_dictionary_to_json(label) #json
 
-                    #to comment for the preparation system test
                     self.json_io.send_message(target_ip=self.parameters.configuration["ip_evaluation"],
                                               target_port=self.parameters.configuration["port_evaluation"], message=json_label)
 
                 # sends raw sessions
                 json_raw_session = marked_raw_session.to_json()
-                #5005 test preparation
-                #5012 test ingestion
                 self.json_io.send_message(target_ip=self.parameters.configuration["ip_preparation"],
                                           target_port=self.parameters.configuration["port_preparation"], message=json_raw_session)
 

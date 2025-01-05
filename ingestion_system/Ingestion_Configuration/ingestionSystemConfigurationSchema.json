@@ -8,7 +8,7 @@
     },
     "current_phase": {
       "type": "string",
-      "enum": ["development", "production"]
+      "enum": ["development", "production", "evaluation"]
     },
     "production_sessions": {
       "type": "integer",
