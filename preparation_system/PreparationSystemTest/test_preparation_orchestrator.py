@@ -12,7 +12,8 @@ import time
 from clientSideSystem.client import ClientSideOrchestrator
 from ingestion_system.ingestion_system_orchestrator import IngestionSystemOrchestrator
 from preparation_system.PreparationSystemOrchestrator import PreparationSystemOrchestrator
-from preparation_system.RawSessionReceiver_and_PreparedSessionSender import RawSessionReceiver_and_PrepareSessionSender
+from preparation_system.PreparationSystemParameters import PreparationSystemParameters
+from preparation_system.PreparationSystemTest.MessageBrokerTest import MessageBrokerTest
 
 logger = logging.getLogger()
 logger.level = logging.INFO
@@ -21,7 +22,7 @@ logger.level = logging.INFO
 
 
 def run_ingestion():
-    orchestrator = IngestionSystemOrchestrator(False)
+    orchestrator = IngestionSystemOrchestrator()
     orchestrator.ingestion()
 
 
@@ -37,10 +38,13 @@ def run_preparation():
 
 def test_preparation_system_orchestrator():
     # create receiver
-    receiver_segregation = RawSessionReceiver_and_PrepareSessionSender(host='127.0.0.1', port=5041)
+    #set "development" as True in the config file to test this receive
+    receiver_segregation = MessageBrokerTest(host='127.0.0.1', port=5041)
     receiver_segregation.start_server()
-    receiver_production = RawSessionReceiver_and_PrepareSessionSender(host='127.0.0.1', port=5045)
+    #set "development" as False in the config file to test this receive
+    receiver_production = MessageBrokerTest(host='127.0.0.1', port=5045)
     receiver_production.start_server()
+    parameters = PreparationSystemParameters()
 
     # Run the controller
     preparation_system = Process(target=run_preparation, args=())
@@ -61,22 +65,27 @@ def test_preparation_system_orchestrator():
     num_sessions_segregation = 14
     num_sessions_production = 14
     # waits for the sessions
-    for i in range(num_sessions_segregation):
-        message = receiver_segregation.get_message()
-        prep_session = json.loads(message["message"])
-        prep_sessions_segregation.append(prep_session)
-
-    for i in range(num_sessions_production):
-        message = receiver_production.get_message()
-        prep_session = json.loads(message["message"])
-        prep_sessions_production.append(prep_session)
+    if parameters.configuration["development"]:
+        for i in range(num_sessions_segregation):
+            message = receiver_segregation.get_message()
+            print("ricevo : ", i)
+            prep_session = json.loads(message["message"])
+            prep_sessions_segregation.append(prep_session)
+    else:
+        for i in range(num_sessions_production):
+            message = receiver_production.get_message()
+            print("ricevo production : ", i)
+            prep_session = json.loads(message["message"])
+            prep_sessions_production.append(prep_session)
 
     # terminates
     preparation_system.terminate()
     ingestion_system.terminate()
     client_system.terminate()
-    assert len(prep_sessions_production) == num_sessions_production
-    assert len(prep_sessions_segregation) == num_sessions_segregation
+    if not parameters.configuration["development"]:
+        assert len(prep_sessions_production) == num_sessions_production
+    else:
+        assert len(prep_sessions_segregation) == num_sessions_segregation
 
 if __name__ == "__main__":
     test_preparation_system_orchestrator()

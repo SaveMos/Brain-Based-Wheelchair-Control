@@ -20,10 +20,7 @@ class TrainingOrchestrator:
         self.classifier = Classifier()
         self.plot_model = LearningPlotModel()
         self.plot_view = LearningPlotView()
-        # Caricare i parametri di configurazione (se non è già stato fatto)
-        ConfigurationParameters.load_configuration()
-        # Assegnare il valore di service_flag alla proprietà di istanza
-        self.service_flag: bool = ConfigurationParameters.service_flag
+        self.service_flag = None
         self.json_handler = JsonValidatorReaderAndWriter()
 
     def train_classifier(self, set_average_hyperparams):
@@ -47,8 +44,13 @@ class TrainingOrchestrator:
             joblib.dump(self.classifier, "data/classifier_trainer.sav")
 
         else:
-            #if testing is true, the iterations are read from the file, otherwise are randomly generated
+            # the configurations are loaded only in case of stop and go
+            #if ConfigurationParameters.params is None:
+            #    ConfigurationParameters.load_configuration()
 
+            self.service_flag = ConfigurationParameters.params['service_flag']
+
+            #if testing is true, the iterations are read from the file, otherwise are randomly generated
             if self.service_flag:
                 iterations = random.randint(50, 150)
 
@@ -83,6 +85,8 @@ class TrainingOrchestrator:
                 self.plot_view.show_learning_plot(learning_error)
 
             print("number of iterations= ", iterations)
+            print("learning report generated")
+            print("learning error =", learning_error.get_learning_error())
 
             #classifier.training_error = classifier.get_loss_curve() il training_error è calcolato in automatico da MLPClassifier
             #return classifier non serve nemmeno restituirlo, questo è allenato solo per trovare il numero di iterazioni corretto

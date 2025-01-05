@@ -8,9 +8,9 @@ class TestReportModel:
 
     def __init__(self):
         """ """
-        self.config_params = ConfigurationParameters()
 
-    def generate_test_report(self, classifier: Classifier):
+    @staticmethod
+    def generate_test_report(classifier: Classifier):
         """
             Generates a test report for the given classifier.
 
@@ -27,11 +27,14 @@ class TestReportModel:
                 tolerance, validation error, test error, and the difference between
                 validation and test errors.
         """
-        self.config_params.load_configuration()
+
+        # the configurations are loaded only in case of stop and go
+        #if ConfigurationParameters.params is None:
+            #ConfigurationParameters.load_configuration()
+
         test_report = TestReport()
-        test_report.set_generalization_tolerance(ConfigurationParameters.generalization_tolerance)
+        test_report.set_generalization_tolerance(ConfigurationParameters.params['generalization_tolerance'])
         test_report.set_validation_error(classifier.get_validation_error())
         test_report.set_test_error(classifier.get_test_error())
         test_report.set_difference(classifier.get_valid_test_error_difference())
-        print("difference = ", test_report.get_difference())
         return test_report

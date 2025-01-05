@@ -3,7 +3,7 @@ Module: SessionPreparation
 Prepare session correcting samples, outliers and extracting features
 Author: Francesco Taverna
 """
-
+import json
 from typing import Union
 
 import numpy as np
@@ -11,9 +11,8 @@ from mne.time_frequency.multitaper import psd_array_multitaper
 from scipy.integrate import simps
 
 
+
 class SessionPreparation:
-    def __init__(self, configuration):
-        self.configuration = configuration
 
     def correct_missing_samples(self, raw_session: dict, placeholder: Union[int, str, None]) -> dict:
         """
@@ -49,12 +48,28 @@ class SessionPreparation:
         :param raw_session: raw_session
         :return: the corrected Raw session
         """
-
-        min_value = self.configuration['lower_bound']
-        max_value = self.configuration['upper_bound']
+        #hardcoded values
+        min_value = 0
+        max_value = 28.170070834680384 #computed using upper_bound.py in data folder, 98 percentile of all data in helmet.csv
 
         # bound between min and max
         raw_session['eeg_data'] = [min(max(value, min_value), max_value) for value in raw_session['eeg_data']]
+        #if activity is not defined insert last value
+        if(raw_session['activity'] == "null"):
+            try:
+                with open("last_activity.json" , "r") as file:
+                    raw_session['activity'] = json.load(file)['activity']
+            except FileNotFoundError:
+                print("File not found")
+
+        #if environment is not defined insert last value
+        if(raw_session['environment'] == "null"):
+            try:
+                with open("last_environment.json", "r") as file:
+                    raw_session['environment'] = json.load(file)['environment']
+            except FileNotFoundError:
+                print("File not found")
+
         return raw_session
 
     def extract_feature(self, time_series: np.array, sf: float, band: list, relative=False) -> float:
@@ -98,12 +113,22 @@ class SessionPreparation:
 
             #create a numpy array
             time_series = np.array(raw_session['eeg_data'])
-            #four main bandwidths to extract from eeg_data
-            bandwidths = ["psd_alpha_band", "psd_beta_band", "psd_theta_band", "psd_delta_band"]
 
-            for band in bandwidths:
-                prepared_session[band] = self.extract_feature\
-                    (time_series, self.configuration["sampling_frequency"], self.configuration["bandwidths"][band])
+            #four main bandwidths to extract from eeg_data (hardcoded)
+            bandwidths = {
+                "psd_alpha_band": [8, 12],
+                "psd_beta_band": [12, 30],
+                "psd_theta_band": [1, 4],
+                "psd_delta_band": [4, 8]
+            }
+            sampling_frequency = 100.0 #taken from EEG website
+
+            for band, range_values in bandwidths.items():
+                prepared_session[band] = self.extract_feature(
+                    time_series,
+                    sampling_frequency,
+                    range_values
+                )
 
             prepared_session["activity"] = raw_session["activity"]
             prepared_session["environment"] = raw_session["environment"]

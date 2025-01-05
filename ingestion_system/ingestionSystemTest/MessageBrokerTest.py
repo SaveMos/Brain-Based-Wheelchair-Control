@@ -1,11 +1,10 @@
 """
-Module: ingestion_system_json_io
-Handles JSON-based input and output operations for the ingestion system.
+Module: MessageBrokerTest
+Handles JSON-based input and output operations for the ingestion system test.
 
 Author: Francesco Taverna
 
 """
-import json
 
 from flask import Flask, request, jsonify
 import threading
@@ -13,11 +12,10 @@ import requests
 from queue import Queue, Empty
 from typing import Optional, Dict
 
-from ingestion_system import RECORD_SCHEMA_FILE_PATH
-from ingestion_system.ingestion_json_handler.json_handler import JsonHandler
 
 
-class SessionAndRecordExchanger:
+
+class MessageBrokerTest:
     """
     A utility class to enable inter-module communication using Flask.
 
@@ -94,15 +92,8 @@ class SessionAndRecordExchanger:
         :return: A dictionary containing the sender's IP, port, and the message content, or None if timed out.
         """
         try:
-            message = self.message_queue.get(timeout=timeout, block=True)
-            record_message = message['message']  # json
-            handler = JsonHandler()
-            new_record = json.loads(record_message)  # dictionary
-            is_valid = handler.validate_json(new_record, RECORD_SCHEMA_FILE_PATH)
-            if not is_valid:
-                return True, new_record
+            return self.message_queue.get(timeout=timeout, block=True)
 
-            return False, new_record
         except Empty:
             print("No messages received within the timeout period.")
             return None

@@ -44,6 +44,6 @@ class ValidationReportModel:
             classifiers.remove(top_classifier)
 
         validation_report.set_validation_report(self.top_5_classifiers)
-        validation_report.set_overfitting_tolerance(ConfigurationParameters.overfitting_tolerance)
+        validation_report.set_overfitting_tolerance(ConfigurationParameters.params['overfitting_tolerance'])
         #validation_report = {'report': self.top_5_classifiers, 'overfitting_tolerance': ConfigurationParameters.overfitting_tolerance,}
         return validation_report
