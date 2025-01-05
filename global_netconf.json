@@ -1,11 +1,11 @@
 {
   "Ingestion System": {
-    "ip": "192.168.149.66",
-    "port": 8001
+    "ip": "151.83.144.119",
+    "port": 5001
   },
   "Preparation System": {
-    "ip": "192.168.149.66",
-    "port": 8002
+    "ip": "151.83.144.119",
+    "port": 5002
   },
   "Segregation System": {
     "ip": "188.217.91.69",
@@ -16,8 +16,8 @@
     "port": 5004
   },
   "Production System": {
-    "ip": "192.168.140.143",
-    "port": 8005
+    "ip": "109.116.135.145",
+    "port": 5005
   },
   "Evaluation System": {
     "ip": "192.168.146.216",
