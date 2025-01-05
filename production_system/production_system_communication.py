@@ -16,7 +16,7 @@ class ProductionSystemIO:
         this class manage all sent/received json file
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 5000):
+    def __init__(self, host: str = '0.0.0.0', port: int = 5005):
         """
         Initialize the Flask communication server.
 

@@ -21,13 +21,15 @@ class ProductionOrchestrator:
     """
         Production system orchestrator.
     """
-    def __init__(self, testing: bool):
+    def __init__(self, service: bool, unit_test:bool):
 
-        self._testing = testing
+        self._service = service
+        self._unit_test = unit_test
+
 
         self._configuration = ConfigurationParameters()
         self._evaluation_phase = self._configuration.parameters['evaluation_phase']
-        self._prod_sys_io = ProductionSystemIO()
+        self._prod_sys_io = ProductionSystemIO("0.0.0.0", 5005)
         self._session_counter = 0
         self._test_counter = 0
 
@@ -41,13 +43,16 @@ class ProductionOrchestrator:
         """
         print("Start production process")
         while True:
+            self._prod_sys_io.start_server()
             # receive classifier or prepared session
             message = self._prod_sys_io.get_last_message()
 
+            print(message['message'])
 
 
 
-            if self._testing:
+
+            if self._service:
                 print("Send start message to service class")
                 self._prod_sys_io.send_timestamp(time.time(), "start")
 
@@ -70,8 +75,9 @@ class ProductionOrchestrator:
 
                 deployment = Deployment()
                 deployment.deploy(classifier_json)
+                print("classifier deployed")
 
-                if self._testing:
+                if self._service:
                     print("Send end message to Service Class")
                     self._prod_sys_io.send_timestamp(time.time(), "end")
 
@@ -80,7 +86,7 @@ class ProductionOrchestrator:
                 print("Send start configuration")
                 self._prod_sys_io.send_configuration()
 
-                if self._testing:
+                if self._unit_test:
                     return
 
 
@@ -99,6 +105,7 @@ class ProductionOrchestrator:
 
                 classification = Classification()
                 label = classification.classify(ps_json)
+                print("label generated")
 
                 #if evaluation phase parameter is true label is sent also to Evaluation System
                 if self._evaluation_phase:
@@ -113,7 +120,7 @@ class ProductionOrchestrator:
                 print("Send label to service class")
                 self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
 
-                if self._testing:
+                if self._service:
                     print("Send end message to Service Class")
                     self._prod_sys_io.send_timestamp(time.time(), "end")
 
@@ -126,19 +133,17 @@ class ProductionOrchestrator:
                     self._session_counter = 0
                     self._evaluation_phase = True
 
-                if self._testing:
+                if self._unit_test:
                     return
 
             else:
                 print("sender unknown")
-                if self._testing:
-                    print("Send end message to Service Class")
-                    self._prod_sys_io.send_timestamp(time.time(), "end")
+                if self._unit_test:
                     return
 
 
 
 if __name__ == "__main__":
 
-    production_system_orchestrator = ProductionOrchestrator(False)
+    production_system_orchestrator = ProductionOrchestrator(False, False)
     production_system_orchestrator.production()

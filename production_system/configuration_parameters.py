@@ -14,7 +14,7 @@ class ConfigurationParameters:
         path = "configuration/prod_sys_conf.json"
         prod_sys_conf = handler.read_json_file(path)
         schema_path = "production_schema/configSchema.json"
-        if handler.validate_json(prod_sys_conf, schema_path):
+        if handler.validate_json(prod_sys_conf, schema_path) is False:
             print("json non valido")
             sys.exit(0)
 
@@ -22,7 +22,7 @@ class ConfigurationParameters:
 
         data = handler.read_json_file(GLOBAL_NETCONF_PATH)
         self.PREPARATION_SYSTEM_IP = data["Preparation System"]["ip"]
-        self.DEVELOP_SYSTEM_IP = data["Develop System"]["ip"]
+        self.DEVELOP_SYSTEM_IP = data["Development System"]["ip"]
         self.EVALUATION_SYSTEM_IP = data["Evaluation System"]["ip"]
         self.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]
         self.SERVICE_CLASS_IP = data["Service Class"]["ip"]

@@ -41,7 +41,7 @@ class TestProductionOrchestrator(unittest.TestCase):
         # Mock Deployment
         mock_deployment = MockDeployment.return_value
 
-        orchestrator = ProductionOrchestrator(testing=True)
+        orchestrator = ProductionOrchestrator(service=False, unit_test=True)
         orchestrator.production()
 
         # Assertions
@@ -89,7 +89,7 @@ class TestProductionOrchestrator(unittest.TestCase):
         mock_label = MagicMock()
         mock_classification.classify.return_value = mock_label
 
-        orchestrator = ProductionOrchestrator(testing=True)
+        orchestrator = ProductionOrchestrator(service=False, unit_test=True)
         orchestrator.production()
 
         # Assertions
@@ -124,7 +124,7 @@ class TestProductionOrchestrator(unittest.TestCase):
             'message': {}
         }
 
-        orchestrator = ProductionOrchestrator(testing=True)
+        orchestrator = ProductionOrchestrator(service=False, unit_test=True)
         orchestrator.production()
 
         # Assertions
@@ -156,7 +156,7 @@ class TestProductionOrchestrator(unittest.TestCase):
         mock_handler = MockJsonHandler.return_value
         mock_handler.validate_json.return_value = False
 
-        orchestrator = ProductionOrchestrator(testing=True)
+        orchestrator = ProductionOrchestrator(service=False, unit_test=True)
         orchestrator.production()
 
         # Assertions
@@ -192,7 +192,7 @@ class TestProductionOrchestrator(unittest.TestCase):
         mock_handler = MockJsonHandler.return_value
         mock_handler.validate_json.return_value = False
 
-        orchestrator = ProductionOrchestrator(testing=True)
+        orchestrator = ProductionOrchestrator(service=False, unit_test=True)
         orchestrator.production()
 
         # Assertions
