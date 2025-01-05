@@ -2,24 +2,32 @@
   "title": "ServiceClassParameters",
   "type": "object",
   "required": [
-    "development_phase",
+    "phase",
     "development_sessions",
+    "classifiers_to_develop",
     "production_sessions",
     "evaluation_sessions"
   ],
   "properties": {
-    "development_phase": {
-      "type": "boolean"
+    "phase": {
+      "type": "string",
+      "enum": ["all_phases", "development", "production"]
     },
     "development_sessions": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
+    },
+    "classifiers_to_develop": {
+      "type": "integer",
+      "minimum": 0
     },
     "production_sessions": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     },
     "evaluation_sessions": {
-      "type": "integer"
+      "type": "integer",
+      "minimum": 0
     }
   }
 }
-

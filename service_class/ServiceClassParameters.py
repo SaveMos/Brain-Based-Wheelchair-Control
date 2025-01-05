@@ -15,18 +15,12 @@ class ServiceClassParameters:
     # Local parameters
     LOCAL_PARAMETERS_PATH = "parameters/service_class_parameters.json"
     LOCAL_PARAMETERS_SCHEMA_PATH = "schemas/service_class_parameters_schema.json"
-    DEVELOPMENT_PHASE = None
-    DEVELOPMENT_SESSIONS = None
-    PRODUCTION_SESSIONS = None
-    EVALUATION_SESSIONS = None
+    LOCAL_PARAMETERS = {}
 
     # Global parameters
     GLOBAL_PARAMETERS_PATH = "../global_netconf.json"
     GLOBAL_PARAMETERS_SCHEMA_PATH = "../global_netconf_schema.json"
-    INGESTION_SYSTEM_IP = None
-    INGESTION_SYSTEM_PORT = None
-    MESSAGING_SYSTEM_PORT = None
-    SERVICE_CLASS_PORT = None
+    GLOBAL_PARAMETERS = {}
 
     @staticmethod
     def loadParameters(basedir: str = "."):
@@ -37,32 +31,21 @@ class ServiceClassParameters:
         """
 
         try:
-            with open(f"{basedir}/{ServiceClassParameters.LOCAL_PARAMETERS_PATH}", "r") as local_parameters:
-                data = json.load(local_parameters)
+            with open(f"{basedir}/{ServiceClassParameters.LOCAL_PARAMETERS_PATH}", "r") as local_params:
+                ServiceClassParameters.LOCAL_PARAMETERS = json.load(local_params)
 
-                if ServiceClassParameters._validate_json(data, "local", basedir):
-                    ServiceClassParameters.DEVELOPMENT_PHASE = data["development_phase"]
-                    ServiceClassParameters.DEVELOPMENT_SESSIONS = data["development_sessions"]
-                    ServiceClassParameters.PRODUCTION_SESSIONS = data["production_sessions"]
-                    ServiceClassParameters.EVALUATION_SESSIONS = data["evaluation_sessions"]
-                else:
+                if not ServiceClassParameters._validate_json(ServiceClassParameters.LOCAL_PARAMETERS, "local", basedir):
                     print("Invalid local parameters.")
 
-                with open(f"{basedir}/{ServiceClassParameters.GLOBAL_PARAMETERS_PATH}", "r") as global_parameters:
-                    data = json.load(global_parameters)
+                with open(f"{basedir}/{ServiceClassParameters.GLOBAL_PARAMETERS_PATH}", "r") as global_params:
+                    ServiceClassParameters.GLOBAL_PARAMETERS = json.load(global_params)
 
-                    if ServiceClassParameters._validate_json(data, "global", basedir):
-                        ServiceClassParameters.INGESTION_SYSTEM_IP = data["Ingestion System"]["ip"]
-                        ServiceClassParameters.INGESTION_SYSTEM_PORT = data["Ingestion System"]["port"]
-                        ServiceClassParameters.MESSAGING_SYSTEM_PORT = data["Messaging System"]["port"]
-                        ServiceClassParameters.SERVICE_CLASS_PORT = data["Service Class"]["port"]
-                    else:
+                    if not ServiceClassParameters._validate_json(ServiceClassParameters.GLOBAL_PARAMETERS, "global", basedir):
                         print("Invalid global parameters.")
 
         except Exception as e:
             print(f"Error loading parameters: {e}")
 
-    # noinspection DuplicatedCode
     @staticmethod
     def _validate_json(json_parameters: dict, param_type: str, basedir: str = ".") -> bool:
         """

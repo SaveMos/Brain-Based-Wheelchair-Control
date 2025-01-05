@@ -6,7 +6,8 @@
   ],
   "properties": {
     "configuration": {
-      "type": "string"
+      "type": "string",
+      "enum": ["production", "restart"]
     }
   }
 }
