@@ -108,7 +108,7 @@ class SegregationSystemDatabaseController:
         create_table_query = f"""
             CREATE TABLE IF NOT EXISTS {self.__table_name} (
                 uuid TEXT PRIMARY KEY,
-                label TEXT CHECK(label IN ('move', 'turn_left', 'turn_right')) NOT NULL,
+                label TEXT CHECK(label IN ('move', 'turnLeft', 'turnRight')) NOT NULL,
                 psd_alpha_band REAL NOT NULL,
                 psd_beta_band REAL NOT NULL,
                 psd_theta_band REAL NOT NULL,
