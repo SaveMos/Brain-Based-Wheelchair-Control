@@ -1,22 +1,35 @@
 from segregation_system.SegregationSystemJsonHandler import SegregationSystemJsonHandler
 from segregation_system.learning_set_splitter import LearningSetSplitter
+from segregation_system.prepared_session import PreparedSession
+from segregation_system.segregation_database_manager.segregation_system_database_controller import \
+    SegregationSystemDatabaseController
 from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 from segregation_system.session_receiver_and_configuration_sender import SessionReceiverAndConfigurationSender
-from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 # Example to test the class
 if __name__ == "__main__":
     SegregationSystemConfiguration.configure_parameters()
-    Sessions = generate_random_prepared_sessions_object_list(100)
+    message_broker = SessionReceiverAndConfigurationSender()
+
+    db = SegregationSystemDatabaseController()
+
+    while db.get_number_of_prepared_session_stored() < 100:
+        # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
+        new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
+
+        # Store the new prepared session in the database.
+        db.store_prepared_session(new_prepared_session.to_dictionary())
+        
+    Sessions = db.get_all_prepared_sessions()
 
     LearningSetSplitter = LearningSetSplitter()
     Set = LearningSetSplitter.generateLearningSets(Sessions)
 
-    message_broker = SessionReceiverAndConfigurationSender()
-
     network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Development System"]
 
     message_broker.send_message(network_info['ip'], network_info['port'], SegregationSystemJsonHandler.dict_to_string(Set.to_dict()))
+
+
 
 
 
