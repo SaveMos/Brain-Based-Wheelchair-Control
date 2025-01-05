@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, request, jsonify
 import threading
 import requests
@@ -53,7 +55,7 @@ class LearningSetReceiverAndClassifierSender:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_classifier(self, classifier_file: str, test=False) -> Optional[Dict]:
+    def send_classifier(self, test=False) -> Optional[Dict]:
         """
         Send the winner classifier to the target module production system.
         :param classifier_file: The message to send (a file that contains the data of a classifier).
@@ -62,6 +64,7 @@ class LearningSetReceiverAndClassifierSender:
         """
         # Retrieve ip address and port of the target system
         if not test:
+            classifier_file = "data/classifier.sav"
             self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
             endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
 
@@ -69,6 +72,7 @@ class LearningSetReceiverAndClassifierSender:
             target_port = endpoint["port"]
         else:
             #this is true only for the local testing
+            classifier_file = "data/mock_classifier.json"
             target_ip = "127.0.0.1"
             target_port = 5001
 
@@ -157,8 +161,13 @@ class LearningSetReceiverAndClassifierSender:
             "status": status
         }
 
+        packet = {
+            "port": 5004,
+            "message": json.dumps(timestamp_message)
+        }
+
         try:
-            response = requests.post(url, json=timestamp_message)
+            response = requests.post(url, json=packet)
             if response.status_code == 200:
                 return True
         except requests.RequestException as e:

@@ -13,5 +13,5 @@
     "overfitting_tolerance": 0.2,
     "generalization_tolerance": 0.2
   },
-  "service_flag": true
+  "service_flag": false
 }
