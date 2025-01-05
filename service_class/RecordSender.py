@@ -86,11 +86,16 @@ class RecordSender:
             if response.status_code != 200:
                 return False
 
-            if ServiceClassParameters.DEVELOPMENT_PHASE:
+            # if ServiceClassParameters.DEVELOPMENT_PHASE:
                 # Label is sent only during the development phase
-                response = requests.post(url, json=label_record)
-                if response.status_code != 200:
-                    return False
+                # response = requests.post(url, json=label_record)
+                # if response.status_code != 200:
+                    # return False
+
+            # Label has to be sent also in the evaluation phase
+            response = requests.post(url, json=label_record)
+            if response.status_code != 200:
+                return False
 
         except requests.RequestException as e:
             print(f"Error sending session: {e}")

@@ -61,7 +61,8 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
     @patch("evaluation_system.EvaluationSystemOrchestrator.LabelReceiver_and_ConfigurationSender")
     @patch("evaluation_system.EvaluationSystemOrchestrator.LabelsBuffer")
     @patch("evaluation_system.EvaluationSystemOrchestrator.EvaluationReportModel")
-    def test_evaluate_creates_evaluation_report(self, mock_report_model,
+    @patch("os.remove")
+    def test_evaluate_creates_evaluation_report(self, mock_os_remove, mock_report_model,
                                                 mock_labels_buffer, mock_receiver):
         """Test Evaluate method creates evaluation report correctly."""
         mock_receiver_instance = mock_receiver.return_value
@@ -71,8 +72,8 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
         EvaluationSystemParameters.loadParameters("..")
 
         # Mock the labels buffer to return a sufficient number of labels
-        mock_labels_buffer_instance.get_num_classifier_labels.return_value = EvaluationSystemParameters.MINIMUM_NUMBER_LABELS
-        mock_labels_buffer_instance.get_num_expert_labels.return_value = EvaluationSystemParameters.MINIMUM_NUMBER_LABELS
+        mock_labels_buffer_instance.get_num_classifier_labels.return_value = EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"]
+        mock_labels_buffer_instance.get_num_expert_labels.return_value = EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"]
 
         # Mock the labels returned by the labels buffer
         mock_labels_buffer_instance.get_classifier_labels.return_value = [
@@ -80,7 +81,7 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
         mock_labels_buffer_instance.get_expert_labels.return_value = [{"uuid": "0", "movements": 0, "expert": True}]
 
         orchestrator = EvaluationSystemOrchestrator(basedir="..")
-        orchestrator.testing = True
+        orchestrator.service = True
 
         orchestrator.Evaluate()
 
@@ -88,13 +89,13 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
         mock_report_model_instance.create_evaluation_report.assert_called_once_with(
             [{"uuid": "0", "movements": 0, "expert": False}],
             [{"uuid": "0", "movements": 0, "expert": True}],
-            EvaluationSystemParameters.TOTAL_ERRORS,
-            EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS
+            EvaluationSystemParameters.LOCAL_PARAMETERS["total_errors"],
+            EvaluationSystemParameters.LOCAL_PARAMETERS["max_consecutive_errors"]
         )
 
         # Check that the labels were deleted
         mock_labels_buffer_instance.delete_labels.assert_called_once_with(
-            EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
+            EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"])
 
 
     @patch("os.remove")
@@ -114,7 +115,7 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
         mock_receiver_instance = mock_receiver.return_value
 
         orchestrator = EvaluationSystemOrchestrator(basedir="..")
-        orchestrator.testing = True
+        orchestrator.service = True
 
         orchestrator.Evaluate()
 
@@ -138,7 +139,7 @@ class TestEvaluationSystemOrchestrator(unittest.TestCase):
         mock_receiver_instance = mock_receiver.return_value
 
         orchestrator = EvaluationSystemOrchestrator(basedir="..")
-        orchestrator.testing = True
+        orchestrator.service = True
 
         orchestrator.Evaluate()
 

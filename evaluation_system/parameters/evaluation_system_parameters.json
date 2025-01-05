@@ -2,5 +2,5 @@
     "minimum_number_labels" : 50,
     "total_errors" : 10,
     "max_consecutive_errors" : 2,
-    "testing" : false
+    "service" : false
 }

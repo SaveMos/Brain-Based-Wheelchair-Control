@@ -77,12 +77,16 @@ class ServiceReceiver:
 
                 if json_configuration["configuration"] == "production":
 
+                    print("Received production configuration")
+
                     with open(self.timestamp_log_path, "r") as log_file:
                         log_file.write(f"{time.time()},Service Class,end\n")
 
                     return jsonify({"status": "received"}), 200
 
                 elif json_configuration["configuration"] == "restart":
+
+                    print("Received restart configuration")
 
                     with open(self.timestamp_log_path, "r") as log_file:
                         log_file.write(f"{time.time()},Service Class,restart\n")
@@ -141,5 +145,3 @@ class ServiceReceiver:
             print(f"Invalid JSON data: {e}")
             return
 
-
-    #

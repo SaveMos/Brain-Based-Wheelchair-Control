@@ -15,22 +15,12 @@ class EvaluationSystemParameters:
     # Local parameters
     LOCAL_PARAMETERS_PATH = "parameters/evaluation_system_parameters.json"
     LOCAL_PARAMETERS_SCHEMA_PATH = "schemas/evaluation_system_parameters_schema.json"
-    MINIMUM_NUMBER_LABELS = None
-    TOTAL_ERRORS = None
-    MAX_CONSECUTIVE_ERRORS = None
-    TESTING = None
+    LOCAL_PARAMETERS = {}
 
     # Global parameters
     GLOBAL_PARAMETERS_PATH = "../global_netconf.json"
     GLOBAL_PARAMETERS_SCHEMA_PATH = "../global_netconf_schema.json"
-    EVALUATION_SYSTEM_PORT = None
-    INGESTION_SYSTEM_IP = None
-    PRODUCTION_SYSTEM_IP = None
-    MESSAGING_SYSTEM_IP = None
-    MESSAGING_SYSTEM_PORT = None
-    SERVICE_CLASS_IP = None
-    SERVICE_CLASS_PORT = None
-
+    GLOBAL_PARAMETERS = {}
 
     @staticmethod
     def loadParameters(basedir: str = "."):
@@ -41,29 +31,16 @@ class EvaluationSystemParameters:
         """
 
         try:
-            with open(f"{basedir}/{EvaluationSystemParameters.LOCAL_PARAMETERS_PATH}", "r") as local_parameters:
-                data = json.load(local_parameters)
+            with open(f"{basedir}/{EvaluationSystemParameters.LOCAL_PARAMETERS_PATH}", "r") as local_params:
+                EvaluationSystemParameters.LOCAL_PARAMETERS = json.load(local_params)
 
-                if EvaluationSystemParameters._validate_json(data, "local", basedir):
-                    EvaluationSystemParameters.MINIMUM_NUMBER_LABELS = data["minimum_number_labels"]
-                    EvaluationSystemParameters.TOTAL_ERRORS = data["total_errors"]
-                    EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS = data["max_consecutive_errors"]
-                    EvaluationSystemParameters.TESTING = data["testing"]
-                else:
+                if not EvaluationSystemParameters._validate_json(EvaluationSystemParameters.LOCAL_PARAMETERS, "local", basedir):
                     print("Invalid local parameters.")
 
-            with open(f"{basedir}/{EvaluationSystemParameters.GLOBAL_PARAMETERS_PATH}", "r") as global_parameters:
-                data = json.load(global_parameters)
+            with open(f"{basedir}/{EvaluationSystemParameters.GLOBAL_PARAMETERS_PATH}", "r") as global_params:
+                EvaluationSystemParameters.GLOBAL_PARAMETERS = json.load(global_params)
 
-                if EvaluationSystemParameters._validate_json(data, "global", basedir):
-                    EvaluationSystemParameters.EVALUATION_SYSTEM_PORT = data["Evaluation System"]["port"]
-                    EvaluationSystemParameters.INGESTION_SYSTEM_IP = data["Ingestion System"]["ip"]
-                    EvaluationSystemParameters.PRODUCTION_SYSTEM_IP = data["Production System"]["ip"]
-                    EvaluationSystemParameters.MESSAGING_SYSTEM_IP = data["Messaging System"]["ip"]
-                    EvaluationSystemParameters.MESSAGING_SYSTEM_PORT = data["Messaging System"]["port"]
-                    EvaluationSystemParameters.SERVICE_CLASS_IP = data["Service Class"]["ip"]
-                    EvaluationSystemParameters.SERVICE_CLASS_PORT = data["Service Class"]["port"]
-                else:
+                if not EvaluationSystemParameters._validate_json(EvaluationSystemParameters.GLOBAL_PARAMETERS, "global", basedir):
                     print("Invalid global parameters.")
 
         except Exception as e:
