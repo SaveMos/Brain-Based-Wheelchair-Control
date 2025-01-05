@@ -15,7 +15,7 @@ class SessionReceiverAndConfigurationSender:
     This class supports sending and receiving messages in a blocking manner.
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 5000):
+    def __init__(self, host: str = '0.0.0.0', port: int = 5003):
         """
         Initialize the Flask communication server.
 

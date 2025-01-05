@@ -8,12 +8,12 @@
     "port": 8002
   },
   "Segregation System": {
-    "ip": "192.168.129.130",
-    "port": 8003
+    "ip": "188.217.91.69",
+    "port": 5003
   },
   "Development System": {
-    "ip": "192.168.150.72",
-    "port": 8004
+    "ip": "87.19.204.54",
+    "port": 5004
   },
   "Production System": {
     "ip": "192.168.140.143",
