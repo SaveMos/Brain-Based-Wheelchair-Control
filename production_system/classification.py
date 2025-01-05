@@ -9,7 +9,7 @@ from production_system.prepared_session import PreparedSession
 
 
 
-class ClassifierController:
+class Classification:
     """
      Class that managing the classifier executing the deployment and classification operation
 
@@ -17,16 +17,9 @@ class ClassifierController:
     def __init__(self):
         self._classifier: MLPClassifier or None = None
 
-    @staticmethod
-    def deploy(classifier):
-        """
-        Saves the provided classifier in a .sav file
-        Args:
-            classifier: model of classifier to save
-        """
-        joblib.dump(classifier, "model/classifier.sav")
 
-    def classify(self, prepared_session: PreparedSession):
+
+    def classify(self, ps_json):
         """
         Method that execute classify operation based on received prepared_session and classifier
         Args:
@@ -36,7 +29,10 @@ class ClassifierController:
             label: aN object of label class representing the label obtained from classify operation
 
         """
-
+        ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_tetha_band'],
+                       ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
+        # convert prepared session json in python object
+        prepared_session = PreparedSession(ps_json['uuid'], ps_features)
         if self._classifier is None:
             self._classifier = joblib.load("model/classifier.sav")
 

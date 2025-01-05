@@ -3,9 +3,18 @@
   "properties": {
     "evaluation_phase": {
       "type": "boolean"
+    },
+    "max_session_evaluation": {
+      "type": "integer"
+
+    },
+    "max_session_production": {
+      "type": "integer"
     }
   },
   "required": [
-    "evaluation_phase"
+    "evaluation_phase",
+    "max_session_evaluation",
+    "max_session_production"
   ]
 }
