@@ -3,15 +3,14 @@
 
     Author: Alessandro Ascani
 """
-import sys
+
 import time
 from production_system.configuration_parameters import ConfigurationParameters
 from production_system.production_system_communication import ProductionSystemIO
 from production_system.classification import Classification
 from production_system.deployment import Deployment
 from production_system.json_validation import JsonHandler
-from production_system.classifier import Classifier
-from production_system.prepared_session import PreparedSession
+
 
 
 
@@ -27,15 +26,11 @@ class ProductionOrchestrator:
         self._testing = testing
 
         self._configuration = ConfigurationParameters()
+        self._evaluation_phase = self._configuration.parameters['evaluation_phase']
         self._prod_sys_io = ProductionSystemIO()
+        self._session_counter = 0
+        self._test_counter = 0
 
-
-        # configure parameters
-        result = self._configuration.get_config_params()
-
-        # json isn't valid
-        if result is False :
-            sys.exit(0)
 
 
 
@@ -48,9 +43,9 @@ class ProductionOrchestrator:
         while True:
             # receive classifier or prepared session
             message = self._prod_sys_io.get_last_message()
-            if not message:
-                print("message not valid")
-                break
+
+
+
 
             if self._testing:
                 print("Send start message to service class")
@@ -66,25 +61,29 @@ class ProductionOrchestrator:
                 #deploy operation
                 print("Classifier received")
                 #convert json message in object class
-                msg_json = message['message']
+                classifier_json = message['message']
                 cl_schemas_path = "production_schema/ClassifierSchema.json"
-                result = handler.validate_json(msg_json, cl_schemas_path)
+                result = handler.validate_json(classifier_json, cl_schemas_path)
                 if result is False:
                     print("classifier not valid")
                     break
 
-                classifier = Classifier(msg_json['num_iteration'], msg_json['num_layers'], msg_json['num_neurons'], msg_json['test_error'], msg_json['validation_error'], msg_json['training_error'])
-
                 deployment = Deployment()
-                deployment.deploy(classifier)
+                deployment.deploy(classifier_json)
 
                 if self._testing:
                     print("Send end message to Service Class")
                     self._prod_sys_io.send_timestamp(time.time(), "end")
 
+
                 # send start configuration to messaging system
                 print("Send start configuration")
                 self._prod_sys_io.send_configuration()
+
+                if self._testing:
+                    return
+
+
 
             # classify session
             elif message['ip'] == self._configuration.PREPARATION_SYSTEM_IP :
@@ -98,34 +97,48 @@ class ProductionOrchestrator:
                     print("prepared session not valid")
                     break
 
-                ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_tetha_band'], ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
-                #convert prepared session json in python object
-                prepared_session = PreparedSession(ps_json['uuid'], ps_features)
-
-
                 classification = Classification()
-                label = classification.classify(prepared_session)
+                label = classification.classify(ps_json)
 
-            #if evaluation phase parameter is true label is sent also to Evaluation System
-                if self._configuration.evaluation_phase:
-                    eval_sys_ip = ConfigurationParameters.EVALUATION_SYSTEM_IP
-                    eval_sys_port = ConfigurationParameters.EVALUATION_SYSTEM_PORT
+                #if evaluation phase parameter is true label is sent also to Evaluation System
+                if self._evaluation_phase:
+                    eval_sys_ip = self._configuration.EVALUATION_SYSTEM_IP
+                    eval_sys_port = self._configuration.EVALUATION_SYSTEM_PORT
                     print("Send label to evaluate session")
                     self._prod_sys_io.send_label(eval_sys_ip, eval_sys_port, label)
+
+                # Send label to client
+                serv_cl_ip = self._configuration.SERVICE_CLASS_IP
+                serv_cl_port = self._configuration.SERVICE_CLASS_PORT
+                print("Send label to service class")
+                self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
 
                 if self._testing:
                     print("Send end message to Service Class")
                     self._prod_sys_io.send_timestamp(time.time(), "end")
 
-                # Send label to client
-                serv_cl_ip = ConfigurationParameters.SERVICE_CLASS_IP
-                serv_cl_port = ConfigurationParameters.SERVICE_CLASS_PORT
-                print("Send label to service class")
-                self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
 
+                if self._evaluation_phase and self._session_counter == self._configuration.parameters['max_session_evaluation']:
+                    self._session_counter = 0
+                    self._evaluation_phase = False
+
+                elif not self._evaluation_phase and self._session_counter == self._configuration.parameters['max_session_production']:
+                    self._session_counter = 0
+                    self._evaluation_phase = True
+
+                if self._testing:
+                    return
+
+            else:
+                print("sender unknown")
+                if self._testing:
+                    print("Send end message to Service Class")
+                    self._prod_sys_io.send_timestamp(time.time(), "end")
+                    return
 
 
 
 if __name__ == "__main__":
-    prod = ProductionOrchestrator(False)
-    prod.production()
+
+    production_system_orchestrator = ProductionOrchestrator(False)
+    production_system_orchestrator.production()

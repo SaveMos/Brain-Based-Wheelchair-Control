@@ -19,7 +19,7 @@ class Classification:
 
 
 
-    def classify(self, prepared_session: PreparedSession):
+    def classify(self, ps_json):
         """
         Method that execute classify operation based on received prepared_session and classifier
         Args:
@@ -29,7 +29,10 @@ class Classification:
             label: aN object of label class representing the label obtained from classify operation
 
         """
-
+        ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_tetha_band'],
+                       ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
+        # convert prepared session json in python object
+        prepared_session = PreparedSession(ps_json['uuid'], ps_features)
         if self._classifier is None:
             self._classifier = joblib.load("model/classifier.sav")
 
