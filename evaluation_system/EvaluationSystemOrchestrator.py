@@ -29,7 +29,7 @@ class EvaluationSystemOrchestrator:
         self.basedir = basedir
 
         EvaluationSystemParameters.loadParameters(self.basedir)
-        self.testing = EvaluationSystemParameters.TESTING
+        self.service = EvaluationSystemParameters.LOCAL_PARAMETERS["service"]
 
         self.labels_buffer = LabelsBuffer()
         self.labelReceiver_and_configurationSender = LabelReceiver_and_ConfigurationSender(basedir=self.basedir)
@@ -76,34 +76,34 @@ class EvaluationSystemOrchestrator:
 
                 while True:
                     label = self.labelReceiver_and_configurationSender.get_label()
-                    if self.testing:
+                    if self.service:
                         self.labelReceiver_and_configurationSender.send_timestamp(time.time(), "start")
 
                     self.labels_buffer.save_label(label)
                     print(f"Label saved: {label.to_dict()}")
 
-                    if self.labels_buffer.get_num_classifier_labels() >= EvaluationSystemParameters.MINIMUM_NUMBER_LABELS and \
-                       self.labels_buffer.get_num_expert_labels() >= EvaluationSystemParameters.MINIMUM_NUMBER_LABELS:
+                    if self.labels_buffer.get_num_classifier_labels() >= EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"] and \
+                       self.labels_buffer.get_num_expert_labels() >= EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"]:
 
                         print("Sufficient number of labels.")
                         break
-                    elif self.testing:
+                    elif self.service:
                         self.labelReceiver_and_configurationSender.send_timestamp(time.time(), "end")
 
                 # Get all the stored labels
-                classifier_labels = self.labels_buffer.get_classifier_labels(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
-                expert_labels = self.labels_buffer.get_expert_labels(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
+                classifier_labels = self.labels_buffer.get_classifier_labels(EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"])
+                expert_labels = self.labels_buffer.get_expert_labels(EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"])
 
                 # Create the evaluation report
                 self.evaluation_report_model.create_evaluation_report(classifier_labels, expert_labels,
-                                                                      EvaluationSystemParameters.TOTAL_ERRORS,
-                                                                      EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS)
+                                                                      EvaluationSystemParameters.LOCAL_PARAMETERS["total_errors"],
+                                                                      EvaluationSystemParameters.LOCAL_PARAMETERS["max_consecutive_errors"])
 
                 # Remove the labels
-                self.labels_buffer.delete_labels(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
+                self.labels_buffer.delete_labels(EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"])
                 print("Labels removed.")
 
-                if not self.testing:
+                if not self.service:
                     return
 
                 print("Testing mode, classifier evaluation automatically generated.")
@@ -137,12 +137,12 @@ class EvaluationSystemOrchestrator:
                 if classifier_evaluation["classifier_evaluation"] == "good":
                     # Human Operator evaluated the classifier as good.
                     print("Human Operator evaluated the classifier as good.")
-                    if self.testing:
+                    if self.service:
                         self.labelReceiver_and_configurationSender.send_timestamp(time.time(), "end")
                 elif classifier_evaluation["classifier_evaluation"] == "bad":
                     # Human Operator evaluated the classifier as bad.
                     print("Human Operator evaluated the classifier as bad.")
-                    if self.testing:
+                    if self.service:
                         self.labelReceiver_and_configurationSender.send_timestamp(time.time(), "end")
                     self.labelReceiver_and_configurationSender.send_configuration()
                     print("Configuration sent.")

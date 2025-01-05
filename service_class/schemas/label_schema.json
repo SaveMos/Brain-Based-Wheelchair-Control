@@ -11,7 +11,7 @@
       "format": "uuid"
     },
     "movements": {
-      "type": "integer"
+      "type": "string"
     }
   }
 }

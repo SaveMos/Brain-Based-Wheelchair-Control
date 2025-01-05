@@ -102,7 +102,7 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
             # Simulate a request from the Ingestion System
             response = client.post('/EvaluationSystem',
                                    json=valid_json_label,
-                                   environ_base={"REMOTE_ADDR": EvaluationSystemParameters.INGESTION_SYSTEM_IP})
+                                   environ_base={"REMOTE_ADDR": EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json, {"status": "received"})
             label = self.app.get_label()
@@ -114,7 +114,7 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
             # Simulate a request from the Production System
             response = client.post('/EvaluationSystem',
                                    json=valid_json_label,
-                                   environ_base={"REMOTE_ADDR": EvaluationSystemParameters.PRODUCTION_SYSTEM_IP})
+                                   environ_base={"REMOTE_ADDR": EvaluationSystemParameters.GLOBAL_PARAMETERS["Production System"]["ip"]})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json, {"status": "received"})
             label = self.app.get_label()
@@ -166,7 +166,7 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
                 # Simulate a request from the Ingestion System
                 response = client.post('/EvaluationSystem',
                                        json=valid_json_label,
-                                       environ_base={"REMOTE_ADDR": EvaluationSystemParameters.INGESTION_SYSTEM_IP})
+                                       environ_base={"REMOTE_ADDR": EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]})
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.json, {"status": "received"})
                 label = self.app.get_label()

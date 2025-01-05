@@ -16,7 +16,7 @@ class TestEvaluationSystemParameters(unittest.TestCase):
             "minimum_number_labels": 10,
             "total_errors": 5,
             "max_consecutive_errors": 2,
-            "testing": True
+            "service": True
         }
         global_parameters = {
             "Evaluation System": {"port": 5006},
@@ -34,19 +34,19 @@ class TestEvaluationSystemParameters(unittest.TestCase):
         EvaluationSystemParameters.loadParameters(basedir="..")
 
         # Assert local parameters
-        self.assertEqual(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS, 10)
-        self.assertEqual(EvaluationSystemParameters.TOTAL_ERRORS, 5)
-        self.assertEqual(EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS, 2)
-        self.assertTrue(EvaluationSystemParameters.TESTING)
+        self.assertEqual(EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"], 10)
+        self.assertEqual(EvaluationSystemParameters.LOCAL_PARAMETERS["total_errors"], 5)
+        self.assertEqual(EvaluationSystemParameters.LOCAL_PARAMETERS["max_consecutive_errors"], 2)
+        self.assertTrue(EvaluationSystemParameters.LOCAL_PARAMETERS["service"])
 
         # Assert global parameters
-        self.assertEqual(EvaluationSystemParameters.EVALUATION_SYSTEM_PORT, 5006)
-        self.assertEqual(EvaluationSystemParameters.INGESTION_SYSTEM_IP, "127.0.0.1")
-        self.assertEqual(EvaluationSystemParameters.PRODUCTION_SYSTEM_IP, "127.0.0.2")
-        self.assertEqual(EvaluationSystemParameters.MESSAGING_SYSTEM_IP, "127.0.0.3")
-        self.assertEqual(EvaluationSystemParameters.MESSAGING_SYSTEM_PORT, 5000)
-        self.assertEqual(EvaluationSystemParameters.SERVICE_CLASS_IP, "127.0.0.4")
-        self.assertEqual(EvaluationSystemParameters.SERVICE_CLASS_PORT, 5001)
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Evaluation System"]["port"], 5006)
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"], "127.0.0.1")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Production System"]["ip"], "127.0.0.2")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["ip"], "127.0.0.3")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["port"], 5000)
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["ip"], "127.0.0.4")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["port"], 5001)
 
         # Assert file open calls
         self.assertEqual(mock_file.call_count, 2)
@@ -73,20 +73,17 @@ class TestEvaluationSystemParameters(unittest.TestCase):
         # Call the method
         EvaluationSystemParameters.loadParameters(basedir="..")
 
-        # Assert local parameters remain None
-        self.assertIsNone(EvaluationSystemParameters.MINIMUM_NUMBER_LABELS)
-        self.assertIsNone(EvaluationSystemParameters.TOTAL_ERRORS)
-        self.assertIsNone(EvaluationSystemParameters.MAX_CONSECUTIVE_ERRORS)
-        self.assertIsNone(EvaluationSystemParameters.TESTING)
+        # Assert LOCAL_PARAMETERS is an empty dictionary
+        self.assertEqual(EvaluationSystemParameters.LOCAL_PARAMETERS, {})
 
         # Assert global parameters are loaded
-        self.assertEqual(EvaluationSystemParameters.EVALUATION_SYSTEM_PORT, 5006)
-        self.assertEqual(EvaluationSystemParameters.INGESTION_SYSTEM_IP, "127.0.0.1")
-        self.assertEqual(EvaluationSystemParameters.PRODUCTION_SYSTEM_IP, "127.0.0.2")
-        self.assertEqual(EvaluationSystemParameters.MESSAGING_SYSTEM_IP, "127.0.0.3")
-        self.assertEqual(EvaluationSystemParameters.MESSAGING_SYSTEM_PORT, 5000)
-        self.assertEqual(EvaluationSystemParameters.SERVICE_CLASS_IP, "127.0.0.4")
-        self.assertEqual(EvaluationSystemParameters.SERVICE_CLASS_PORT, 5001)
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Evaluation System"]["port"], 5006)
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"], "127.0.0.1")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Production System"]["ip"], "127.0.0.2")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["ip"], "127.0.0.3")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["port"], 5000)
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["ip"], "127.0.0.4")
+        self.assertEqual(EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["port"], 5001)
 
     @patch("builtins.open", new_callable=mock_open)
     @patch("json.load")

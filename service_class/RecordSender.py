@@ -1,6 +1,10 @@
+"""
+Author: Giovanni Ligato
+"""
 
 import pandas as pd
 import requests
+import random
 
 from service_class.UniqueRandomGenerator import UniqueRandomGenerator
 from service_class.ServiceClassParameters import ServiceClassParameters
@@ -22,8 +26,11 @@ class RecordSender:
         self.helmet = RecordSender.csv_reader(f"{basedir}/../data/helmet.csv")
         self.labels = RecordSender.csv_reader(f"{basedir}/../data/labels.csv")
 
+        min_len = min(len(self.calendar), len(self.environment), len(self.helmet), len(self.labels))
+        # However, all the dataframes should have the same length
+
         # UniqueRandomGenerator instance
-        self.unique_random_generator = UniqueRandomGenerator(0, 96)
+        self.unique_random_generator = UniqueRandomGenerator(0, min_len - 1)
 
 
     @staticmethod
@@ -38,67 +45,62 @@ class RecordSender:
         return pd.read_csv(csv_path)
 
 
-    def send_session(self) -> bool:
+    def prepare_bucket(self, session_count: int, include_labels: bool):
         """
-        Send a random session to the Ingestion System.
+        Prepare a bucket containing individual records selected from random sessions.
 
-        :return: True if the session was sent successfully, False otherwise.
+        :param session_count: Number of sessions to include in the bucket.
+        :param include_labels: Whether to include labels in the bucket.
+        :return: A list of records to be sent.
         """
+        self.unique_random_generator.reset()
 
-        # Get a random index
-        index = self.unique_random_generator.generate()
+        bucket = []
+        for _ in range(session_count):
+            index = self.unique_random_generator.generate()
 
-        calendar = self.calendar.iloc[index]
-        environment = self.environment.iloc[index]
-        helmet = self.helmet.iloc[index]
-        label = self.labels.iloc[index]
+            bucket.append({
+                "source": "calendar",
+                "value": self.calendar.iloc[index].to_dict()
+            })
+            bucket.append({
+                "source": "environment",
+                "value": self.environment.iloc[index].to_dict()
+            })
+            bucket.append({
+                "source": "helmet",
+                "value": self.helmet.iloc[index].to_dict()
+            })
 
-        # Preparing the records to send
-        calendar_record = {
-            "source": "calendar",
-            "value": calendar.to_dict()
-        }
-        environment_record = {
-            "source": "environment",
-            "value": environment.to_dict()
-        }
-        helmet_record = {
-            "source": "helmet",
-            "value": helmet.to_dict()
-        }
-        label_record = {
-            "source": "labels",
-            "value": label.to_dict()
-        }
+            if include_labels:
+                bucket.append({
+                    "source": "labels",
+                    "value": self.labels.iloc[index].to_dict()
+                })
 
-        # Send the records to the Ingestion System
-        url = f"http://{ServiceClassParameters.INGESTION_SYSTEM_IP}:\
-              {ServiceClassParameters.INGESTION_SYSTEM_PORT}/IngestionSystem"
+        return bucket
 
-        try:
-            response = requests.post(url, json=calendar_record)
-            if response.status_code != 200:
-                return False
-            response = requests.post(url, json=environment_record)
-            if response.status_code != 200:
-                return False
-            response = requests.post(url, json=helmet_record)
-            if response.status_code != 200:
-                return False
+    def send_bucket(self, bucket: list):
+        """
+        Send records from the bucket to the Ingestion System randomly.
 
-            if ServiceClassParameters.DEVELOPMENT_PHASE:
-                # Label is sent only during the development phase
-                response = requests.post(url, json=label_record)
-                if response.status_code != 200:
-                    return False
+        :param bucket: The list of records to send.
+        """
+        url = f"http://{ServiceClassParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]}:\
+              {ServiceClassParameters.GLOBAL_PARAMETERS["Ingestion System"]["port"]}/IngestionSystem"
 
-        except requests.RequestException as e:
-            print(f"Error sending session: {e}")
-            return False
-        return True
+        while bucket:
+            record = random.choice(bucket)
+            try:
+                response = requests.post(url, json=record)
+                if response.status_code == 200:
+                    bucket.remove(record)
+                else:
+                    print(f"Failed to send record: {record}")
+            except requests.RequestException as e:
+                print(f"Error sending record: {e}")
 
 
 if __name__ == "__main__":
     # Test the RecordSender class
     rs = RecordSender()
-

@@ -19,7 +19,7 @@ class LabelReceiver_and_ConfigurationSender:
     Evaluation System module responsible for receiving labels and sending configuration.
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = EvaluationSystemParameters.EVALUATION_SYSTEM_PORT, basedir: str = "."):
+    def __init__(self, host: str = '0.0.0.0', port: int = None, basedir: str = "."):
         """
         Initialize the Flask communication server.
 
@@ -27,6 +27,10 @@ class LabelReceiver_and_ConfigurationSender:
         :param port: The port number for the Flask server.
         :param basedir: The base directory for the Flask server.
         """
+
+        if port is None:
+            port = EvaluationSystemParameters.GLOBAL_PARAMETERS["Evaluation System"]["port"]
+
         self.app = Flask(__name__)
         self.host = host
         self.port = port
@@ -52,9 +56,9 @@ class LabelReceiver_and_ConfigurationSender:
 
                 # Check if the label is an expert label (coming from the Ingestion System)
                 # or a classifier label (coming from the Production System)
-                if EvaluationSystemParameters.INGESTION_SYSTEM_IP == sender_ip:
+                if EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"] == sender_ip:
                     expert = True
-                elif EvaluationSystemParameters.PRODUCTION_SYSTEM_IP == sender_ip:
+                elif EvaluationSystemParameters.GLOBAL_PARAMETERS["Production System"]["ip"] == sender_ip:
                     expert = False
                 else:
                     return jsonify({"status": "error", "message": "Invalid sender IP"}), 400
@@ -99,8 +103,8 @@ class LabelReceiver_and_ConfigurationSender:
         :return: True if the message was sent successfully, False otherwise.
         """
 
-        url = f"http://{EvaluationSystemParameters.MESSAGING_SYSTEM_IP}:\
-              {EvaluationSystemParameters.MESSAGING_SYSTEM_PORT}/MessagingSystem"
+        url = f"http://{EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["ip"]}:\
+              {EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["port"]}/MessagingSystem"
 
         configuration = {
             "configuration": "restart"
@@ -133,8 +137,8 @@ class LabelReceiver_and_ConfigurationSender:
         :param status: The status of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
-        url = f"http://{EvaluationSystemParameters.SERVICE_CLASS_IP}:\
-              {EvaluationSystemParameters.SERVICE_CLASS_PORT}/Timestamp"
+        url = f"http://{EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["ip"]}:\
+              {EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["port"]}/Timestamp"
 
         timestamp_message = {
             "timestamp": timestamp,
