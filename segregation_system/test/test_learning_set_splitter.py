@@ -1,7 +1,7 @@
 import unittest
 
 from segregation_system.learning_set_splitter import LearningSetSplitter
-from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
+from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 
@@ -12,12 +12,11 @@ class TestLearningSetSplitter(unittest.TestCase):
         """
         Set up the test case with a configuration and mock data.
         """
-        config = SegregationSystemConfiguration()
-        config.configure_parameters("../conf/segregation_system_configuration.json")
+        SegregationSystemConfiguration.configure_parameters("../conf/segregation_system_configuration.json")
 
 
         # Initialize the LearningSetSplitter with the mock configuration
-        self.splitter = LearningSetSplitter(config)
+        self.splitter = LearningSetSplitter()
 
         # Generate 100 PreparedSession objects with random UUIDs
         self.prepared_sessions = generate_random_prepared_sessions_object_list(100)

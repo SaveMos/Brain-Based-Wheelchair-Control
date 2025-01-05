@@ -5,7 +5,7 @@ from typing import Optional, Dict
 import requests
 from flask import Flask, request, jsonify
 
-from segregation_system.SegregationSystemJsonHandler import SegregationSystemJsonHandler
+from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 
 
 class SessionReceiverAndConfigurationSender:
@@ -96,8 +96,7 @@ class SessionReceiverAndConfigurationSender:
         :return: True if the message was sent successfully, False otherwise.
         """
 
-        json_handler = SegregationSystemJsonHandler()
-        network_info = json_handler.get_system_address("../global_netconf.json", "Messaging System")
+        network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Messaging System"]
 
         url = f"http://{network_info.get('ip')}:\
               {network_info.get('port')}/MessagingSystem"
@@ -123,8 +122,7 @@ class SessionReceiverAndConfigurationSender:
         :param status: The status of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
-        json_handler = SegregationSystemJsonHandler()
-        network_info = json_handler.get_system_address("../global_netconf.json", "Service Class")
+        network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Service Class"]
 
         url = f"http://{network_info.get('ip')}:\
                       {network_info.get('port')}/Timestamp"

@@ -7,7 +7,7 @@ and creating a histogram plot.
 
 from segregation_system.balancing_report_model import BalancingReportModel
 from segregation_system.balancing_report_view import BalancingReportView
-from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
+from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 from segregation_system.test.test_utility_lib import generate_random_prepared_sessions_object_list
 
 
@@ -22,14 +22,13 @@ def main():
     for session in randomized_prepared_sessions:
         expected_counts[session.label] += 1
 
-    # Define a SegregationSystemConfiguration with a tolerance value
-    config = SegregationSystemConfiguration()
-    config.configure_parameters("conf/segregation_system_configuration.json")
+    # Define a SegregationSystemConfiguration with a tolerance value.
+    SegregationSystemConfiguration.configure_parameters("conf/segregation_system_configuration.json")
 
-    # Create the BalancingReportModel
-    report_model = BalancingReportModel(randomized_prepared_sessions, config)
+    # Create the BalancingReportModel.
+    report_model = BalancingReportModel(randomized_prepared_sessions)
 
-    # Generate and save the histogram
+    # Generate and save the histogram.
     print("Generating the histogram...")
     report_model.generateBalancingReport()
     print("Histogram saved in 'plots/BalancingReport.png'.")

@@ -1,9 +1,9 @@
-from typing import List
 import random
+from typing import List
 
 from segregation_system.learning_set import LearningSet
 from segregation_system.prepared_session import PreparedSession
-from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
+from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 
 
 class LearningSetSplitter:
@@ -16,12 +16,12 @@ class LearningSetSplitter:
 
     """
 
-    def __init__(self , config : SegregationSystemConfiguration):
+    def __init__(self):
         """
         Initializes the LearningSetSplitter object.
         """
-        self._training_percentage = config.training_set_percentage
-        self._validation_percentage = config.validation_set_percentage
+        self._training_percentage = SegregationSystemConfiguration.LOCAL_PARAMETERS['training_set_percentage']
+        self._validation_percentage = SegregationSystemConfiguration.LOCAL_PARAMETERS['validation_set_percentage']
         self._test_percentage = 1 - (self._training_percentage + self._validation_percentage)
         pass
 

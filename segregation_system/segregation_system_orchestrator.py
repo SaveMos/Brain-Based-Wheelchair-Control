@@ -3,8 +3,8 @@ from segregation_system.balancing_report_model import BalancingReportModel
 from segregation_system.coverage_report_model import CoverageReportModel
 from segregation_system.learning_set_splitter import LearningSetSplitter
 from segregation_system.prepared_session import PreparedSession
-from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.segregation_database_manager.segregation_system_database_controller import SegregationSystemDatabaseController
+from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 from segregation_system.session_receiver_and_configuration_sender import SessionReceiverAndConfigurationSender
 
 
@@ -40,9 +40,6 @@ class SegregationSystemOrchestrator:
 
         This method initializes a `SegregationSystemConfiguration` object to load system parameters
         from the configuration file and sets up the required subsystems.
-
-        Example:
-            orchestrator.run()
         """
         json_handler = SegregationSystemJsonHandler()
         execution_state_file_path = "user/user_responses.json"
@@ -53,16 +50,14 @@ class SegregationSystemOrchestrator:
 
         if (number_of_session_status == "-" or balancing_report_status == "-") or self.get_testing():
             # Create a Configuration object, to load the system configuration.
-            config = SegregationSystemConfiguration()
-            # Configure the system parameters from the configuration file.
-            config.configure_parameters()
 
+            # Configure the system parameters from the configuration file.
             # Create a MessageBroker instance to send and receive messages.
             message_broker = SessionReceiverAndConfigurationSender()
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
 
-            while db.get_number_of_prepared_session_stored() < config.minimum_number_of_collected_sessions:
+            while db.get_number_of_prepared_session_stored() < SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']:
                 # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
                 new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
 
@@ -76,8 +71,7 @@ class SegregationSystemOrchestrator:
             all_prepared_sessions = db.get_all_prepared_sessions()
 
             print("Generating the balancing report...")
-            report_model = BalancingReportModel(all_prepared_sessions,
-                                                        config)  # Create the BalancingReportModel Object.
+            report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
             report_model.generateBalancingReport()  # Generate the Balancing Report.
             print("Balancing report generated!")
 
@@ -102,16 +96,6 @@ class SegregationSystemOrchestrator:
             report_model.generateCoverageReport()
             print("Input coverage report generated!")
 
-            #wait_for_input( "Press Enter to launch the Input Coverage Report application...")  # Wait the user response.
-
-            #report_view = CoverageReportView()
-            #report_view.open_coverage_report()  # Open the balancing report with the Windows default application.
-
-            # The image will be open in the default viewer but the application will terminate here.
-
-            #resp = wait_for_input("Response? 'OK' or 'NOT OK'?")  # Wait the user response.
-
-            #json_handler.write_field_to_json(execution_state_file_path, "coverage_report", resp)  # Register the response.
 
         if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and not self.get_testing():
             db = SegregationSystemDatabaseController()
@@ -122,29 +106,22 @@ class SegregationSystemOrchestrator:
 
         if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # The final phase.
-            # Create a Configuration object, to load the system configuration.
-            config = SegregationSystemConfiguration()
-
-            # Configure the system parameters from the configuration file.
-            config.configure_parameters()
-
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
 
             # Get all the prepared sessions in the database.
             all_prepared_sessions = db.get_all_prepared_sessions()
 
-            report_model = LearningSetSplitter(config)
+            report_model = LearningSetSplitter()
             learning_sets = report_model.generateLearningSets(all_prepared_sessions)
 
             # Create a MessageBroker instance to send and receive messages.
             message_broker = SessionReceiverAndConfigurationSender()
 
-            # Get development IP.
-            network_info = json_handler.get_system_address("../global_netconf.json", "Development System")
+            network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Development System"]
 
             # Send the learning sets to the Development System.
-            message_broker.send_message(network_info.get("ip"), network_info.get("port"), SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
+            message_broker.send_message(network_info['ip'], network_info['port'], SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
 
             db.reset_session_database()
             self.reset_execution_state()
@@ -176,6 +153,9 @@ class SegregationSystemOrchestrator:
         self.testing = testing
 
     def reset_execution_state(self):
+        """
+        Reset the execution state for a fresh-new stop&go interaction.
+        """
         json_handler = SegregationSystemJsonHandler()
         execution_state_file_path = "user/user_responses.json"
         json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions" , "-")
@@ -185,6 +165,7 @@ class SegregationSystemOrchestrator:
 
 # Example to test the class
 if __name__ == "__main__":
+    SegregationSystemConfiguration.configure_parameters()
     orchestrator = SegregationSystemOrchestrator(True)
     orchestrator.reset_execution_state()
     orchestrator.run()

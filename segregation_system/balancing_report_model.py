@@ -7,8 +7,9 @@ import os
 import matplotlib.pyplot as plt
 
 from segregation_system.prepared_session import PreparedSession
-from segregation_system.segregation_system_configuration import SegregationSystemConfiguration
 from segregation_system.balancing_report import BalancingReport
+from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
+
 
 class BalancingReportModel:
     """
@@ -24,7 +25,7 @@ class BalancingReportModel:
     Creation Date: 2024-12-06
     """
 
-    def __init__(self, sessions: List[PreparedSession], segregation_config: SegregationSystemConfiguration):
+    def __init__(self, sessions: List[PreparedSession] ):
         """
         Initializes the BalancingReportModel with the provided balancing report and configuration.
 
@@ -34,7 +35,6 @@ class BalancingReportModel:
         """
 
         self.balancing_report = BalancingReport(sessions)
-        self.segregation_config = segregation_config
 
     def generateBalancingReport(self, dir_path = os.path.join('user', 'plots')):
         """
@@ -63,7 +63,7 @@ class BalancingReportModel:
         median_value = sorted(data)[1]
 
         # Calculate the tolerance intervals.
-        tolerance = self.segregation_config.tolerance_interval / 100
+        tolerance = SegregationSystemConfiguration.LOCAL_PARAMETERS['tolerance_interval'] / 100
         lower_tolerance = median_value * (1 - tolerance)
         upper_tolerance = median_value * (1 + tolerance)
 
