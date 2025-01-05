@@ -19,7 +19,6 @@ class ValidationOrchestrator:
         self.validation_report = None
         self.validation_report_model = ValidationReportModel()
         self.validation_report_view = ValidationReportView()
-        self.config_params = ConfigurationParameters()
         self.service_flag = None
 
     def validation(self):    # It performs the grid search and generates the validation report
@@ -31,9 +30,11 @@ class ValidationOrchestrator:
                     - If in service mode, returns the generated validation report.
                     - If in testing mode, returns `True` if all classifiers in the report are valid, otherwise `False`.
         """
-        # load the configurations
-        self.config_params.load_configuration()
-        self.service_flag = self.config_params.service_flag
+        # the configurations are loaded only in case of stop and go
+        # if ConfigurationParameters.params is None:
+        #   ConfigurationParameters.load_configuration()
+
+        self.service_flag = ConfigurationParameters.params['service_flag']
 
         # Grid Search
         classifier_trainer = Trainer()
@@ -47,14 +48,14 @@ class ValidationOrchestrator:
         # Compute all possible combinations of hyperparameters
         layers = []
 
-        for i in range(ConfigurationParameters.min_layers, ConfigurationParameters.max_layers + 1,
-                       ConfigurationParameters.step_layers):
+        for i in range(ConfigurationParameters.params['min_layers'], ConfigurationParameters.params['max_layers'] + 1,
+                       ConfigurationParameters.params['step_layers']):
             layers.append(i)
 
         neurons = []
 
-        for i in range(ConfigurationParameters.min_neurons, ConfigurationParameters.max_neurons + 1,
-                       ConfigurationParameters.step_neurons):
+        for i in range(ConfigurationParameters.params['min_neurons'], ConfigurationParameters.params['max_neurons'] + 1,
+                       ConfigurationParameters.params['step_neurons']):
             neurons.append(i)
 
         grid_search = list(itertools.product(layers, neurons))
@@ -70,9 +71,10 @@ class ValidationOrchestrator:
         # GENERATE VALIDATION REPORT
         self.validation_report =  self.validation_report_model.generate_validation_report(self.classifiers)
 
-        print("validation report =", self.validation_report)
         # CHECK VALIDATION RESULT
         self.validation_report_view.show_validation_report(self.validation_report)
+        print("validation report generated")
+
 
         if self.service_flag:
             # restituisce true se tutti i classificatori nel report sono validi, se anche uno non è valido, false

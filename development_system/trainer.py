@@ -38,9 +38,13 @@ class Trainer:
 
     def set_average_hyperparameters(self):
         """Set the average hyperparameters."""
-        avg_neurons = math.ceil((ConfigurationParameters.max_neurons + ConfigurationParameters.min_neurons) / 2)
-        avg_layers = math.ceil((ConfigurationParameters.max_layers + ConfigurationParameters.min_layers) / 2)
-        print("avg_neurons: ", avg_neurons)
+        # the configurations are loaded only in case of stop and go
+        #if ConfigurationParameters.params is None:
+            #ConfigurationParameters.load_configuration()
+
+        avg_neurons = math.ceil((ConfigurationParameters.params['max_neurons'] + ConfigurationParameters.params['min_neurons']) / 2)
+        avg_layers = math.ceil((ConfigurationParameters.params['max_layers'] + ConfigurationParameters.params['min_layers']) / 2)
+
         self.classifier.set_num_neurons(avg_neurons)
         self.classifier.set_num_layers(avg_layers)
         #save the values in the file so that can be used after the stop
@@ -78,8 +82,6 @@ class Trainer:
             self.classifier =  joblib.load("data/classifier_trainer.sav")
 
         self.classifier.set_num_iterations(iterations)
-        print("num neurons: ", self.classifier.get_num_neurons())
-        print("num layers: ", self.classifier.get_num_layers())
 
         # Train the classifier
         self.classifier.fit(x=training_features, y=ravel(training_labels))
