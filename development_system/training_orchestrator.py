@@ -44,9 +44,6 @@ class TrainingOrchestrator:
             joblib.dump(self.classifier, "data/classifier_trainer.sav")
 
         else:
-            # the configurations are loaded only in case of stop and go
-            #if ConfigurationParameters.params is None:
-            #    ConfigurationParameters.load_configuration()
 
             self.service_flag = ConfigurationParameters.params['service_flag']
 
@@ -65,8 +62,7 @@ class TrainingOrchestrator:
                     choice = random.randint(0, 4)
                     if choice == 0:  # 20%
                         print("CHECK LEARNING PLOT OK)")
-                        # se il numero di iterazioni è corretto, restituisce true, altrimenti false
-                        # se il numero di iterazioni è corretto, salva il nuovo classifier
+                        # if # iterations is correct save the new classifier
                         self.classifier.set_num_iterations(iterations)
                         joblib.dump(self.classifier, "data/classifier_trainer.sav")
                         break
@@ -87,7 +83,3 @@ class TrainingOrchestrator:
             print("number of iterations= ", iterations)
             print("learning report generated")
             print("learning error =", learning_error.get_learning_error())
-
-            #classifier.training_error = classifier.get_loss_curve() il training_error è calcolato in automatico da MLPClassifier
-            #return classifier non serve nemmeno restituirlo, questo è allenato solo per trovare il numero di iterazioni corretto
-

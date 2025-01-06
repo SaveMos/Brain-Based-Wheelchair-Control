@@ -136,3 +136,35 @@ class JsonValidatorReaderAndWriter:
         except json.JSONDecodeError:
             print("Error: Failed to parse JSON file.")
             return None
+
+    @staticmethod
+    def string_to_dict(string: str) -> dict:
+        """
+        Converts a JSON-formatted string back to a dictionary.
+
+        Args:
+            string (str): The JSON string to convert.
+
+        Returns:
+            dict: The dictionary representation of the string.
+        """
+        try:
+            return json.loads(string)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Unable to parse string into dictionary: {e}")
+
+    @staticmethod
+    def dict_to_string(dictionary: dict) -> str:
+        """
+        Converts a dictionary to a JSON-formatted string.
+
+        Args:
+            dictionary (dict): The dictionary to convert.
+
+        Returns:
+            str: A JSON-formatted string representation of the dictionary.
+        """
+        try:
+            return json.dumps(dictionary, indent=4)
+        except TypeError as e:
+            raise ValueError(f"Unable to convert dictionary to string: {e}")
