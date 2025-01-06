@@ -139,11 +139,11 @@ class TestJsonHandler(unittest.TestCase):
         SegregationSystemJsonHandler.write_json_file(valid_data, "valid_data.json")
         SegregationSystemJsonHandler.write_json_file(invalid_data, "invalid_data.json")
 
-        # Validate valid data
+        # Validate valid data.
         result = SegregationSystemJsonHandler.validate_json_from_path("valid_data.json", self.test_schema_file)
         self.assertTrue(result)
 
-        # Validate invalid data
+        # Validate invalid data.
         result = SegregationSystemJsonHandler.validate_json_from_path("invalid_data.json", self.test_schema_file)
         self.assertFalse(result)
 

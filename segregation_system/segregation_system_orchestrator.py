@@ -45,7 +45,7 @@ class SegregationSystemOrchestrator:
         balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "balancing_report")
         coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "coverage_report")
 
-        if (number_of_session_status == "-" or balancing_report_status == "-") or self.get_testing():
+        if (number_of_session_status == "-" and balancing_report_status == "-") or self.get_testing():
             # Create a Configuration object, to load the system configuration.
 
             # Configure the system parameters from the configuration file.
@@ -59,15 +59,18 @@ class SegregationSystemOrchestrator:
                 # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
                 message = message_broker.get_last_message()
                 print("Prepared Session received!")
-                try:
-                    # Validation of the prepared session.
-                    new_prepared_session = PreparedSession.from_dictionary(message)
-                    print("Prepared Session Valid!")
 
-                    # Store the new prepared session in the database.
-                    db.store_prepared_session(new_prepared_session.to_dictionary())
-                except Exception:
-                    print("Prepared Session NOT Valid!")
+                if SegregationSystemJsonHandler.validate_json(message, "schemas/preparedSessionSchema.json"):
+                    print("Prepared Session Valid! (schema)")
+                    try:
+                        # Validation of the prepared session.
+                        new_prepared_session = PreparedSession.from_dictionary(message)
+                        print("Prepared Session Valid! (class)")
+
+                        # Store the new prepared session in the database.
+                        db.store_prepared_session(new_prepared_session.to_dictionary())
+                    except Exception:
+                        print("Prepared Session NOT Valid!")
 
             print("Enough prepared session stored!")
             SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
@@ -81,7 +84,7 @@ class SegregationSystemOrchestrator:
             report_model.generateBalancingReport()  # Generate the Balancing Report.
             print("Balancing report generated!")
 
-        if coverage_report_status == "-" and balancing_report_status == "NOT OK" and not self.get_testing():
+        if coverage_report_status == "-" and balancing_report_status == "NOT OK" and number_of_session_status == "OK":
             db = SegregationSystemDatabaseController()
             db.reset_session_database()
             message_broker = SessionReceiverAndConfigurationSender()
@@ -103,7 +106,7 @@ class SegregationSystemOrchestrator:
             print("Input coverage report generated!")
 
 
-        if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and not self.get_testing():
+        if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and number_of_session_status == "OK":
             db = SegregationSystemDatabaseController()
             db.reset_session_database()
             message_broker = SessionReceiverAndConfigurationSender()
