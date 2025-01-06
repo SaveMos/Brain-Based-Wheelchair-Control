@@ -3,8 +3,7 @@
   "type": "object",
   "properties": {
     "development": {
-      "type": "string",
-      "enum": ["True", "False"]
+      "type": "boolean"
     },
     "port_segregation": {
        "type": "integer",

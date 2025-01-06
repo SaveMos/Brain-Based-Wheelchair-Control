@@ -33,6 +33,7 @@ class PreparationSystemOrchestrator:
         while True:
             # receive message
             boo, new_raw_session = self.communication.get_message()
+            print("preparation ricevuta raw session: ", new_raw_session)
             if boo:
                 continue
             handler = JsonHandler()
@@ -46,10 +47,12 @@ class PreparationSystemOrchestrator:
 
             # send prepared session
             if self.parameters.configuration["development"]:
+                print("INVIO A SAVE")
                 #send to segregation system
                 self.communication.send_message(self.parameters.configuration["ip_segregation"],
                                                 self.parameters.configuration["port_segregation"], json_prepared_session)
             else: #to comment for the preparation test
                 #send to production system
+                print("INVIO A ALE")
                 self.communication.send_message(self.parameters.configuration["ip_production"],
                                                 self.parameters.configuration["port_production"], json_prepared_session)

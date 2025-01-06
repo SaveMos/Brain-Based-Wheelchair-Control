@@ -5,7 +5,6 @@ Orchestrates the ingestion system workflow.
 Author: Francesco Taverna
 
 """
-
 from .ingestion_json_handler.json_handler import JsonHandler
 from .record_buffer_controller import RecordBufferController
 from .raw_session_preparation import RawSessionPreparation
@@ -80,6 +79,7 @@ class IngestionSystemOrchestrator:
 
                 # stores record
                 self.buffer_controller.store_record(new_record)
+                print(new_record)
 
                 # retrieve records
                 stored_records = self.buffer_controller.get_records(new_record["value"]["UUID"])
@@ -96,6 +96,7 @@ class IngestionSystemOrchestrator:
 
                 # creates raw session
                 raw_session = self.session_preparation.create_raw_session(stored_records)
+                print("sto mandando la raw session: ", raw_session.to_json())
 
                 # removes records
                 self.buffer_controller.remove_records(new_record["value"]["UUID"])
@@ -132,3 +133,5 @@ class IngestionSystemOrchestrator:
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")
+
+
