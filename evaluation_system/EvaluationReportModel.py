@@ -2,6 +2,7 @@
 Author: Giovanni Ligato
 """
 
+import os
 import json
 from evaluation_system.Label import Label
 from evaluation_system.EvaluationReport import EvaluationReport
@@ -18,7 +19,27 @@ class EvaluationReportModel:
         :param basedir: Base directory of the Evaluation System.
         """
         self.basedir = basedir
-        self.evaluation_report_id = 0
+
+        self.evaluation_report_id = self._get_next_evaluation_report_id()
+
+
+    def _get_next_evaluation_report_id(self) -> int:
+        """
+        Get the next evaluation report id by checking the reports folder for existing report files.
+
+        :return: The next evaluation report id.
+        """
+
+        if not os.path.exists(f"{self.basedir}/reports"):
+            return 0
+
+        report_files = [f for f in os.listdir(f"{self.basedir}/reports") if
+                        f.startswith("evaluation_report_") and f.endswith(".json")]
+        if not report_files:
+            return 0
+        max_id = max(int(f.split("_")[-1].split(".")[0]) for f in report_files)
+        return max_id + 1
+
 
     def create_evaluation_report(self, classifier_labels: list[Label], expert_labels: list[Label],
                                  total_errors: int, max_consecutive_errors: int) -> bool:

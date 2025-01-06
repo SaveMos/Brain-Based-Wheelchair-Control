@@ -73,8 +73,11 @@ class EvaluationSystemOrchestrator:
 
             if not classifier_evaluation_exists:
                 # Evaluation Report has not been created yet.
+                print("Starting a new evaluation process.")
 
                 while True:
+                    print("Waiting for labels.")
+
                     label = self.labelReceiver_and_configurationSender.get_label()
                     if self.service:
                         self.labelReceiver_and_configurationSender.send_timestamp(time.time(), "start")
@@ -98,6 +101,7 @@ class EvaluationSystemOrchestrator:
                 self.evaluation_report_model.create_evaluation_report(classifier_labels, expert_labels,
                                                                       EvaluationSystemParameters.LOCAL_PARAMETERS["total_errors"],
                                                                       EvaluationSystemParameters.LOCAL_PARAMETERS["max_consecutive_errors"])
+                print("Evaluation Report created.")
 
                 # Remove the labels
                 self.labels_buffer.delete_labels(EvaluationSystemParameters.LOCAL_PARAMETERS["minimum_number_labels"])
@@ -121,11 +125,6 @@ class EvaluationSystemOrchestrator:
                     self.labelReceiver_and_configurationSender.send_configuration()
                     print("Configuration sent.")
 
-                # Remove the classifier_evaluation.json file to start a new evaluation
-                os.remove(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json")
-
-                return
-
             else:
                 # Evaluation Report has been created.
                 # Check if the classifier has been evaluated by the Human Operator.
@@ -147,14 +146,15 @@ class EvaluationSystemOrchestrator:
                     self.labelReceiver_and_configurationSender.send_configuration()
                     print("Configuration sent.")
 
-                # Remove the classifier_evaluation.json file to start a new evaluation
-                os.remove(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json")
+            # Remove the classifier_evaluation.json file to start a new evaluation
+            os.remove(f"{self.basedir}/human_operator_workspace/classifier_evaluation.json")
 
+            print("Evaluation process completed.")
+
+            if not self.service:
                 return
 
 
 if __name__ == "__main__":
-
     evaluation_system_orchestrator = EvaluationSystemOrchestrator()
     evaluation_system_orchestrator.Evaluate()
-
