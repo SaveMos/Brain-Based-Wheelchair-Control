@@ -51,7 +51,7 @@ class PreparationSystemOrchestrator:
                 #send to segregation system
                 self.communication.send_message(self.parameters.configuration["ip_segregation"],
                                                 self.parameters.configuration["port_segregation"], json_prepared_session)
-            else: #to comment for the preparation test
+            else:
                 #send to production system
                 print("INVIO A ALE")
                 self.communication.send_message(self.parameters.configuration["ip_production"],
