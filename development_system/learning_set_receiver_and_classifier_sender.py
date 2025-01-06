@@ -58,15 +58,14 @@ class LearningSetReceiverAndClassifierSender:
     def send_classifier(self, test=False) -> Optional[Dict]:
         """
         Send the winner classifier to the target module production system.
-        :param classifier_file: The message to send (a file that contains the data of a classifier).
         :param test: Boolean which is True only to test the function locally
         :return: The response from the target, if any.
         """
         # Retrieve ip address and port of the target system
         if not test:
             classifier_file = "data/classifier.sav"
-            self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
-            endpoint = self.json_handler.get_system_address("../global_netconf.json", "Production System")
+            self.json_handler.validate_json("conf/netconf.json", "schemas/netconf_schema.json")
+            endpoint = self.json_handler.get_system_address("conf/netconf.json", "Production System")
 
             target_ip = endpoint["ip"]
             target_port = endpoint["port"]
@@ -102,8 +101,8 @@ class LearningSetReceiverAndClassifierSender:
         :return: The response from the target, if any.
         """
         if not test:
-            self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
-            endpoint = self.json_handler.get_system_address("../global_netconf.json", "Messaging System")
+            self.json_handler.validate_json("conf/netconf.json", "schemas/netconf_schema.json")
+            endpoint = self.json_handler.get_system_address("conf/netconf.json", "Messaging System")
 
             target_ip = endpoint["ip"]
             target_port = endpoint["port"]
@@ -114,7 +113,7 @@ class LearningSetReceiverAndClassifierSender:
 
         restart_config = {"action": "restart"}
 
-        url = f"http://{target_ip}:{target_port}/send"
+        url = f"http://{target_ip}:{target_port}/MessagingSystem"
 
         payload = {
             "port": self.port,
@@ -148,8 +147,8 @@ class LearningSetReceiverAndClassifierSender:
         :return: True if the timestamp was sent successfully, False otherwise.
         """
         # Retrieve ip address and port of the target system
-        self.json_handler.validate_json("../global_netconf.json", "../global_netconf_schema.json")
-        endpoint = self.json_handler.get_system_address("../global_netconf.json", "Service Class")
+        self.json_handler.validate_json("conf/netconf.json", "schemas/netconf_schema.json")
+        endpoint = self.json_handler.get_system_address("conf/netconf.json", "Service Class")
         target_ip = endpoint["ip"]
         target_port = endpoint["port"]
 

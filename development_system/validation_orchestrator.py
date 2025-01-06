@@ -30,10 +30,6 @@ class ValidationOrchestrator:
                     - If in service mode, returns the generated validation report.
                     - If in testing mode, returns `True` if all classifiers in the report are valid, otherwise `False`.
         """
-        # the configurations are loaded only in case of stop and go
-        # if ConfigurationParameters.params is None:
-        #   ConfigurationParameters.load_configuration()
-
         self.service_flag = ConfigurationParameters.params['service_flag']
 
         # Grid Search
@@ -77,7 +73,8 @@ class ValidationOrchestrator:
 
 
         if self.service_flag:
-            # restituisce true se tutti i classificatori nel report sono validi, se anche uno non è valido, false
+            # returns true if at least one of the classifiers in the report is valid
+            # if all are not valid, false
             index = int(random.random() <= 0.95)
             if index == 0:  # 5%
                 return False

@@ -11,7 +11,7 @@ class TestSegregationSystemConfiguration(unittest.TestCase):
         json_handler = SegregationSystemJsonHandler()
         config_data = json_handler.read_json_file(file_path)
 
-        SegregationSystemConfiguration.configure_parameters("conf/segregation_system_configuration.json" ,"conf/global_netconf.json")
+        SegregationSystemConfiguration.configure_parameters("conf/segregation_system_configuration.json" ,"conf/netconf.json")
 
         # Assert the values have been set correctly.
         self.assertEqual(SegregationSystemConfiguration.LOCAL_PARAMETERS["minimum_number_of_collected_sessions"],
