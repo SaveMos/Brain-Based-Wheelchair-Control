@@ -32,7 +32,6 @@ class SegregationSystemOrchestrator:
             orchestrator = SegregationSystemOrchestrator(testing=True)
         """
         self.testing = testing  # Set the testing attribute.
-        self.run()  # Launch the application.
 
     def run(self):
         """
@@ -41,12 +40,10 @@ class SegregationSystemOrchestrator:
         This method initializes a `SegregationSystemConfiguration` object to load system parameters
         from the configuration file and sets up the required subsystems.
         """
-        json_handler = SegregationSystemJsonHandler()
         execution_state_file_path = "user/user_responses.json"
-
-        number_of_session_status = json_handler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
-        balancing_report_status = json_handler.read_field_from_json(execution_state_file_path, "balancing_report")
-        coverage_report_status = json_handler.read_field_from_json(execution_state_file_path, "coverage_report")
+        number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
+        balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "balancing_report")
+        coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "coverage_report")
 
         if (number_of_session_status == "-" or balancing_report_status == "-") or self.get_testing():
             # Create a Configuration object, to load the system configuration.
@@ -54,17 +51,26 @@ class SegregationSystemOrchestrator:
             # Configure the system parameters from the configuration file.
             # Create a MessageBroker instance to send and receive messages.
             message_broker = SessionReceiverAndConfigurationSender()
+            message_broker.start_server()
             # Create an instance of database controller.
             db = SegregationSystemDatabaseController()
 
             while db.get_number_of_prepared_session_stored() < SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']:
                 # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
-                new_prepared_session = PreparedSession.from_dictionary(message_broker.get_last_message())
+                message = message_broker.get_last_message()
+                print("Prepared Session received!")
+                try:
+                    # Validation of the prepared session.
+                    new_prepared_session = PreparedSession.from_dictionary(message)
+                    print("Prepared Session Valid!")
 
-                # Store the new prepared session in the database.
-                db.store_prepared_session(new_prepared_session.to_dictionary())
+                    # Store the new prepared session in the database.
+                    db.store_prepared_session(new_prepared_session.to_dictionary())
+                except Exception:
+                    print("Prepared Session NOT Valid!")
 
-            json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
+            print("Enough prepared session stored!")
+            SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
                                                      "OK")  # Register this, so we do not have to make the check again.
 
             # Get all the prepared sessions in the database.
@@ -156,11 +162,10 @@ class SegregationSystemOrchestrator:
         """
         Reset the execution state for a fresh-new stop&go interaction.
         """
-        json_handler = SegregationSystemJsonHandler()
         execution_state_file_path = "user/user_responses.json"
-        json_handler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions" , "-")
-        json_handler.write_field_to_json(execution_state_file_path, "balancing_report", "-")
-        json_handler.write_field_to_json(execution_state_file_path, "coverage_report", "-")
+        SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions" , "-")
+        SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report", "-")
+        SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "coverage_report", "-")
 
 
 # Example to test the class

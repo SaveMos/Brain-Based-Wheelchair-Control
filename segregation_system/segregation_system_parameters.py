@@ -1,19 +1,15 @@
-import json
-import jsonschema
-
-
 from segregation_system.SegregationSystemJsonHandler import SegregationSystemJsonHandler
 
 
 class SegregationSystemConfiguration:
     # Local parameters
     LOCAL_PARAMETERS_PATH = "conf/segregation_system_configuration.json"
-    LOCAL_PARAMETERS_SCHEMA_PATH = "schemas/segregationSystemConfigurationSchema.json"
+    LOCAL_PARAMETERS_SCHEMA_PATH = "conf/segregationSystemConfigurationSchema.json"
     LOCAL_PARAMETERS = {} # A Dict object.
 
     # Global parameters
-    GLOBAL_PARAMETERS_PATH = "../global_netconf.json"
-    GLOBAL_PARAMETERS_SCHEMA_PATH = "../global_netconf_schema.json"
+    GLOBAL_PARAMETERS_PATH = "conf/global_netconf.json"
+    GLOBAL_PARAMETERS_SCHEMA_PATH = "conf/global_netconf_schema.json"
     GLOBAL_PARAMETERS = {} # A Dict object.
 
     @staticmethod
@@ -30,20 +26,20 @@ class SegregationSystemConfiguration:
             ValueError: If any value type is incorrect.
         """
 
-        # Initialize JsonHandler to read the JSON file
-        json_handler = SegregationSystemJsonHandler()
-
-        # Extract and assign values to instance variables
-        try:
-            SegregationSystemConfiguration.LOCAL_PARAMETERS = json_handler.read_json_file(local_file_path)
-            SegregationSystemConfiguration.GLOBAL_PARAMETERS = json_handler.read_json_file(global_file_path)
-        except KeyError as e:
-            raise KeyError(f"Missing required configuration key: {e}")
-        except ValueError:
-            raise ValueError("One or more values in the configuration file are of the wrong type.")
+        if SegregationSystemConfiguration.validate_json():
+            # Extract and assign values to instance variables
+            try:
+                SegregationSystemConfiguration.LOCAL_PARAMETERS = SegregationSystemJsonHandler.read_json_file(local_file_path)
+                SegregationSystemConfiguration.GLOBAL_PARAMETERS = SegregationSystemJsonHandler.read_json_file(global_file_path)
+            except KeyError as e:
+                raise KeyError(f"Missing required configuration key: {e}")
+            except ValueError:
+                raise ValueError("One or more values in the configuration file are of the wrong type.")
+        else:
+            print("Configuration files are not valid.")
 
     @staticmethod
-    def validate_json(json_parameters: dict, param_type: str, basedir: str = ".") -> bool:
+    def validate_json() -> bool:
         """
         Validate JSON parameters read from a file.
 
@@ -52,22 +48,6 @@ class SegregationSystemConfiguration:
         :param basedir: The base directory from which to look for the different parameters files.
         :return: True if the JSON parameters are valid, False otherwise.
         """
-
-        if param_type == "local":
-            schema_path = f"{basedir}/{SegregationSystemConfiguration.LOCAL_PARAMETERS_SCHEMA_PATH}"
-        elif param_type == "global":
-            schema_path = f"{basedir}/{SegregationSystemConfiguration.GLOBAL_PARAMETERS_SCHEMA_PATH}"
-        else:
-            return False
-        with open(schema_path, "r") as schema_file:
-            schema = json.load(schema_file)
-
-        try:
-            jsonschema.validate(json_parameters, schema)
-            return True
-        except jsonschema.ValidationError as e:
-            if param_type == "local":
-                print(f"Invalid local parameters: {e}")
-            elif param_type == "global":
-                print(f"Invalid global parameters: {e}")
-            return False
+        resp1 = SegregationSystemJsonHandler.validate_json_from_path(SegregationSystemConfiguration.LOCAL_PARAMETERS_PATH , SegregationSystemConfiguration.LOCAL_PARAMETERS_SCHEMA_PATH)
+        resp2 = SegregationSystemJsonHandler.validate_json_from_path(SegregationSystemConfiguration.GLOBAL_PARAMETERS_PATH , SegregationSystemConfiguration.GLOBAL_PARAMETERS_SCHEMA_PATH)
+        return resp1 and resp2

@@ -9,8 +9,8 @@ class SegregationSystemJsonHandler:
         A class to read and save file json
     """
 
-
-    def read_json_file(self, filepath):
+    @staticmethod
+    def read_json_file(filepath):
         """
         Read a json file.
 
@@ -26,7 +26,8 @@ class SegregationSystemJsonHandler:
             print("Error to read file at path " + filepath + ": " + e)
             return None
 
-    def write_json_file(self, data, filepath):
+    @staticmethod
+    def write_json_file(data, filepath):
         """
             Args:
                 data: data to write into json file
@@ -45,7 +46,8 @@ class SegregationSystemJsonHandler:
             print("Error to save file at path " + filepath + ": " + e)
             return False
 
-    def write_field_to_json(self , file_path: str, field_name: str, value):
+    @staticmethod
+    def write_field_to_json(file_path: str, field_name: str, value):
         """
         Updates the value of a specific field in a JSON file using `write_json_file`.
 
@@ -59,13 +61,13 @@ class SegregationSystemJsonHandler:
         """
         try:
             # Load the existing data
-            data = self.read_json_file(file_path)
+            data = SegregationSystemJsonHandler.read_json_file(file_path)
 
             # Update the field
             data[field_name] = value
 
             # Save the updated data using the provided write_json_file helper
-            return self.write_json_file(data, file_path)
+            return SegregationSystemJsonHandler.write_json_file(data, file_path)
         except FileNotFoundError:
             print(f"File not found: {file_path}")
             return False
@@ -73,7 +75,8 @@ class SegregationSystemJsonHandler:
             print(f"Error decoding JSON in file: {file_path}")
             return False
 
-    def read_field_from_json(self, file_path: str, field_name: str):
+    @staticmethod
+    def read_field_from_json(file_path: str, field_name: str):
         """
         Reads the value of a specific field from a JSON file.
 
@@ -84,9 +87,10 @@ class SegregationSystemJsonHandler:
         Returns:
             The value of the specified field or None if the field does not exist.
         """
-        return self.read_json_file(file_path).get(field_name, None)
+        return SegregationSystemJsonHandler.read_json_file(file_path).get(field_name, None)
 
-    def get_system_address(self , json_filepath: str, system_name: str) -> Any | None:
+    @staticmethod
+    def get_system_address(json_filepath: str, system_name: str) -> Any | None:
         """
         Reads the IP address and port of a specified system from a JSON file.
 
@@ -101,7 +105,7 @@ class SegregationSystemJsonHandler:
         """
         try:
             # Load the JSON file
-            systems_data = self.read_json_file(json_filepath)
+            systems_data = SegregationSystemJsonHandler.read_json_file(json_filepath)
 
             # Fetch the system configuration
             system_info = systems_data.get(system_name)
@@ -121,7 +125,8 @@ class SegregationSystemJsonHandler:
             print(f"An unexpected error occurred: {e}")
             return None
 
-    def validate_json(self ,json_data: dict, schema_path: str) -> bool:
+    @staticmethod
+    def validate_json(json_data: dict, schema_path: str) -> bool:
         """
             Validate a json object against a json schema in a file.
             :param json_data: json object
@@ -137,7 +142,8 @@ class SegregationSystemJsonHandler:
             return False
         return True
 
-    def validate_json_from_path(self , json_path: str, schema_path: str) -> bool:
+    @staticmethod
+    def validate_json_from_path(json_path: str, schema_path: str) -> bool:
         """
         Validate a json file against a json schema in a file.
         :param json_path: file containing the json object
@@ -146,7 +152,7 @@ class SegregationSystemJsonHandler:
         """
         with open(json_path, "r", encoding="UTF-8") as file:
             json_data = json.load(file)
-        return self.validate_json(json_data, schema_path)
+        return SegregationSystemJsonHandler.validate_json(json_data, schema_path)
 
     @staticmethod
     def string_to_dict(string: str) -> dict:

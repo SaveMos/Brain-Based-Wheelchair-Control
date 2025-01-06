@@ -90,7 +90,7 @@ class SessionReceiverAndConfigurationSender:
         """
         return self.queue.get(block=True)
 
-    def send_configuration(self) -> bool:
+    def send_configuration(self):
         """
         Send the configuration "restart" message to the Messaging System.
 
@@ -106,7 +106,7 @@ class SessionReceiverAndConfigurationSender:
         self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration))
 
     # Testing method
-    def send_timestamp(self, timestamp: float, status: str) -> bool:
+    def send_timestamp(self, timestamp: float, status: str):
         """
         Send the timestamp to the Service Class.
 
