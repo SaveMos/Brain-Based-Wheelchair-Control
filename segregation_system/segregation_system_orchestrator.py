@@ -59,8 +59,9 @@ class SegregationSystemOrchestrator:
                 # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
                 message = message_broker.get_last_message()
                 print("Prepared Session received!")
+                message = SegregationSystemJsonHandler.string_to_dict(message["message"])
 
-                if SegregationSystemJsonHandler.validate_json(message, "schemas/preparedSessionSchema.json"):
+                if SegregationSystemJsonHandler.validate_json( message , "schemas/preparedSessionSchema.json"):
                     print("Prepared Session Valid! (schema)")
                     try:
                         # Validation of the prepared session.
@@ -175,5 +176,10 @@ class SegregationSystemOrchestrator:
 if __name__ == "__main__":
     SegregationSystemConfiguration.configure_parameters()
     orchestrator = SegregationSystemOrchestrator(True)
-    orchestrator.reset_execution_state()
+
+    if False:
+        orchestrator.reset_execution_state()
+        db = SegregationSystemDatabaseController()
+        db.reset_session_database()
+
     orchestrator.run()
