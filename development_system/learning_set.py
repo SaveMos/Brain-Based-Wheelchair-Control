@@ -52,6 +52,8 @@ class LearningSet:
 
         environment_mapping = {"slippery": 0, "plain": 1, "slope": 2, "house": 3, "track": 4}
 
+        label_mapping = {"turnRight": 0, "turnLeft": 1, "move": 2}
+
         current_set = data_set[set_type]
 
         current_data = pd.DataFrame([
@@ -60,17 +62,27 @@ class LearningSet:
                 "psd_beta_band": record["psd_beta_band"],
                 "psd_theta_band": record["psd_theta_band"],
                 "psd_delta_band": record["psd_delta_band"],
-                "activity": activity_mapping.get(record["activity"], -1),  # Default value -1 if doesn't find
-                "environment": environment_mapping.get(record["environment"], -1),  # Default value -1 if doesn't find
+                "activity": activity_mapping.get(record["activity"]),
+                "environment": environment_mapping.get(record["environment"]),
                 "label": record["label"]
             }
             for record in current_set
         ])
 
         # Separation of the features and labels
-        # features = pd.DataFrame(data["features"].to_list())
         features = current_data.drop(columns=["label"])
-        labels = current_data["label"]
+        true_labels = current_data["label"]
+
+        # converts string labels in integers using map
+        true_labels = true_labels.map(label_mapping)
+
+        labels = []
+        num_classes = len(label_mapping)  # number of classes
+
+        for label in true_labels:
+            new_labels = [0] * num_classes  # create an array of zeros with number of class length
+            new_labels[label] = 1  # set to 1 the correspondent index of the class
+            labels.append(new_labels)
 
         return [features, labels]
 
@@ -152,20 +164,6 @@ class LearningSet:
 
     @staticmethod
     def create_learning_set_from_json(json_file_path: str):
-        """
-        Converts a JSON file to a LearningSet object.
-
-        Args:
-            json_file_path (str): Path to the JSON file containing the data.
-
-        Returns:
-            LearningSet: An instance of the LearningSet class populated with the data from the JSON file.
-
-        Raises:
-            FileNotFoundError: If the JSON file does not exist.
-            KeyError: If required keys are missing in the JSON data.
-            ValueError: If the data types do not match the expected structure.
-        """
         try:
             # Carica i dati dal file JSON
             with open(json_file_path, 'r') as file:
@@ -211,3 +209,22 @@ class LearningSet:
         with open('data/test_set.json', 'w') as f:
             json.dump({"test_set": test_data}, f, indent=4)
 
+    @classmethod
+    def from_dict(cls, data: dict) -> 'LearningSet':
+        """
+        Creates a LearningSet instance from a dictionary.
+
+        Args:
+            data (dict): A dictionary containing the learning set data.
+
+        Returns:
+            LearningSet: A new instance of LearningSet.
+        """
+        if not isinstance(data, dict):
+            raise ValueError("Input data must be a dictionary.")
+
+        return cls(
+            training_set=[PreparedSession.from_dictionary(session) for session in data["training_set"]],
+            validation_set=[PreparedSession.from_dictionary(session) for session in data["validation_set"]],
+            test_set=[PreparedSession.from_dictionary(session) for session in data["test_set"]],
+        )

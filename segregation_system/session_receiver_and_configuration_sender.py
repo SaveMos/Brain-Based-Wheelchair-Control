@@ -1,3 +1,4 @@
+import json
 import queue
 import threading
 from typing import Optional, Dict
@@ -15,7 +16,7 @@ class SessionReceiverAndConfigurationSender:
     This class supports sending and receiving messages in a blocking manner.
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 5000):
+    def __init__(self, host: str = '0.0.0.0', port: int = 5003):
         """
         Initialize the Flask communication server.
 
@@ -30,6 +31,7 @@ class SessionReceiverAndConfigurationSender:
 
         # Lock and condition for blocking behavior
         self.message_condition = threading.Condition()
+
 
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
@@ -88,7 +90,6 @@ class SessionReceiverAndConfigurationSender:
         """
         return self.queue.get(block=True)
 
-
     def send_configuration(self) -> bool:
         """
         Send the configuration "restart" message to the Messaging System.
@@ -98,20 +99,11 @@ class SessionReceiverAndConfigurationSender:
 
         network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Messaging System"]
 
-        url = f"http://{network_info.get('ip')}:\
-              {network_info.get('port')}/MessagingSystem"
-
         configuration = {
             "configuration": "restart"
         }
 
-        try:
-            response = requests.post(url, json=configuration)
-            if response.status_code == 200:
-                return True
-        except requests.RequestException as e:
-            print(f"Error sending configuration: {e}")
-        return False
+        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration))
 
     # Testing method
     def send_timestamp(self, timestamp: float, status: str) -> bool:
@@ -124,19 +116,42 @@ class SessionReceiverAndConfigurationSender:
         """
         network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Service Class"]
 
-        url = f"http://{network_info.get('ip')}:\
-                      {network_info.get('port')}/Timestamp"
-
         timestamp_message = {
             "timestamp": timestamp,
             "system_name": "Evaluation System",
             "status": status
         }
 
-        try:
-            response = requests.post(url, json=timestamp_message)
-            if response.status_code == 200:
-                return True
-        except requests.RequestException as e:
-            print(f"Error sending timestamp: {e}")
-        return False
+        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(timestamp_message))
+
+
+if __name__ == "__main__":
+
+    # Module A (Sender)
+    from time import sleep
+
+    # Create a MessageBroker instance and start the server
+    module_a = SessionReceiverAndConfigurationSender(host='0.0.0.0', port=5003)
+    module_a.start_server()
+
+    # Send a message to Module B
+    response = module_a.send_message(target_ip="87.19.204.54", target_port=5004, message='{"action": "test"}')
+    print("Response from Module B:", response)
+
+    # Keep the server running
+    while True:
+        sleep(1)
+
+    ########################################################
+
+    # Module B (Receiver)
+
+    # Create a MessageBroker instance and start the server
+    #module_b = SessionReceiverAndConfigurationSender(host='0.0.0.0', port=5003)
+    #module_b.start_server()
+
+    #message = module_b.get_last_message()
+    #if message:
+        #print("Message received:", message)
+
+    #sleep(10)
