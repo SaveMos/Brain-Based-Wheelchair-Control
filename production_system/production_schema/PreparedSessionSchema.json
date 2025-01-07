@@ -6,7 +6,8 @@
       "format": "uuid"
     },
     "label": {
-      "type": "string"
+      "type": "string",
+      "enum": ["turnRight", "turnLeft", "move"]
     },
     "PSD_alpha_band": {
       "type": "number"
@@ -22,10 +23,12 @@
       "type": "number"
     },
     "activity": {
-      "type": "number"
+      "type": "string",
+      "enum": ["shopping", "sport", "cooking", "relax", "gaming"]
     },
     "environment": {
-      "type": "number"
+      "type": "string",
+      "enum": ["slippery", "plain", "slope", "house", "track"]
     },
     "required": [
       "uuid",

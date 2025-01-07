@@ -67,14 +67,12 @@ class ProductionOrchestrator:
                 print("Classifier received")
                 #convert json message in object class
                 classifier_json = message['message']
-                cl_schemas_path = "production_schema/ClassifierSchema.json"
-                result = handler.validate_json(classifier_json, cl_schemas_path)
-                if result is False:
-                    print("classifier not valid")
-                    break
 
                 deployment = Deployment()
-                deployment.deploy(classifier_json)
+                result = deployment.deploy(classifier_json)
+                if result is False:
+                    print("error in classifier deployment")
+
                 print("classifier deployed")
 
                 if self._service:
@@ -95,16 +93,16 @@ class ProductionOrchestrator:
             elif message['ip'] == self._configuration.global_netconf['Preparation System']['ip'] :
                 #classify operation
                 print("Prepared session received")
-                ps_json = message['message']
+                prepared_session = message['message']
                 # validation of json schema
                 schemas_path = "production_schema/PreparedSessionSchema.json"
-                result = handler.validate_json(ps_json, schemas_path)
+                result = handler.validate_json(prepared_session, schemas_path)
                 if result is False:
                     print("prepared session not valid")
                     break
 
                 classification = Classification()
-                label = classification.classify(ps_json)
+                label = classification.classify(prepared_session)
                 print("label generated")
 
                 #if evaluation phase parameter is true label is sent also to Evaluation System
@@ -116,7 +114,7 @@ class ProductionOrchestrator:
 
                 # Send label to client
                 serv_cl_ip = self._configuration.global_netconf['Service Class']['ip']
-                serv_cl_port = self._configuration.global_netconf['Service Class']['ip']
+                serv_cl_port = self._configuration.global_netconf['Service Class']['port']
                 print("Send label to service class")
                 self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
 

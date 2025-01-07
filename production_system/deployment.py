@@ -1,9 +1,6 @@
 """
 Author: Alessandro Ascani
 """
-import joblib
-from production_system.classifier import Classifier
-
 
 class Deployment:
     """
@@ -11,12 +8,18 @@ class Deployment:
     """
 
     @staticmethod
-    def deploy(classifier_json):
+    def deploy(classifier):
         """
         Saves the provided classifier in a .sav file
         Args:
             classifier_json: file json of classifier to save
         """
-        classifier = Classifier(classifier_json['num_iteration'], classifier_json['num_layers'], classifier_json['num_neurons'],
-                                classifier_json['test_error'], classifier_json['validation_error'], classifier_json['training_error'])
-        joblib.dump(classifier, "model/classifier.sav")
+        try:
+            binary_content = classifier.encoded('latin1')
+            with  open("model/classifier.sav", "wb") as f:
+                f.write(binary_content)
+
+            return True
+
+        except (UnicodeEncodeError, IOError) as e:
+            return False

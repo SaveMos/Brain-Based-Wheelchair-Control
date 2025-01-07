@@ -1,7 +1,7 @@
 """
     Class for managing the sending and receiving of messages
 """
-
+import queue
 import threading
 import requests
 import json
@@ -27,7 +27,7 @@ class ProductionSystemIO:
         self.app = Flask(__name__)
         self.host = host
         self.port = port
-        self.last_message = None
+        self.msg_queue = queue.Queue()
 
         # Lock and condition for blocking behavior
         self.message_condition = threading.Condition()
@@ -36,19 +36,9 @@ class ProductionSystemIO:
         @self.app.route('/send', methods=['POST'])
         def receive_message():
             data = request.json
-            sender_ip = request.remote_addr
-            sender_port = data.get('port')
             message = data.get('message')
 
-
-            with self.message_condition:
-                self.last_message = {
-                    'ip': sender_ip,
-                    'port': sender_port,
-                    'message': message
-                }
-                # Notify any threads waiting for a message
-                self.message_condition.notify_all()
+            self.msg_queue.put(message)
 
             return jsonify({"status": "received"}), 200
 
@@ -117,17 +107,8 @@ class ProductionSystemIO:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        with self.message_condition:
-            # Wait until a message is received
-            while self.last_message is None:
-                self.message_condition.wait()
 
-            # Retrieve and clear the last message
-            message = self.last_message
-            self.last_message = None
-
-
-            return message
+        return self.msg_queue.get(block=True)
 
     # Testing method
     def send_timestamp(self, timestamp: float, status: str) -> bool:

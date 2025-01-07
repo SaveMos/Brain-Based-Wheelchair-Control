@@ -55,6 +55,20 @@ class Label:
         """
         self._movements = value
 
+    def convert_movement(self):
+        """
+        Mapping int value of movement in string
+
+        Returns: string value
+
+        """
+        if self._movements == 0:
+            return "turnRight"
+        elif self._movements == 1:
+            return "turnLeft"
+        else:
+            return "move"
+
     def to_dictionary(self) -> dict:
         """
         convert a label object into dictionary
@@ -64,9 +78,10 @@ class Label:
             dict: dictionary that content label field
 
         """
+        movement = self.convert_movement()
         result = {
             "uuid": self._uuid,
-            "movements": self._movements
+            "movements": movement
         }
 
         return result
