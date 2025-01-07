@@ -21,7 +21,7 @@ class DevelopmentSystemOrchestrator:
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
-        self.classifier = Classifier()
+        #self.classifier = Classifier()
         self.learning_set = LearningSet([], [], [])
         ConfigurationParameters.load_configuration()
 
