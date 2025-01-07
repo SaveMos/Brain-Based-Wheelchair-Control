@@ -11,7 +11,8 @@
       "format": "uuid"
     },
     "movements": {
-      "type": "string"
+      "type": "string",
+      "enum": ["move", "turnLeft", "turnRight"]
     }
   }
 }

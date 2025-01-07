@@ -2,7 +2,7 @@
     "training_set": [
         {
             "uuid": "1",
-            "label": "label1",
+            "label": "turnRight",
             "psd_alpha_band": 0.1,
             "psd_beta_band": 0.2,
             "psd_theta_band": 0.3,
@@ -12,7 +12,7 @@
         },
         {
             "uuid": "2",
-            "label": "label2",
+            "label": "turnLeft",
             "psd_alpha_band": 0.5,
             "psd_beta_band": 0.6,
             "psd_theta_band": 0.7,

@@ -1,4 +1,4 @@
-
+import json
 import unittest
 from unittest.mock import patch, MagicMock
 import jsonschema
@@ -68,7 +68,7 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
         """Test if the JSON label is correctly validated when it is valid"""
         valid_json_label = {
             "uuid": "1234-5678-9012",
-            "movements": 1
+            "movements": "turnRight"
         }
         mock_validate.return_value = None  # Mock successful validation
 
@@ -90,18 +90,25 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
 
     def test_receive_label_valid(self):
         """
-        Test if the /EvaluationSystem route correctly handles a valid label.
+        Test if the /send route correctly handles a valid label.
         Sender IP can be either the Ingestion System or the Production System.
         """
         valid_json_label = {
             "uuid": "1234-5678-9012",
-            "movements": 1
+            "movements": "move"
         }
 
         with self.app.app.test_client() as client:
+
+            # Preparing the packet of the Ingestion System
+            ingestion_packet = {
+                "port": EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["port"],
+                "message": json.dumps(valid_json_label)
+            }
+
             # Simulate a request from the Ingestion System
-            response = client.post('/EvaluationSystem',
-                                   json=valid_json_label,
+            response = client.post('/send',
+                                   json=ingestion_packet,
                                    environ_base={"REMOTE_ADDR": EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json, {"status": "received"})
@@ -111,9 +118,15 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
             self.assertEqual(label.movements, valid_json_label['movements'])
             self.assertTrue(label.expert)
 
+            # Preparing the packet of the Production System
+            production_packet = {
+                "port": EvaluationSystemParameters.GLOBAL_PARAMETERS["Production System"]["port"],
+                "message": json.dumps(valid_json_label)
+            }
+
             # Simulate a request from the Production System
-            response = client.post('/EvaluationSystem',
-                                   json=valid_json_label,
+            response = client.post('/send',
+                                   json=production_packet,
                                    environ_base={"REMOTE_ADDR": EvaluationSystemParameters.GLOBAL_PARAMETERS["Production System"]["ip"]})
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.json, {"status": "received"})
@@ -124,29 +137,43 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
             self.assertFalse(label.expert)
 
     def test_receive_label_invalid(self):
-        """Test if the /EvaluationSystem route correctly handles an invalid label"""
+        """Test if the /send route correctly handles an invalid label"""
         with self.app.app.test_client() as client:
             invalid_json_label = {
                 "uuid": "1234-5678-9012"
                 # Missing "movements"
             }
-            response = client.post('/EvaluationSystem', json=invalid_json_label)
+
+            # Preparing the packet
+            packet = {
+                "port": self.app.port,
+                "message": json.dumps(invalid_json_label)
+            }
+
+            response = client.post('/send', json=packet)
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response.json, {"status": "error", "message": "Invalid JSON label"})
 
     def test_receive_label_invalid_ip(self):
-        """Test if the /EvaluationSystem route rejects an invalid sender IP."""
+        """Test if the /send route rejects an invalid sender IP."""
         valid_json_label = {
             "uuid": "1234-5678-9012",
-            "movements": 1
+            "movements": "turnLeft"
         }
 
         # Patch _validate_json_label to always return True for this test
         with patch.object(self.app, '_validate_json_label', return_value=True):
             with self.app.app.test_client() as client:
+
+                # Preparing the packet
+                packet = {
+                    "port": self.app.port,
+                    "message": json.dumps(valid_json_label)
+                }
+
                 # Simulate a request with an invalid IP address
-                response = client.post('/EvaluationSystem',
-                                       json=valid_json_label,
+                response = client.post('/send',
+                                       json=packet,
                                        environ_base={"REMOTE_ADDR": "invalid_ip"})
 
                 # Assertions for invalid IP
@@ -155,17 +182,24 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
 
     @patch('requests.post')
     def test_receive_label_expert(self, mock_post):
-        """Test if the /EvaluationSystem route correctly identifies an expert label"""
+        """Test if the /send route correctly identifies an expert label"""
         valid_json_label = {
             "uuid": "1234-5678-9012",
-            "movements": 1
+            "movements": "move"
         }
 
         with patch.object(self.app, '_validate_json_label', return_value=True):
             with self.app.app.test_client() as client:
+
+                # Preparing the packet
+                packet = {
+                    "port": self.app.port,
+                    "message": json.dumps(valid_json_label)
+                }
+
                 # Simulate a request from the Ingestion System
-                response = client.post('/EvaluationSystem',
-                                       json=valid_json_label,
+                response = client.post('/send',
+                                       json=packet,
                                        environ_base={"REMOTE_ADDR": EvaluationSystemParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]})
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.json, {"status": "received"})
@@ -179,7 +213,7 @@ class TestLabelReceiverAndConfigurationSender(unittest.TestCase):
         """Test if get_label returns a Label object"""
         valid_json_label = {
             "uuid": "1234-5678-9012",
-            "movements": 1
+            "movements": "move"
         }
         # Push the label into the queue
         label = Label(uuid=valid_json_label['uuid'], movements=valid_json_label['movements'], expert=True)

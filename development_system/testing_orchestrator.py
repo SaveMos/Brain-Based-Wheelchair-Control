@@ -25,8 +25,6 @@ class TestingOrchestrator:
         self.test_report = None
         self.test_report_model = TestReportModel()
         self.test_report_view = TestReportView()
-        #ConfigurationParameters.load_configuration()
-        #self.service_flag: bool = ConfigurationParameters.service_flag
         self.service_flag = None
         self.learning_set = LearningSet([], [], [])
 
@@ -58,9 +56,6 @@ class TestingOrchestrator:
                 Union[TestReport, bool]: The test report (if `service_flag` is True) or
                 a boolean indicating the test result (if `service_flag` is False).
         """
-        #the configurations are loaded only in case of stop and go
-        #if ConfigurationParameters.params is None:
-            #ConfigurationParameters.load_configuration()
 
         self.service_flag = ConfigurationParameters.params['service_flag']
 
@@ -73,23 +68,18 @@ class TestingOrchestrator:
 
         self.winner_network: Classifier = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
 
+        #self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
+        #test_data = self.json_handler.read_json_file("data/test_set.json")
 
-        self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
-        test_data = self.json_handler.read_json_file("data/test_set.json")
+        #result = self.learning_set.extract_features_and_labels(test_data, "test_set")
 
-        result = self.learning_set.extract_features_and_labels(test_data, "test_set")
+        test_data = joblib.load("data/test_set.sav")
+        result = self.learning_set.extract_features_and_labels(test_data)
 
         test_features = result[0]
         test_labels = result[1]
 
-        true_labels = []
-        for label in test_labels:
-            if label == 1.0:
-                true_labels.append([1.0, 0])
-            else:
-                true_labels.append([0, 1.0])
-
-        self.winner_network.set_test_error(log_loss(true_labels, self.winner_network.predict_proba(test_features)))
+        self.winner_network.set_test_error(log_loss(test_labels, self.winner_network.predict_proba(test_features)))
 
         # GENERATE TEST REPORT
         self.test_report = self.test_report_model.generate_test_report(self.winner_network)
@@ -104,7 +94,6 @@ class TestingOrchestrator:
 
         # CHECK TEST RESULT
         self.test_report_view.show_test_report(self.test_report)
-
 
         if self.service_flag:
             # true if the test is passed, false otherwise

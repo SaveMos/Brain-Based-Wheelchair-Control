@@ -9,7 +9,6 @@ Author: Francesco Taverna
 import json
 
 from .Ingestion_Database_Manager.database_manager import DatabaseManager
-from .ingestion_json_handler.json_handler import JsonHandler
 
 
 class RecordBufferController:
@@ -50,7 +49,6 @@ class RecordBufferController:
                      calendar TEXT);")
         #perform query
         self.db.create_table(query)
-        self.jsonhandler = JsonHandler()
 
     def store_record(self, record):
         """
@@ -79,7 +77,7 @@ class RecordBufferController:
         # gets values for query --> get a dictionary without UUID (just the value of the column indicated in "source")
         record_filtered = {key: value for key, value in record["value"].items() if key != "UUID"}
         #convert python dictionary to json
-        json_value = self.jsonhandler.convert_dictionary_to_json(record_filtered)
+        json_value = json.dumps(record_filtered)
 
         #get column name from record
         column_name = record["source"]

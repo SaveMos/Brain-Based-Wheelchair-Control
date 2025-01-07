@@ -31,7 +31,7 @@ class TestMessageBroker:
             file.write("{\"classifier\": \"MockClassifier\"}")
 
         print("Sending classifier...")
-        response = classifier_sender.send_classifier(classifier_file, True)
+        response = classifier_sender.send_classifier(True)
         print(f"send_classifier response: {response}")
 
     @staticmethod

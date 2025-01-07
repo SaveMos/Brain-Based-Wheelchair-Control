@@ -49,7 +49,7 @@ class SessionPreparation:
         :return: the corrected Raw session
         """
         #hardcoded values
-        min_value = 0
+        min_value = -27.3024593023448 #computed using upper_bound.py in data folder, 2 percentile of all data in helmet.csv
         max_value = 28.170070834680384 #computed using upper_bound.py in data folder, 98 percentile of all data in helmet.csv
 
         # bound between min and max

@@ -17,7 +17,8 @@ class DevelopmentSystemOrchestrator:
         """Initialize the orchestrator."""
         self.service = None
         self.json_handler = JsonValidatorReaderAndWriter()
-        self.dev_mess_broker = LearningSetReceiverAndClassifierSender(host='0.0.0.0', port=5004)  # instance of DevelopmentSystemMessageBroker class
+        self.dev_mess_broker = LearningSetReceiverAndClassifierSender(host='0.0.0.0',
+                                                                      port=5004)  # instance of DevelopmentSystemMessageBroker class
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
@@ -38,7 +39,6 @@ class DevelopmentSystemOrchestrator:
         """Get the service flag value."""
         return self.service
 
-
     def develop(self):
         """Handle development logic."""
 
@@ -46,19 +46,18 @@ class DevelopmentSystemOrchestrator:
         # Read the responses of the user for the stop and go and the value to start the continuous execution
         json_handler.validate_json("responses/user_responses.json", "schemas/user_responses_schema.json")
         user_responses = json_handler.read_json_file("responses/user_responses.json")
-        #assign the value of the service flag to testing
+        # assign the value of the service flag to testing
 
         orchestrator.set_testing(ConfigurationParameters.params['service_flag'])
         print("Service Flag: ", self.service)
 
-        #loop for the non-stop-and-go execution
+        # loop for the non-stop-and-go execution
         if self.service:
-
-            # start the server
-            #self.dev_mess_broker.start_server()
-            #response = self.dev_mess_broker.send_timestamp(time.time(), "start")
+            # Create a MessageBroker instance and start the server
+            # self.dev_mess_broker.start_server()
+            # response = self.dev_mess_broker.send_timestamp(time.time(), "start")
             print("Start timestamp sent")
-            #print("Response from Module Production System:", response)
+            # print("Response from Module Production System:", response)
 
         while True:
             # Definition of the stop&go structure
@@ -70,23 +69,20 @@ class DevelopmentSystemOrchestrator:
 
                     if self.service:
                         print("waiting for learning set")
-                        #message = self.dev_mess_broker.rcv_learning_set()
-                        #if message:
-                            #print("Learning set received:", message)
+                        message = self.dev_mess_broker.rcv_learning_set()
+                        if message:
+                            print("Learning set received:", message)
 
-                        #learning_set = LearningSet.from_dict(JsonValidatorReaderAndWriter.string_to_dict(message['message']))
+                        learning_set = LearningSet.from_dict(JsonValidatorReaderAndWriter.string_to_dict(message['message']))
 
                         # save the three type of sets in a different Json file
-                        #self.learning_set.save_learning_set(learning_set)
-                    else:
-                        learning_set = self.learning_set.create_learning_set_from_json("intermediate_results/dataset_split.json")
                         self.learning_set.save_learning_set(learning_set)
 
                 # SET AVERAGE HYPERPARAMETERS
-                set_average_hyperparams = True #in this case at the start, the average hyperparams must be set
+                set_average_hyperparams = True  # in this case at the start, the average hyperparams must be set
                 self.training_orchestrator.train_classifier(set_average_hyperparams)
                 print("Average hyperparameters set")
-                #if service flag is true, ends. If it is false, go to the next step
+                # if service flag is true, ends. If it is false, go to the next step
                 if self.service:
                     for key in user_responses.keys():
                         user_responses[key] = 0
@@ -96,8 +92,8 @@ class DevelopmentSystemOrchestrator:
                 print("Iteration Check Phase")
                 # SET NUMBER ITERATIONS
                 # TRAIN
-                    # GENERATE LEARNING REPORT
-                    # CHECK LEARNING PLOT
+                # GENERATE LEARNING REPORT
+                # CHECK LEARNING PLOT
                 set_average_hyperparams = False  # in this case, the average hyperparams are already set
                 self.training_orchestrator.train_classifier(set_average_hyperparams)
                 print("Number of iterations set")
@@ -111,8 +107,8 @@ class DevelopmentSystemOrchestrator:
                 print("Validation phase")
                 # SET HYPERPARAMETERS (loop)
                 # TRAIN               (loop)
-                    # GENERATE VALIDATION REPORT
-                    # CHECK VALIDATION RESULT
+                # GENERATE VALIDATION REPORT
+                # CHECK VALIDATION RESULT
                 result = self.validation_orchestrator.validation()
                 print("Validation phase done")
                 # if the testing is false and the validation is correct, go to the test phase.
@@ -144,8 +140,8 @@ class DevelopmentSystemOrchestrator:
                 # SEND CONFIGURATION
                 if self.service:
                     print("send configuration")
-                    #response = self.dev_mess_broker.send_configuration()
-                    #print("Response from Module Messaging System:", response)
+                    response = self.dev_mess_broker.send_configuration()
+                    print("Response from Module Messaging System:", response)
                 # exit the loop
                 break
 
@@ -154,8 +150,8 @@ class DevelopmentSystemOrchestrator:
                 # SEND CLASSIFIER
                 if self.service:
                     print("send classifier")
-                    #response = self.dev_mess_broker.send_classifier()
-                    #print("Response from Module Production System:", response)
+                    response = self.dev_mess_broker.send_classifier()
+                    print("Response from Module Production System:", response)
                 # exit the loop
                 break
 
@@ -172,6 +168,5 @@ class DevelopmentSystemOrchestrator:
 
 
 if __name__ == "__main__":
-
     orchestrator = DevelopmentSystemOrchestrator()
     orchestrator.develop()

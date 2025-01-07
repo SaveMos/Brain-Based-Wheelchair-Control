@@ -5,7 +5,7 @@ Orchestrates the preparation system workflow.
 
 Author: Francesco Taverna
 """
-
+import json
 
 from preparation_system.preparation_json_handler.json_handler import JsonHandler
 from preparation_system.PreparationSystemParameters import PreparationSystemParameters
@@ -33,23 +33,25 @@ class PreparationSystemOrchestrator:
         while True:
             # receive message
             boo, new_raw_session = self.communication.get_message()
+            print("preparation ricevuta raw session: ", new_raw_session)
             if boo:
                 continue
-            handler = JsonHandler()
             # correct raw session
             raw_session_corrected = self.session_preparation.correct_missing_samples(new_raw_session, None)
             raw_session_corrected = self.session_preparation.correct_outliers(raw_session_corrected)
 
             # create prepared session
             prepared_session = self.session_preparation.create_prepared_session(raw_session_corrected)
-            json_prepared_session = handler.convert_dictionary_to_json(prepared_session)
+            json_prepared_session = json.dumps(prepared_session)
 
             # send prepared session
             if self.parameters.configuration["development"]:
+                print("INVIO A SAVE")
                 #send to segregation system
                 self.communication.send_message(self.parameters.configuration["ip_segregation"],
                                                 self.parameters.configuration["port_segregation"], json_prepared_session)
-            else: #to comment for the preparation test
+            else:
                 #send to production system
+                print("INVIO A ALE")
                 self.communication.send_message(self.parameters.configuration["ip_production"],
                                                 self.parameters.configuration["port_production"], json_prepared_session)

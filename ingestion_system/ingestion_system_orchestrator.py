@@ -5,6 +5,7 @@ Orchestrates the ingestion system workflow.
 Author: Francesco Taverna
 
 """
+import json
 
 from .ingestion_json_handler.json_handler import JsonHandler
 from .record_buffer_controller import RecordBufferController
@@ -74,12 +75,12 @@ class IngestionSystemOrchestrator:
             try:
                 #boo is True if the message doesn't have the correct record schema
                 boo, new_record = self.json_io.get_message()
-                handler = JsonHandler()
                 if boo:
                     continue
 
                 # stores record
                 self.buffer_controller.store_record(new_record)
+                print(new_record)
 
                 # retrieve records
                 stored_records = self.buffer_controller.get_records(new_record["value"]["UUID"])
@@ -96,6 +97,7 @@ class IngestionSystemOrchestrator:
 
                 # creates raw session
                 raw_session = self.session_preparation.create_raw_session(stored_records)
+                print("sto mandando la raw session: ", raw_session.to_json())
 
                 # removes records
                 self.buffer_controller.remove_records(new_record["value"]["UUID"])
@@ -112,7 +114,7 @@ class IngestionSystemOrchestrator:
                         "uuid": marked_raw_session.uuid,
                         "label": marked_raw_session.label
                     }
-                    json_label = handler.convert_dictionary_to_json(label) #json
+                    json_label = json.dumps(label) #json
 
                     self.json_io.send_message(target_ip=self.parameters.configuration["ip_evaluation"],
                                               target_port=self.parameters.configuration["port_evaluation"], message=json_label)
@@ -132,3 +134,5 @@ class IngestionSystemOrchestrator:
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")
+
+
