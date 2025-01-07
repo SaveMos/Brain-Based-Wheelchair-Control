@@ -29,7 +29,7 @@ class Classification:
             label: aN object of label class representing the label obtained from classify operation
 
         """
-        ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_tetha_band'],
+        ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_theta_band'],
                        ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
         # convert prepared session json in python object
         prepared_session = PreparedSession(ps_json['uuid'], ps_features)
@@ -44,10 +44,11 @@ class Classification:
             'PSD_delta_band': [prepared_session.features[3]]
         }
 
-        features = pd.DataFrame(features_struct)
+        features_DF = pd.DataFrame(features_struct)
 
-        movement = self._classifier.predict(features)
+        movement = self._classifier.predict(features_DF)
         label = Label(prepared_session.uuid, movement)
+
 
         return label
 
