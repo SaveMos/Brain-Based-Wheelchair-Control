@@ -40,7 +40,7 @@ class TestEvaluationReportModel(unittest.TestCase):
         expert_labels = [Label(uuid="1", movements=1, expert=1), Label(uuid="2", movements=1, expert=1)]
 
         # Create instance of EvaluationReportModel
-        report_model = EvaluationReportModel()
+        report_model = EvaluationReportModel(basedir="..")
 
         # Call the method
         actual_total_errors = report_model.compute_actual_total_errors(classifier_labels, expert_labels)
@@ -65,7 +65,7 @@ class TestEvaluationReportModel(unittest.TestCase):
         ]
 
         # Create instance of EvaluationReportModel
-        report_model = EvaluationReportModel()
+        report_model = EvaluationReportModel(basedir="..")
 
         # Call the method
         actual_max_consecutive_errors = report_model.compute_actual_max_consecutive_errors(classifier_labels, expert_labels)

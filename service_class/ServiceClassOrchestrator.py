@@ -7,6 +7,7 @@ import time
 from service_class.ServiceClassParameters import ServiceClassParameters
 from service_class.ServiceReceiver import ServiceReceiver
 from service_class.RecordSender import RecordSender
+from service_class.CSVLogger import CSVLogger
 
 class ServiceClassOrchestrator:
     """
@@ -30,6 +31,8 @@ class ServiceClassOrchestrator:
 
         self.recordSender = RecordSender(basedir=self.basedir)
 
+        self.csv_logger = CSVLogger(self.basedir, ServiceClassParameters.LOCAL_PARAMETERS["phase"])
+
 
     def start(self):
         """
@@ -50,8 +53,7 @@ class ServiceClassOrchestrator:
             print(" Evaluation: " + str(ServiceClassParameters.LOCAL_PARAMETERS["evaluation_sessions"]))
 
             # Writing headers to the CSV file
-            with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "w") as f:
-                f.write("phase,timestamp,status\n")
+            self.csv_logger.write_header("phase,timestamp,status")
 
             # Dictionary to store the phases and a boolean value to indicate if the labels should be sent
             phases_and_labels = {
@@ -61,27 +63,29 @@ class ServiceClassOrchestrator:
             }
 
             for phase, include_labels in phases_and_labels.items():
+
+                print("Starting " + phase + " phase.")
+
                 # Preparing the bucket for the phase
                 bucket = self.recordSender.prepare_bucket(ServiceClassParameters.LOCAL_PARAMETERS[f"{phase}_sessions"], include_labels)
 
                 # Updating CSV file with the phase
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{phase}," + str(time.time()) + ",start\n")
+                self.csv_logger.log(f"{phase},{time.time()},start")
 
                 # Sending the bucket
                 self.recordSender.send_bucket(bucket)
 
                 # Updating CSV file
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{phase}," + str(time.time()) + ",records_sent\n")
+                self.csv_logger.log(f"{phase},{time.time()},records_sent")
 
                 if phase == "development":
+                    print("Waiting for the production configuration message.")
+
                     # Waiting for the production configuration message
                     configuration = self.serviceReceiver.get_configuration()
 
                     # Updating CSV file
-                    with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                        f.write(f"{phase}," + str(time.time()) + f",{configuration['configuration']}\n")
+                    self.csv_logger.log(f"{phase},{time.time()},{configuration['configuration']}")
 
                     if configuration["configuration"] == "restart":
                         # Restart the development phase
@@ -89,14 +93,14 @@ class ServiceClassOrchestrator:
                         return
 
                 else:
+                    print(f"Waiting for {ServiceClassParameters.LOCAL_PARAMETERS[f'{phase}_sessions']} labels.")
+
                     # Waiting for the labels
                     for _ in range(ServiceClassParameters.LOCAL_PARAMETERS[f"{phase}_sessions"]):
                         label = self.serviceReceiver.get_label()
 
                     # Updating CSV file
-                    with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                        f.write(f"{phase}," + str(time.time()) + ",labels_received\n")
-
+                    self.csv_logger.log(f"{phase},{time.time()},labels_received")
 
                 print(f"{phase.capitalize()} phase completed.")
 
@@ -106,8 +110,7 @@ class ServiceClassOrchestrator:
             print("Development phase will be tested, by developing " + str(ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"]) + " classifiers.")
 
             # Writing headers to the CSV file
-            with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "w") as f:
-                f.write("developed_classifier,timestamp,status\n")
+            self.csv_logger.write_header("developed_classifier,timestamp,status")
 
             for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"]+1):
 
@@ -115,22 +118,19 @@ class ServiceClassOrchestrator:
                 bucket = self.recordSender.prepare_bucket(ServiceClassParameters.LOCAL_PARAMETERS["development_sessions"], include_labels=True)
 
                 # Updating CSV file with the classifier
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{i}," + str(time.time()) + ",start\n")
+                self.csv_logger.log(f"{i},{time.time()},start")
 
                 # Sending the bucket
                 self.recordSender.send_bucket(bucket)
 
                 # Updating CSV file
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{i}," + str(time.time()) + ",records_sent\n")
+                self.csv_logger.log(f"{i},{time.time()},records_sent")
 
                 # Waiting for the production configuration message
                 configuration = self.serviceReceiver.get_configuration()
 
                 # Updating CSV file
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{i}," + str(time.time()) + f",{configuration['configuration']}\n")
+                self.csv_logger.log(f"{i},{time.time()},{configuration['configuration']}")
 
                 if configuration["configuration"] == "restart":
                     # Restart the development phase
@@ -141,8 +141,7 @@ class ServiceClassOrchestrator:
             print("Production phase will be tested, by considering " + str(ServiceClassParameters.LOCAL_PARAMETERS["production_sessions"]) + " sessions.")
 
             # Writing headers to the CSV file
-            with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "w") as f:
-                f.write("sessions,timestamp,status\n")
+            self.csv_logger.write_header("sessions,timestamp,status")
 
             for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["production_sessions"]+1):
 
@@ -150,27 +149,25 @@ class ServiceClassOrchestrator:
                 bucket = self.recordSender.prepare_bucket(i, include_labels=False)
 
                 # Updating CSV file with the session
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{i}," + str(time.time()) + ",start\n")
+                self.csv_logger.log(f"{i},{time.time()},start")
 
                 # Sending the bucket
                 self.recordSender.send_bucket(bucket)
 
                 # Updating CSV file
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{i}," + str(time.time()) + ",records_sent\n")
+                self.csv_logger.log(f"{i},{time.time()},records_sent")
 
+                print(f"Waiting for {i} labels.")
 
                 for _ in range(i):
                     label = self.serviceReceiver.get_label()
 
                 # Updating CSV file
-                with open(f"{self.basedir}/log/{ServiceClassParameters.LOCAL_PARAMETERS["phase"]}_log.csv", "a") as f:
-                    f.write(f"{i}," + str(time.time()) + ",labels_received\n")
+                self.csv_logger.log(f"{i},{time.time()},labels_received")
 
                 print(f"Production phase {i} completed.")
 
-            print("Production phase completed.")
+            print("All production phases completed.")
 
         else:
             print("Invalid value for the phase parameter.")

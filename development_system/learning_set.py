@@ -1,6 +1,7 @@
 import json
 from typing import List
 
+import joblib
 import pandas as pd
 
 from development_system.prepared_session import PreparedSession
@@ -33,14 +34,16 @@ class LearningSet:
         self._validation_set = validation_set
         self._test_set = test_set
 
+
+
     @staticmethod
-    def extract_features_and_labels(data_set, set_type):
+    def extract_features_and_labels(data_set):
         """
         Extracts features and labels from a set of data.
 
         Args:
             data_set (dict): A dictionary which contains a set of data (ex. "test_set").
-            set_type (str): Type of dictionary that contains a set.
+
 
         Returns:
             list: A list containing two elements:
@@ -54,7 +57,7 @@ class LearningSet:
 
         label_mapping = {"turnRight": 0, "turnLeft": 1, "move": 2}
 
-        current_set = data_set[set_type]
+       # current_set = data_set[set_type]
 
         current_data = pd.DataFrame([
             {
@@ -66,7 +69,7 @@ class LearningSet:
                 "environment": environment_mapping.get(record["environment"]),
                 "label": record["label"]
             }
-            for record in current_set
+            for record in data_set
         ])
 
         # Separation of the features and labels
@@ -182,18 +185,18 @@ class LearningSet:
         # Crea e restituisci l'oggetto LearningSet
         return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
 
-
+    """
     @staticmethod
     def save_learning_set(learning_set):
-        """
-        Saves the training, validation, and test sets of a LearningSet instance to JSON files.
+        #
+        #Saves the training, validation, and test sets of a LearningSet instance to JSON files.
 
-        Args:
-            learning_set (LearningSet): An instance containing training, validation, and test sets.
+        #Args:
+            #learning_set (LearningSet): An instance containing training, validation, and test sets.
 
-        Returns:
-            None
-        """
+        #Returns:
+            #None
+        #
         # Converte i dati utilizzando il metodo to_dictionary
         training_data = [session.to_dictionary() for session in learning_set.training_set]
         validation_data = [session.to_dictionary() for session in learning_set.validation_set]
@@ -208,6 +211,28 @@ class LearningSet:
 
         with open('data/test_set.json', 'w') as f:
             json.dump({"test_set": test_data}, f, indent=4)
+    """
+
+    @staticmethod
+    def save_learning_set(learning_set):
+        """
+        Saves the training, validation, and test sets of a LearningSet instance to .sav files using joblib.
+
+        Args:
+            learning_set (LearningSet): An instance containing training, validation, and test sets.
+
+        Returns:
+            None
+        """
+        # Converte i dati utilizzando il metodo to_dictionary
+        training_data = [session.to_dictionary() for session in learning_set.training_set]
+        validation_data = [session.to_dictionary() for session in learning_set.validation_set]
+        test_data = [session.to_dictionary() for session in learning_set.test_set]
+
+        # Salva i dati nei rispettivi file .sav usando joblib
+        joblib.dump(training_data, 'data/training_set.sav')
+        joblib.dump(validation_data, 'data/validation_set.sav')
+        joblib.dump(test_data, 'data/test_set.sav')
 
     @classmethod
     def from_dict(cls, data: dict) -> 'LearningSet':

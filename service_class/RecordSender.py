@@ -2,6 +2,7 @@
 Author: Giovanni Ligato
 """
 
+import json
 import pandas as pd
 import requests
 import random
@@ -86,13 +87,19 @@ class RecordSender:
 
         :param bucket: The list of records to send.
         """
-        url = f"http://{ServiceClassParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]}:\
-              {ServiceClassParameters.GLOBAL_PARAMETERS["Ingestion System"]["port"]}/IngestionSystem"
+        url = f"http://{ServiceClassParameters.GLOBAL_PARAMETERS["Ingestion System"]["ip"]}:{ServiceClassParameters.GLOBAL_PARAMETERS["Ingestion System"]["port"]}/send"
 
         while bucket:
             record = random.choice(bucket)
             try:
-                response = requests.post(url, json=record)
+
+                # Preparing the packet to send
+                packet = {
+                    "port": ServiceClassParameters.GLOBAL_PARAMETERS["Service Class"]["port"],
+                    "message": json.dumps(record)
+                }
+
+                response = requests.post(url, json=packet)
                 if response.status_code == 200:
                     bucket.remove(record)
                 else:
