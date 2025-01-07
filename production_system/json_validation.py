@@ -77,12 +77,3 @@ if __name__ == "__main__":
         print(content)
     except Exception as e:
         print(f"Errore: {e}")
-
-
-
-
-
-
-
-
-

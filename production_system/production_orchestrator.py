@@ -62,7 +62,7 @@ class ProductionOrchestrator:
 
 
             #develop session
-            if message['ip'] == self._configuration.DEVELOP_SYSTEM_IP :
+            if message['ip'] == self._configuration.global_netconf['Development System']['ip'] :
                 #deploy operation
                 print("Classifier received")
                 #convert json message in object class
@@ -92,7 +92,7 @@ class ProductionOrchestrator:
 
 
             # classify session
-            elif message['ip'] == self._configuration.PREPARATION_SYSTEM_IP :
+            elif message['ip'] == self._configuration.global_netconf['Preparation System']['ip'] :
                 #classify operation
                 print("Prepared session received")
                 ps_json = message['message']
@@ -109,14 +109,14 @@ class ProductionOrchestrator:
 
                 #if evaluation phase parameter is true label is sent also to Evaluation System
                 if self._evaluation_phase:
-                    eval_sys_ip = self._configuration.EVALUATION_SYSTEM_IP
-                    eval_sys_port = self._configuration.EVALUATION_SYSTEM_PORT
+                    eval_sys_ip = self._configuration.global_netconf['Evaluation System']['ip']
+                    eval_sys_port = self._configuration.global_netconf['Evaluation System']['port']
                     print("Send label to evaluate session")
                     self._prod_sys_io.send_label(eval_sys_ip, eval_sys_port, label)
 
                 # Send label to client
-                serv_cl_ip = self._configuration.SERVICE_CLASS_IP
-                serv_cl_port = self._configuration.SERVICE_CLASS_PORT
+                serv_cl_ip = self._configuration.global_netconf['Service Class']['ip']
+                serv_cl_port = self._configuration.global_netconf['Service Class']['ip']
                 print("Send label to service class")
                 self._prod_sys_io.send_label(serv_cl_ip, serv_cl_port, label)
 
