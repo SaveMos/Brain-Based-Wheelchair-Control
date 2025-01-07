@@ -7,7 +7,6 @@ Author: Francesco Taverna
 """
 import json
 
-from preparation_system.preparation_json_handler.json_handler import JsonHandler
 from preparation_system.PreparationSystemParameters import PreparationSystemParameters
 from preparation_system.RawSessionReceiver_and_PreparedSessionSender import RawSessionReceiver_and_PrepareSessionSender
 from preparation_system.SessionPreparation import SessionPreparation
