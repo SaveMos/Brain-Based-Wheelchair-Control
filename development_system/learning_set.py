@@ -18,10 +18,7 @@ class LearningSet:
 
     """
 
-    def __init__(self,
-        training_set: List[PreparedSession],
-        validation_set: List[PreparedSession],
-        test_set: List[PreparedSession]):
+    def __init__(self, training_set: List[PreparedSession], validation_set: List[PreparedSession], test_set: List[PreparedSession]):
         """
         Initializes a new instance of the `LearningSet` class.
 

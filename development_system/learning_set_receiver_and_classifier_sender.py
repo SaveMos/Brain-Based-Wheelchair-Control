@@ -156,7 +156,7 @@ class LearningSetReceiverAndClassifierSender:
 
         timestamp_message = {
             "timestamp": timestamp,
-            "system_name": "Evaluation System",
+            "system": "Development System",
             "status": status
         }
 

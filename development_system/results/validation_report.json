@@ -2,50 +2,50 @@
     "report": [
         {
             "index": 1,
-            "num_iterations": 150,
-            "validation_error": 0.9378783416716912,
-            "training_error": 2.0935405525088786,
-            "difference": -1.2322090824459326,
-            "num_layers": 20,
-            "num_neurons": 4,
-            "network_complexity": 80
+            "num_iterations": 89,
+            "validation_error": 0.8268346630854098,
+            "training_error": 2.061031639948061,
+            "difference": -1.4926768699526112,
+            "num_layers": 32,
+            "num_neurons": 8,
+            "network_complexity": 256
         },
         {
             "index": 2,
-            "num_iterations": 150,
-            "validation_error": 1.0301175614756501,
-            "training_error": 1.8222931013065242,
-            "difference": -0.7690146925522534,
-            "num_layers": 28,
-            "num_neurons": 8,
-            "network_complexity": 224
-        },
-        {
-            "index": 3,
-            "num_iterations": 150,
-            "validation_error": 1.08258028241272,
-            "training_error": 1.822398865228654,
-            "difference": -0.6833844979765552,
-            "num_layers": 20,
-            "num_neurons": 12,
-            "network_complexity": 240
-        },
-        {
-            "index": 4,
-            "num_iterations": 150,
-            "validation_error": 1.102998813441177,
-            "training_error": 1.717681576437734,
-            "difference": -0.5572832495429861,
+            "num_iterations": 89,
+            "validation_error": 0.8469984264595412,
+            "training_error": 2.2268649074522173,
+            "difference": -1.629125200102823,
             "num_layers": 24,
             "num_neurons": 8,
             "network_complexity": 192
         },
         {
+            "index": 3,
+            "num_iterations": 89,
+            "validation_error": 0.8983724192390917,
+            "training_error": 1.9346621258197898,
+            "difference": -1.1535190577849888,
+            "num_layers": 32,
+            "num_neurons": 20,
+            "network_complexity": 640
+        },
+        {
+            "index": 4,
+            "num_iterations": 89,
+            "validation_error": 0.9217043949296914,
+            "training_error": 2.0378864252911075,
+            "difference": -1.210997838896667,
+            "num_layers": 32,
+            "num_neurons": 16,
+            "network_complexity": 512
+        },
+        {
             "index": 5,
-            "num_iterations": 150,
-            "validation_error": 1.142155522297963,
-            "training_error": 1.6709646791923567,
-            "difference": -0.4629922515547224,
+            "num_iterations": 89,
+            "validation_error": 1.04119707555608,
+            "training_error": 2.1065628997234227,
+            "difference": -1.023212463018449,
             "num_layers": 12,
             "num_neurons": 8,
             "network_complexity": 96

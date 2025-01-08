@@ -7,11 +7,11 @@ class Classifier(MLPClassifier):
     def __init__(self):
         """Initialize classifier attributes."""
         super(Classifier, self).__init__()
-        self.num_layers = None
-        self.num_neurons = None
-        self.training_error = None
-        self.validation_error = None
-        self.test_error = None
+        self.num_layers = 0
+        self.num_neurons = 0
+        self.training_error = 0.0
+        self.validation_error = 0.0
+        self.test_error = 0.0
         self.early_stopping = False #it prevents the classifier to stop before the number of iterations
 
     def get_train_valid_error_difference(self):
