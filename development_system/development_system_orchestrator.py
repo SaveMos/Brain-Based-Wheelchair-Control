@@ -21,7 +21,7 @@ class DevelopmentSystemOrchestrator:
         self.training_orchestrator = TrainingOrchestrator()
         self.validation_orchestrator = ValidationOrchestrator()
         self.testing_orchestrator = TestingOrchestrator()
-        self.classifier = Classifier()
+        #self.classifier = Classifier()
         self.learning_set = LearningSet([], [], [])
         ConfigurationParameters.load_configuration()
 
@@ -54,7 +54,7 @@ class DevelopmentSystemOrchestrator:
         #loop for the non-stop-and-go execution
         if self.service:
 
-            # Create a MessageBroker instance and start the server
+            # start the server
             #self.dev_mess_broker.start_server()
             #response = self.dev_mess_broker.send_timestamp(time.time(), "start")
             print("Start timestamp sent")

@@ -28,7 +28,7 @@ class ServiceReceiver:
         """
 
         if port is None:
-            port = ServiceClassParameters.LOCAL_PARAMETERS["Service Class"]["port"]
+            port = ServiceClassParameters.GLOBAL_PARAMETERS["Service Class"]["port"]
 
         self.app = Flask(__name__)
         self.host = host
@@ -56,12 +56,16 @@ class ServiceReceiver:
         @self.app.route('/Timestamp', methods=['POST'])
         def receive_timestamp():
 
-            # Get the json timestamp from the request
-            json_timestamp = request.get_json()
+            packet = request.get_json()
+
+            # Get the json timestamp from the packet
+            json_timestamp = json.loads(packet["message"])
 
             # Validate the timestamp
             if self._validate_json(json_timestamp, self.timestamp_schema_path):
                 # JSON timestamp is valid
+
+                print(f"Received timestamp: {json_timestamp}")
 
                 # Write the timestamp to the log
                 with open(self.timestamp_log_path, "a") as log_file:
@@ -77,8 +81,10 @@ class ServiceReceiver:
         @self.app.route('/MessagingSystem', methods=['POST'])
         def receive_configuration():
 
-            # Get the json configuration from the request
-            json_configuration = request.get_json()
+            packet = request.get_json()
+
+            # Get the json configuration from the packet
+            json_configuration = json.loads(packet["message"])
 
             # Validate the configuration
             if self._validate_json(json_configuration, self.configuration_schema_path):
@@ -100,8 +106,10 @@ class ServiceReceiver:
         @self.app.route('/ClientSide', methods=['POST'])
         def receive_label():
 
-            # Get the json label from the request
-            json_label = request.get_json()
+            packet = request.get_json()
+
+            # Get the json label from the packet
+            json_label = json.loads(packet["message"])
 
             # Validate the label
             if self._validate_json(json_label, self.label_schema_path):

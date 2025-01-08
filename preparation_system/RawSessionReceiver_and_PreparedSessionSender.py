@@ -86,7 +86,7 @@ class RawSessionReceiver_and_PrepareSessionSender:
             print(f"Error sending message: {e}")
         return None
 
-    def get_message(self, timeout: Optional[float] = None) -> Optional[Dict]:
+    def get_message(self, timeout: Optional[float] = None) :
         """
         Retrieve a message from the queue, blocking if necessary.
 

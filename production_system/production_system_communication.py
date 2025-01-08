@@ -1,10 +1,11 @@
 """
     Class for managing the sending and receiving of messages
 """
-from flask import Flask, request, jsonify
+import queue
 import threading
 import requests
 import json
+from flask import Flask, request, jsonify
 from typing import Optional, Dict
 from production_system.label import Label
 from production_system.configuration_parameters import ConfigurationParameters
@@ -16,7 +17,7 @@ class ProductionSystemIO:
         this class manage all sent/received json file
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = 5000):
+    def __init__(self, host: str = '0.0.0.0', port: int = 5005):
         """
         Initialize the Flask communication server.
 
@@ -26,7 +27,7 @@ class ProductionSystemIO:
         self.app = Flask(__name__)
         self.host = host
         self.port = port
-        self.last_message = None
+        self.msg_queue = queue.Queue()
 
         # Lock and condition for blocking behavior
         self.message_condition = threading.Condition()
@@ -35,19 +36,9 @@ class ProductionSystemIO:
         @self.app.route('/send', methods=['POST'])
         def receive_message():
             data = request.json
-            sender_ip = request.remote_addr
-            sender_port = data.get('port')
             message = data.get('message')
 
-
-            with self.message_condition:
-                self.last_message = {
-                    'ip': sender_ip,
-                    'port': sender_port,
-                    'message': message
-                }
-                # Notify any threads waiting for a message
-                self.message_condition.notify_all()
+            self.msg_queue.put(message)
 
             return jsonify({"status": "received"}), 200
 
@@ -68,8 +59,8 @@ class ProductionSystemIO:
         # recover messaging system information
         configuration = ConfigurationParameters()
         message = configuration.start_config()
-        msg_sys_ip = configuration.MESSAGING_SYSTEM_IP
-        msg_sys_port = configuration.MESSAGING_SYSTEM_PORT
+        msg_sys_ip = configuration.global_netconf['Messaging System']['ip']
+        msg_sys_port = configuration.global_netconf['Messaging System']['port']
         url = f"http://{msg_sys_ip}:{msg_sys_port}/send"
         payload = {
             "port": self.port,
@@ -83,7 +74,7 @@ class ProductionSystemIO:
             print(f"Error sending message: {e}")
         return None
 
-    def send_label(self, target_ip: str, target_port: int, label: Label) -> Optional[Dict]:
+    def send_label(self, target_ip: str, target_port: int, label: [Dict]) -> Optional[Dict]:
         """
         Send a message to a target module.
 
@@ -116,17 +107,8 @@ class ProductionSystemIO:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        with self.message_condition:
-            # Wait until a message is received
-            while self.last_message is None:
-                self.message_condition.wait()
 
-            # Retrieve and clear the last message
-            message = self.last_message
-            self.last_message = None
-
-
-            return message
+        return self.msg_queue.get(block=True)
 
     # Testing method
     def send_timestamp(self, timestamp: float, status: str) -> bool:
@@ -139,8 +121,8 @@ class ProductionSystemIO:
         """
 
         configuration = ConfigurationParameters()
-        url = f"http://{configuration.SERVICE_CLASS_IP}:\
-                          {configuration.SERVICE_CLASS_PORT}/Timestamp"
+        url = f"http://{configuration.global_netconf['Service Class']['ip']}:\
+                          {configuration.global_netconf['Service Class']['port']}/Timestamp"
 
         timestamp_message = {
             "timestamp": timestamp,

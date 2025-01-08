@@ -62,10 +62,12 @@ class Trainer:
             Returns:
                 object: The trained classifier.
         """
-        self.json_handler.validate_json("data/training_set.json","schemas/generic_set_schema.json")
-        training_data = self.json_handler.read_json_file("data/training_set.json")
+        #self.json_handler.validate_json("data/training_set.json","schemas/generic_set_schema.json")
+        #training_data = self.json_handler.read_json_file("data/training_set.json")
 
-        result = self.learning_set.extract_features_and_labels(training_data, "training_set")
+        #result = self.learning_set.extract_features_and_labels(training_data, "training_set")
+        training_data = joblib.load("data/training_set.sav")
+        result = self.learning_set.extract_features_and_labels(training_data)
 
         training_features = result[0]
         training_labels = result[1]
@@ -91,10 +93,12 @@ class Trainer:
             and computes the validation error using log loss. The validation error
             is then set for the classifier.
         """
-        self.json_handler.validate_json("data/validation_set.json", "schemas/generic_set_schema.json")
-        validation_data = self.json_handler.read_json_file("data/validation_set.json")
+        #self.json_handler.validate_json("data/validation_set.json", "schemas/generic_set_schema.json")
+        #validation_data = self.json_handler.read_json_file("data/validation_set.json")
 
-        result = self.learning_set.extract_features_and_labels(validation_data, "validation_set")
+        #result = self.learning_set.extract_features_and_labels(validation_data, "validation_set")
+        validation_data = joblib.load("data/validation_set.sav")
+        result = self.learning_set.extract_features_and_labels(validation_data)
 
         validation_features = result[0]
         validation_labels = result[1]

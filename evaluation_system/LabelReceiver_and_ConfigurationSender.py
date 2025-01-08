@@ -10,6 +10,7 @@ import threading
 import requests
 import jsonschema
 from flask import Flask, request, jsonify
+
 from evaluation_system.EvaluationSystemParameters import EvaluationSystemParameters
 from evaluation_system.Label import Label
 
@@ -41,14 +42,16 @@ class LabelReceiver_and_ConfigurationSender:
         self.label_schema_path = f"{basedir}/schemas/label_schema.json"
 
         # Define a route to receive labels
-        @self.app.route('/EvaluationSystem', methods=['POST'])
+        @self.app.route('/send', methods=['POST'])
         def receive_label():
 
             # Get the sender's IP
             sender_ip = request.remote_addr
 
-            # Get the label from the request
-            json_label = request.get_json()
+            packet = request.get_json()
+
+            # Get the label from the packet
+            json_label = json.loads(packet["message"])
 
             # Validate the label
             if self._validate_json_label(json_label):
@@ -111,7 +114,14 @@ class LabelReceiver_and_ConfigurationSender:
         }
 
         try:
-            response = requests.post(url, json=configuration)
+
+            # Preparing the packet to send
+            packet = {
+                "port": EvaluationSystemParameters.GLOBAL_PARAMETERS["Evaluation System"]["port"],
+                "message": json.dumps(configuration)
+            }
+
+            response = requests.post(url, json=packet)
             if response.status_code == 200:
                 return True
         except requests.RequestException as e:
@@ -147,7 +157,14 @@ class LabelReceiver_and_ConfigurationSender:
         }
 
         try:
-            response = requests.post(url, json=timestamp_message)
+
+            # Preparing the packet to send
+            packet = {
+                "port": EvaluationSystemParameters.GLOBAL_PARAMETERS["Evaluation System"]["port"],
+                "message": json.dumps(timestamp_message)
+            }
+
+            response = requests.post(url, json=packet)
             if response.status_code == 200:
                 return True
         except requests.RequestException as e:

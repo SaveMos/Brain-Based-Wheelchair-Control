@@ -5,11 +5,11 @@
       "type": "boolean"
     },
     "max_session_evaluation": {
-      "type": "integer"
+      "type": "number"
 
     },
     "max_session_production": {
-      "type": "integer"
+      "type": "number"
     }
   },
   "required": [

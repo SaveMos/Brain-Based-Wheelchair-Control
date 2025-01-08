@@ -1,9 +1,9 @@
 import unittest
+import pandas as pd
 from unittest.mock import patch, MagicMock
 from production_system.classification import Classification
 from production_system.label import Label
-from production_system.prepared_session import PreparedSession
-import pandas as pd
+
 
 class TestClassification(unittest.TestCase):
 
@@ -17,12 +17,13 @@ class TestClassification(unittest.TestCase):
         # Test data
         prepared_session_data = {
             "uuid": "001",
-            "psd_alpha_band": 0.8,
-            "psd_beta_band": 0.7,
-            "psd_tetha_band": 0.9,
-            "psd_delta_band": 0.6,
-            "activity": 4,
-            "environment": 2
+            "PSD_alpha_band": 0.8,
+            "PSD_beta_band": 0.7,
+            "PSD_theta_band": 0.9,
+            "PSD_delta_band": 0.6,
+            "activity": "cooking",
+            "environment": "house",
+            "label": "turnRight"
         }
 
         # Instantiate the classification class
@@ -38,12 +39,15 @@ class TestClassification(unittest.TestCase):
 
         # Check that the classifier's predict method was called with the correct input
         expected_features_struct = {
-            'PSD_alpha_band': [0.8],
-            'PSD_beta_band': [0.7],
-            'PSD_theta_band': [0.9],
-            'PSD_delta_band': [0.6]
+            'PSD_alpha_band': 0.8,
+            'PSD_beta_band': 0.7,
+            'PSD_theta_band': 0.9,
+            'PSD_delta_band': 0.6,
+            'activity': 2,
+            'environment': 3,
+            'label': 0
         }
-        expected_features = pd.DataFrame(expected_features_struct)
+        expected_features = pd.DataFrame([expected_features_struct])
 
         # Recupera gli argomenti passati alla chiamata
         args, kwargs = mock_classifier.predict.call_args
@@ -62,12 +66,13 @@ class TestClassification(unittest.TestCase):
         # Test data
         prepared_session_data = {
             "uuid": "002",
-            "psd_alpha_band": 0.1,
-            "psd_beta_band": 0.2,
-            "psd_tetha_band": 0.3,
-            "psd_delta_band": 0.4,
-            "activity": 1,
-            "environment": 3
+            "PSD_alpha_band": 0.1,
+            "PSD_beta_band": 0.2,
+            "PSD_theta_band": 0.3,
+            "PSD_delta_band": 0.4,
+            "activity": "gaming",
+            "environment": "slope",
+            "label": "move"
         }
 
         classification_instance = Classification()
@@ -89,12 +94,13 @@ class TestClassification(unittest.TestCase):
         # Test data
         prepared_session_data = {
             "uuid": "003",
-            "psd_alpha_band": 0.5,
-            "psd_beta_band": 0.6,
-            "psd_tetha_band": 0.7,
-            "psd_delta_band": 0.8,
-            "activity": 2,
-            "environment": 5
+            "PSD_alpha_band": 0.5,
+            "PSD_beta_band": 0.6,
+            "PSD_theta_band": 0.7,
+            "PSD_delta_band": 0.8,
+            "activity": "relax",
+            "environment": "track",
+            "label": "move"
         }
 
         label = classification_instance.classify(prepared_session_data)

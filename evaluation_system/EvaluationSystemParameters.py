@@ -18,8 +18,8 @@ class EvaluationSystemParameters:
     LOCAL_PARAMETERS = {}
 
     # Global parameters
-    GLOBAL_PARAMETERS_PATH = "../global_netconf.json"
-    GLOBAL_PARAMETERS_SCHEMA_PATH = "../global_netconf_schema.json"
+    GLOBAL_PARAMETERS_PATH = "parameters/global_netconf.json"
+    GLOBAL_PARAMETERS_SCHEMA_PATH = "schemas/global_netconf_schema.json"
     GLOBAL_PARAMETERS = {}
 
     @staticmethod

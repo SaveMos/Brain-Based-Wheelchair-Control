@@ -68,10 +68,13 @@ class TestingOrchestrator:
 
         self.winner_network: Classifier = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
 
-        self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
-        test_data = self.json_handler.read_json_file("data/test_set.json")
+        #self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
+        #test_data = self.json_handler.read_json_file("data/test_set.json")
 
-        result = self.learning_set.extract_features_and_labels(test_data, "test_set")
+        #result = self.learning_set.extract_features_and_labels(test_data, "test_set")
+
+        test_data = joblib.load("data/test_set.sav")
+        result = self.learning_set.extract_features_and_labels(test_data)
 
         test_features = result[0]
         test_labels = result[1]

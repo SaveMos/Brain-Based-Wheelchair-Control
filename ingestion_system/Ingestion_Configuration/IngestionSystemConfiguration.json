@@ -5,9 +5,9 @@
     "service": false,
     "evaluation_sessions": 50,
     "ip_preparation": "127.0.0.1",
-    "ip_evaluation": "127.0.0.1",
-    "port_preparation": 5012,
-    "port_evaluation": 5013,
-    "ip_ingestion": "127.0.0.1",
+    "ip_evaluation": "2.38.52.205",
+    "port_preparation": 5002,
+    "port_evaluation": 5030,
+    "ip_ingestion": "0.0.0.0",
     "port_ingestion": 5001
 }

@@ -31,7 +31,7 @@ def calculate_total_98th_percentile(file_name):
     all_numeric_values = all_numeric_values[~pd.isna(all_numeric_values)]
 
     # Calcola il 98º percentile
-    percentile_98 = pd.Series(all_numeric_values).quantile(0.98)
+    percentile_98 = pd.Series(all_numeric_values).quantile(0.02) #0.98 for upper_bound, 0.02 for lower_bound
 
     return percentile_98
 

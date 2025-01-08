@@ -46,7 +46,6 @@ def test_preparation_system_orchestrator():
     receiver_production.start_server()
     parameters = PreparationSystemParameters()
 
-    # Run the controller
     preparation_system = Process(target=run_preparation, args=())
     preparation_system.start()
 
