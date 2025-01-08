@@ -15,7 +15,7 @@ class Deployment:
             classifier_json: file json of classifier to save
         """
         try:
-            binary_content = classifier.encoded('latin1')
+            binary_content = classifier.encode('latin1')
             with  open("model/classifier.sav", "wb") as f:
                 f.write(binary_content)
 

@@ -35,8 +35,18 @@ class ProductionSystemIO:
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
         def receive_message():
+            # Get the sender's IP
+
             data = request.json
-            message = data.get('message')
+            sender_ip = request.remote_addr
+            sender_port = data.get('port')
+            message_content = data.get('message')
+
+            message = {
+                'ip': sender_ip,
+                'port': sender_port,
+                'message': message_content
+            }
 
             self.msg_queue.put(message)
 
@@ -61,10 +71,10 @@ class ProductionSystemIO:
         message = configuration.start_config()
         msg_sys_ip = configuration.global_netconf['Messaging System']['ip']
         msg_sys_port = configuration.global_netconf['Messaging System']['port']
-        url = f"http://{msg_sys_ip}:{msg_sys_port}/send"
+        url = f"http://{msg_sys_ip}:{msg_sys_port}/MessagingSystem"
         payload = {
             "port": self.port,
-            "message": message
+            "message": json.dumps(message)
         }
         try:
             response = requests.post(url, json=payload)
@@ -74,7 +84,7 @@ class ProductionSystemIO:
             print(f"Error sending message: {e}")
         return None
 
-    def send_label(self, target_ip: str, target_port: int, label: [Dict]) -> Optional[Dict]:
+    def send_label(self, target_ip: str, target_port: int, label: [Dict], rule: str) -> Optional[Dict]:
         """
         Send a message to a target module.
 
@@ -88,7 +98,10 @@ class ProductionSystemIO:
         label_dict = label.to_dictionary()
 
         label_json = json.dumps(label_dict)
-        url = f"http://{target_ip}:{target_port}/send"
+        if rule == "send":
+            url = f"http://{target_ip}:{target_port}/send"
+        elif rule == "client":
+            url = f"http://{target_ip}:{target_port}/ClientSide"
         payload = {
             "port": self.port,
             "message": label_json
@@ -126,7 +139,7 @@ class ProductionSystemIO:
 
         timestamp_message = {
             "timestamp": timestamp,
-            "system_name": "Evaluation System",
+            "system": "Production System",
             "status": status
         }
 
