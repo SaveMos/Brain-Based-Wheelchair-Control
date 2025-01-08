@@ -44,7 +44,7 @@ class SegregationSystemOrchestrator:
         This method initializes a `SegregationSystemConfiguration` object to load system parameters
         from the configuration file and sets up the required subsystems.
         """
-        self.message_broker.send_timestamp("start")
+        SegregationSystemConfiguration.configure_parameters()
         execution_state_file_path = "user/user_responses.json"
         number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
         balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "balancing_report")
@@ -55,10 +55,13 @@ class SegregationSystemOrchestrator:
 
             # Configure the system parameters from the configuration file.
             self.message_broker.start_server()
+            print("Waiting for a message")
 
             while self.db.get_number_of_prepared_session_stored() < SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']:
                 # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
                 message = self.message_broker.get_last_message()
+                self.message_broker.send_timestamp("start")
+
                 print("Prepared Session received!")
                 message = SegregationSystemJsonHandler.string_to_dict(message['message'])
 
@@ -74,6 +77,8 @@ class SegregationSystemOrchestrator:
                     except Exception:
                         print("Prepared Session NOT Valid!")
 
+                self.message_broker.send_timestamp("end")
+
             print("Enough prepared session stored!")
             SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
                                                      "OK")  # Register this, so we do not have to make the check again.
@@ -82,14 +87,13 @@ class SegregationSystemOrchestrator:
             all_prepared_sessions = self.db.get_all_prepared_sessions()
 
             print("Generating the balancing report...")
-            report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
-            report_model.generateBalancingReport()  # Generate the Balancing Report.
+            #report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
+            #report_model.generateBalancingReport()  # Generate the Balancing Report.
             print("Balancing report generated!")
 
         if coverage_report_status == "-" and balancing_report_status == "NOT OK" and number_of_session_status == "OK":
             self.db.reset_session_database()
             self.message_broker.send_configuration("unbalanced_classes")
-            self.message_broker.send_timestamp("end")
             self.reset_execution_state()
 
         if (coverage_report_status == "-" and balancing_report_status == "OK") or self.get_testing():
@@ -98,16 +102,15 @@ class SegregationSystemOrchestrator:
 
             print("Generating the input coverage report...")
             # Create the BalancingReportModel Object.
-            report_model = CoverageReportModel(all_prepared_sessions)
+            #report_model = CoverageReportModel(all_prepared_sessions)
             # Generate the Balancing Report.
-            report_model.generateCoverageReport()
+            #report_model.generateCoverageReport()
             print("Input coverage report generated!")
 
 
         if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and number_of_session_status == "OK":
             self.db.reset_session_database()
             self.message_broker.send_configuration("coverage_not_satisfied")
-            self.message_broker.send_timestamp("end")
             self.reset_execution_state()
 
         if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
@@ -125,7 +128,6 @@ class SegregationSystemOrchestrator:
 
             # Send the learning sets to the Development System.
             self.message_broker.send_message(network_info['ip'], network_info['port'], SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
-            self.message_broker.send_timestamp("end")
             self.db.reset_session_database()
             self.reset_execution_state()
 

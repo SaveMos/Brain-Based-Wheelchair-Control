@@ -61,7 +61,7 @@ class SessionReceiverAndConfigurationSender:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
+    def send_message(self, target_ip: str, target_port: int, message: str , dest: str = "send") -> Optional[Dict]:
         """
         Send a message to a target module.
 
@@ -70,7 +70,7 @@ class SessionReceiverAndConfigurationSender:
         :param message: The message to send (typically a JSON string).
         :return: The response from the target, if any.
         """
-        url = f"http://{target_ip}:{target_port}/send"
+        url = f"http://{target_ip}:{target_port}/{dest}"
         payload = {
             "port": self.port,
             "message": message
@@ -104,7 +104,7 @@ class SessionReceiverAndConfigurationSender:
             "configuration": msg
         }
 
-        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration))
+        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration) , "MessagingSystem")
 
     # Testing method
     def send_timestamp(self, status: str = ""):
@@ -118,11 +118,11 @@ class SessionReceiverAndConfigurationSender:
 
         timestamp_message = {
             "timestamp": time.time(),
-            "system_name": "Evaluation System",
+            "system": "Segregation System",
             "status": status
         }
 
-        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(timestamp_message))
+        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(timestamp_message) , "Timestamp")
 
 
 if __name__ == "__main__":
