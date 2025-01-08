@@ -1,5 +1,6 @@
 import json
 import queue
+import time
 import threading
 from typing import Optional, Dict
 
@@ -90,7 +91,7 @@ class SessionReceiverAndConfigurationSender:
         """
         return self.queue.get(block=True)
 
-    def send_configuration(self):
+    def send_configuration(self , msg : str):
         """
         Send the configuration "restart" message to the Messaging System.
 
@@ -100,24 +101,23 @@ class SessionReceiverAndConfigurationSender:
         network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Messaging System"]
 
         configuration = {
-            "configuration": "restart"
+            "configuration": msg
         }
 
         self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration))
 
     # Testing method
-    def send_timestamp(self, timestamp: float, status: str):
+    def send_timestamp(self, status: str = ""):
         """
         Send the timestamp to the Service Class.
 
-        :param timestamp: The timestamp to send.
         :param status: The status of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
         network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Service Class"]
 
         timestamp_message = {
-            "timestamp": timestamp,
+            "timestamp": time.time(),
             "system_name": "Evaluation System",
             "status": status
         }
