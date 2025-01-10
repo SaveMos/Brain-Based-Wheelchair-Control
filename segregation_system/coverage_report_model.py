@@ -63,7 +63,7 @@ class CoverageReportModel:
         density = np.zeros((len(self.prepared_sessions[0].features), 10))
 
         # Define the range of features for normalization
-        feature_min, feature_max = -27, 28
+        feature_min, feature_max = -27.30245, 28.170070 # This is the 98° percentile.
 
         # Function to normalize feature values to [0, 1]
         def normalize(value):
