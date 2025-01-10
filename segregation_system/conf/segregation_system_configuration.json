@@ -1,5 +1,5 @@
 {
-    "minimum_number_of_collected_sessions": 10,
+    "minimum_number_of_collected_sessions": 500,
     "tolerance_interval": 5,
     "training_set_percentage": 0.7,
     "validation_set_percentage": 0.2,
