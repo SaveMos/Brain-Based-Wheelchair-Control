@@ -10,6 +10,7 @@ import jsonschema
 from flask import Flask, request, jsonify
 
 from service_class.ServiceClassParameters import ServiceClassParameters
+from service_class.CSVLogger import CSVLogger
 
 
 class ServiceReceiver:
@@ -18,13 +19,14 @@ class ServiceReceiver:
 
     """
 
-    def __init__(self, host: str = '0.0.0.0', port: int = None, basedir: str = "."):
+    def __init__(self, host: str = '0.0.0.0', port: int = None, basedir: str = ".", csv_logger: CSVLogger = None):
         """
         Initialize the Flask communication server.
 
         :param host: The host address for the Flask server.
         :param port: The port number for the Flask server.
         :param basedir: The base directory for the Flask server.
+        :param csv_logger: The CSVLogger instance to be used for logging.
         """
 
         if port is None:
@@ -33,6 +35,8 @@ class ServiceReceiver:
         self.app = Flask(__name__)
         self.host = host
         self.port = port
+
+        self.csv_logger = csv_logger
 
         # Queue to store received configuration messages
         self.configuration_queue = queue.Queue()
@@ -52,6 +56,13 @@ class ServiceReceiver:
         # Path of the timestamp log
         self.timestamp_log_path = f"{basedir}/log/timestamp_log.txt"
 
+        # Developed Classifiers counter, used only when the phase is "development"
+        self.developed_classifiers = 1
+
+        # Sessions tracker and labels counter are used only when the phase is "production"
+        self.sessions_tracker = 1
+        self.labels_counter = 0
+
         # Define a route to receive timestamps
         @self.app.route('/Timestamp', methods=['POST'])
         def receive_timestamp():
@@ -69,7 +80,7 @@ class ServiceReceiver:
 
                 # Write the timestamp to the log
                 with open(self.timestamp_log_path, "a") as log_file:
-                    log_file.write(f"{json_timestamp['timestamp']},{json_timestamp["system_name"]},{json_timestamp["status"]}\n")
+                    log_file.write(f"{json_timestamp['timestamp']},{json_timestamp["system"]},{json_timestamp["status"]}\n")
 
                 return jsonify({"status": "received"}), 200
 
@@ -95,8 +106,13 @@ class ServiceReceiver:
                 with open(self.timestamp_log_path, "a") as log_file:
                     log_file.write(f"{time.time()},Service Class,{json_configuration['configuration']}\n")
 
-                # Add the configuration to the queue
-                self.configuration_queue.put(json_configuration)
+                if ServiceClassParameters.LOCAL_PARAMETERS["phase"] == "development":
+                    if self.csv_logger is not None:
+                        self.csv_logger.log(f"{self.developed_classifiers},{time.time()},{json_configuration['configuration']}")
+                        self.developed_classifiers += 1
+                else:
+                    # Add the configuration to the queue
+                    self.configuration_queue.put(json_configuration)
 
                 return jsonify({"status": "received"}), 200
 
@@ -117,8 +133,23 @@ class ServiceReceiver:
 
                 print(f"Received label: {json_label}")
 
-                # Add the label to the queue
-                self.label_queue.put(json_label)
+                if ServiceClassParameters.LOCAL_PARAMETERS["phase"] == "production":
+
+                    self.labels_counter += 1
+
+                    if self.labels_counter == self.sessions_tracker:
+                        print (f"Production phase {self.sessions_tracker} completed. Received {self.sessions_tracker} labels.")
+
+                        self.labels_counter = 0
+
+                        if self.csv_logger is not None:
+                            # Update the CSV file
+                            self.csv_logger.log(f"{self.sessions_tracker},{time.time()},labels_received")
+                            self.sessions_tracker += 1
+
+                else:
+                    # Add the label to the queue
+                    self.label_queue.put(json_label)
 
                 return jsonify({"status": "received"}), 200
 

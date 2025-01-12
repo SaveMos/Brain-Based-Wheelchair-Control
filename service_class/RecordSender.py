@@ -22,10 +22,10 @@ class RecordSender:
         self.base_dir = basedir
 
         # Read the data from the CSV files
-        self.calendar = RecordSender.csv_reader(f"{basedir}/../data/calendar.csv")
-        self.environment = RecordSender.csv_reader(f"{basedir}/../data/environment.csv")
-        self.helmet = RecordSender.csv_reader(f"{basedir}/../data/helmet.csv")
-        self.labels = RecordSender.csv_reader(f"{basedir}/../data/labels.csv")
+        self.calendar = RecordSender.csv_reader(f"{basedir}/../data/augmented_data/augmented_calendar.csv")
+        self.environment = RecordSender.csv_reader(f"{basedir}/../data/augmented_data/augmented_environment.csv")
+        self.helmet = RecordSender.csv_reader(f"{basedir}/../data/augmented_data/augmented_helmet.csv")
+        self.labels = RecordSender.csv_reader(f"{basedir}/../data/augmented_data/augmented_labels.csv")
 
         min_len = min(len(self.calendar), len(self.environment), len(self.helmet), len(self.labels))
         # However, all the dataframes should have the same length
