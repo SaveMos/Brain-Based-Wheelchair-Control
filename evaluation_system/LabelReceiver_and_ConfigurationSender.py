@@ -106,8 +106,7 @@ class LabelReceiver_and_ConfigurationSender:
         :return: True if the message was sent successfully, False otherwise.
         """
 
-        url = f"http://{EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["ip"]}:\
-              {EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["port"]}/MessagingSystem"
+        url = f"http://{EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["ip"]}:{EvaluationSystemParameters.GLOBAL_PARAMETERS["Messaging System"]["port"]}/MessagingSystem"
 
         configuration = {
             "configuration": "restart"
@@ -147,12 +146,11 @@ class LabelReceiver_and_ConfigurationSender:
         :param status: The status of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
-        url = f"http://{EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["ip"]}:\
-              {EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["port"]}/Timestamp"
+        url = f"http://{EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["ip"]}:{EvaluationSystemParameters.GLOBAL_PARAMETERS["Service Class"]["port"]}/Timestamp"
 
         timestamp_message = {
             "timestamp": timestamp,
-            "system_name": "Evaluation System",
+            "system": "Evaluation System",
             "status": status
         }
 

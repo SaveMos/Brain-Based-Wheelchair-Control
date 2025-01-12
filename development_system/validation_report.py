@@ -4,7 +4,7 @@ class ValidationReport:
     def __init__(self):
         """Initialize the validation report."""
         self.report = []
-        self.overfitting_tolerance = None
+        self.overfitting_tolerance = 0.0
 
     def set_validation_report(self, validation_report: list):
         """Set the validation report.

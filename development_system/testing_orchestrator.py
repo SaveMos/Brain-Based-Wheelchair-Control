@@ -21,7 +21,7 @@ class TestingOrchestrator:
     def __init__(self):
         """ """
         self.json_handler = JsonValidatorReaderAndWriter()
-        self.winner_network = None
+        self.winner_network = Classifier()
         self.test_report = None
         self.test_report_model = TestReportModel()
         self.test_report_view = TestReportView()
@@ -58,7 +58,6 @@ class TestingOrchestrator:
         """
 
         self.service_flag = ConfigurationParameters.params['service_flag']
-
         if self.service_flag:
             classifier_index = random.randint(1, 5)
         else:
@@ -66,7 +65,7 @@ class TestingOrchestrator:
             data = self.json_handler.read_json_file("intermediate_results/winner_network.json")
             classifier_index = data["index"]
 
-        self.winner_network: Classifier = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
+        self.winner_network = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
 
         #self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
         #test_data = self.json_handler.read_json_file("data/test_set.json")

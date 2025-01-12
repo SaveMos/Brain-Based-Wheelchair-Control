@@ -3,10 +3,10 @@ class TestReport:
 
     def __init__(self):
         """Initialize the test report."""
-        self.generalization_tolerance = None
-        self.validation_error = None
-        self.test_error = None
-        self.difference = None
+        self.generalization_tolerance = 0.0
+        self.validation_error = 0.0
+        self.test_error = 0.0
+        self.difference = 0.0
 
     # Getter and Setter for generalization_tolerance
     def set_generalization_tolerance(self, generalization_tolerance):

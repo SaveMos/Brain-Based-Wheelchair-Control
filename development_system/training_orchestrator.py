@@ -46,7 +46,6 @@ class TrainingOrchestrator:
         else:
 
             self.service_flag = ConfigurationParameters.params['service_flag']
-
             #if testing is true, the iterations are read from the file, otherwise are randomly generated
             if self.service_flag:
                 iterations = random.randint(50, 150)

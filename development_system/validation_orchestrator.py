@@ -31,7 +31,6 @@ class ValidationOrchestrator:
                     - If in testing mode, returns `True` if all classifiers in the report are valid, otherwise `False`.
         """
         self.service_flag = ConfigurationParameters.params['service_flag']
-
         # Grid Search
         classifier_trainer = Trainer()
         if self.service_flag:

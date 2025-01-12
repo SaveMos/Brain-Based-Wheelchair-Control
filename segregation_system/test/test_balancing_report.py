@@ -19,7 +19,7 @@ class TestBalancingReport(TestCase):
 
         # Verify that the counts match the expected values
         self.assertEqual(bal.move, expected_counts["move"], "The count for 'move' is incorrect.")
-        self.assertEqual(bal.turn_left, expected_counts["turn_left"], "The count for 'turn_left' is incorrect.")
-        self.assertEqual(bal.turn_right, expected_counts["turn_right"], "The count for 'turn_right' is incorrect.")
+        self.assertEqual(bal.turn_left, expected_counts["turnLeft"], "The count for 'turn_left' is incorrect.")
+        self.assertEqual(bal.turn_right, expected_counts["turnRight"], "The count for 'turn_right' is incorrect.")
 
         print("Test passed. Balancing report matches expected values.")

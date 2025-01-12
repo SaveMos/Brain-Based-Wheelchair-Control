@@ -97,25 +97,27 @@ if __name__ == "__main__":
     from time import sleep
 
     # Create a MessageBroker instance and start the server
-    module_a = MessageBroker(host='0.0.0.0', port=5001)
-    module_a.start_server()
+    #module_a = MessageBroker(host='0.0.0.0', port=5003)
+    #module_a.start_server()
 
     # Send a message to Module B
-    response = module_a.send_message(target_ip='127.0.0.1', target_port=5002, message='{"action": "test"}')
-    print("Response from Module B:", response)
+    #response = module_a.send_message(target_ip='151.83.144.119', target_port=5001, message='{"action": "test"}')
+    #print("Response from Module B:", response)
 
     # Keep the server running
-    while True:
-        sleep(1)
+    #while True:
+        #sleep(1)
 
     ########################################################
 
     # Module B (Receiver)
 
     # Create a MessageBroker instance and start the server
-    module_b = MessageBroker(host='0.0.0.0', port=5002)
+    module_b = MessageBroker(host='0.0.0.0', port=5003)
     module_b.start_server()
 
     message = module_b.get_last_message()
     if message:
         print("Message received:", message)
+
+    sleep(10)
