@@ -120,7 +120,7 @@ class ProductionSystemIO:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-
+        print("waiting new message...")
         return self.msg_queue.get(block=True)
 
     # Testing method
@@ -134,8 +134,9 @@ class ProductionSystemIO:
         """
 
         configuration = ConfigurationParameters()
-        url = f"http://{configuration.global_netconf['Service Class']['ip']}:\
-                          {configuration.global_netconf['Service Class']['port']}/Timestamp"
+        service_ip = configuration.global_netconf['Service Class']['ip']
+        service_port = configuration.global_netconf['Service Class']['port']
+        url = f"http://{service_ip}:{service_port}/Timestamp"
 
         timestamp_message = {
             "timestamp": timestamp,
@@ -144,7 +145,14 @@ class ProductionSystemIO:
         }
 
         try:
-            response = requests.post(url, json=timestamp_message)
+
+            # Preparing the packet to send
+            packet = {
+                "port": configuration.global_netconf["Production System"]["port"],
+                "message": json.dumps(timestamp_message)
+            }
+
+            response = requests.post(url, json=packet)
             if response.status_code == 200:
                 return True
         except requests.RequestException as e:
