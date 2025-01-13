@@ -6,6 +6,7 @@ Orchestrates the preparation system workflow.
 Author: Francesco Taverna
 """
 import json
+from asyncio.subprocess import Process
 
 from preparation_system.PreparationSystemParameters import PreparationSystemParameters
 from preparation_system.RawSessionReceiver_and_PreparedSessionSender import RawSessionReceiver_and_PrepareSessionSender
@@ -61,3 +62,13 @@ class PreparationSystemOrchestrator:
                 print("INVIO A ALE")
                 self.communication.send_message(self.parameters.configuration["ip_production"],
                                                 self.parameters.configuration["port_production"], json_prepared_session)
+
+
+def run_preparation():
+    orchestrator = PreparationSystemOrchestrator()
+    orchestrator.run()
+
+
+if __name__ == "__main__":
+    preparation_system = Process(target=run_preparation, args=())
+    preparation_system.start()

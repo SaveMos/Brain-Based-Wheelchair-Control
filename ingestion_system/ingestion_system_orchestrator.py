@@ -6,6 +6,7 @@ Author: Francesco Taverna
 
 """
 import json
+from asyncio.subprocess import Process
 
 from .record_buffer_controller import RecordBufferController
 from .raw_session_preparation import RawSessionPreparation
@@ -140,5 +141,13 @@ class IngestionSystemOrchestrator:
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")
+
+def run_orchestrator():
+    orchestrator = IngestionSystemOrchestrator()
+    orchestrator.ingestion()
+
+if __name__ == "__main__":
+    ingestion_system = Process(target=run_orchestrator, args=())
+    ingestion_system.start()
 
 
