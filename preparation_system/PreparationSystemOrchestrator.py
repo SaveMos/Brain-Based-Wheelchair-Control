@@ -50,7 +50,14 @@ class PreparationSystemOrchestrator:
                 self.communication.send_message(self.parameters.configuration["ip_segregation"],
                                                 self.parameters.configuration["port_segregation"], json_prepared_session)
             else:
-                #send to production system
+                """
+                data = json.loads(json_prepared_session)
+                
+                data.pop("label", None)  
+                
+                json_prepared_session = json.dumps(data)
+                """
+
                 print("INVIO A ALE")
                 self.communication.send_message(self.parameters.configuration["ip_production"],
                                                 self.parameters.configuration["port_production"], json_prepared_session)
