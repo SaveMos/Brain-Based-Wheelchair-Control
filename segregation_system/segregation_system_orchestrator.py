@@ -118,6 +118,7 @@ class SegregationSystemOrchestrator:
 
         if coverage_report_status == "-" and balancing_report_status == "NOT OK" and number_of_session_status == "OK":
             #self.db.reset_session_database()
+            print("CHECK NOT PASSED - UMBALANCED CLASSES")
             self.message_broker.send_configuration("unbalanced_classes")
             self.reset_execution_state()
 
@@ -143,6 +144,7 @@ class SegregationSystemOrchestrator:
 
         if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and number_of_session_status == "OK":
             #self.db.reset_session_database()
+            print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
             self.message_broker.send_configuration("coverage_not_satisfied")
             self.reset_execution_state()
 
