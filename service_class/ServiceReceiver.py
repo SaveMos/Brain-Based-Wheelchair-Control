@@ -107,9 +107,10 @@ class ServiceReceiver:
                     log_file.write(f"{time.time()},Service Class,{json_configuration['configuration']}\n")
 
                 if ServiceClassParameters.LOCAL_PARAMETERS["phase"] == "development":
-                    if self.csv_logger is not None:
-                        self.csv_logger.log(f"{self.developed_classifiers},{time.time()},{json_configuration['configuration']}")
-                        self.developed_classifiers += 1
+                    if json_configuration["configuration"] == "production":
+                        if self.csv_logger is not None:
+                            self.csv_logger.log(f"{self.developed_classifiers},{time.time()},{json_configuration['configuration']}")
+                            self.developed_classifiers += 1
                 else:
                     # Add the configuration to the queue
                     self.configuration_queue.put(json_configuration)

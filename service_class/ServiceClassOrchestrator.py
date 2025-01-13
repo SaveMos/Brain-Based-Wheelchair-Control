@@ -92,9 +92,9 @@ class ServiceClassOrchestrator:
                     # Updating CSV file
                     self.csv_logger.log(f"{phase},{time.time()},{configuration['configuration']}")
 
-                    if configuration["configuration"] == "restart":
+                    if configuration["configuration"] != "production":
                         # Restart the development phase
-                        print("Restart configuration received.")
+                        print("Production configuration not received. Received " + configuration["configuration"] + " configuration.")
                         return
 
                 else:
