@@ -48,9 +48,6 @@ class ProductionOrchestrator:
             # receive classifier or prepared session
             message = self._prod_sys_io.get_last_message()
 
-            print(message['message'])
-
-
 
 
             if self._service:
