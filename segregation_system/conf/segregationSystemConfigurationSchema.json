@@ -19,18 +19,13 @@
       "type": "number",
       "minimum": 0,
       "maximum": 1
-    },
-    "number_of_training_sessions": {
-      "type": "integer",
-      "minimum": 1
     }
   },
   "required": [
     "minimum_number_of_collected_sessions",
     "tolerance_interval",
     "training_set_percentage",
-    "validation_set_percentage",
-    "number_of_training_sessions"
+    "validation_set_percentage"
   ],
   "additionalProperties": false
 }
