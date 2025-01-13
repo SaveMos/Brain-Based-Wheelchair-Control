@@ -15,8 +15,8 @@ def _get_data_file_absolute_path(relative_path: str) -> str:
 # Ingestion system
 ING_MAN_CONFIG_FILE_PATH = _get_data_file_absolute_path("Ingestion_Configuration/"
                                                         "IngestionSystemConfiguration.json")
-ING_MAN_CONFIG_SCHEMA_FILE_PATH = _get_data_file_absolute_path("Ingestion_Configuration/"
-                                                               "IngestionSystemConfigurationSchema.json")
+ING_MAN_CONFIG_SCHEMA_FILE_PATH = _get_data_file_absolute_path(
+    "Ingestion_Configuration/IngestionSystemConfigurationSchema.json")
 RECORD_SCHEMA_FILE_PATH = _get_data_file_absolute_path("recordSchema.json")
 
 # Database Manager
