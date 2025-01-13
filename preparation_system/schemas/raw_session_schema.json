@@ -9,7 +9,10 @@
       "type": "string"
     },
     "label": {
-      "type": "string"
+      "oneOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ]
     },
     "eeg_data": {
       "type": "array",

@@ -40,6 +40,7 @@ class RecordBufferController:
 
         #create Database class instance
         self.db = DatabaseManager()
+        self.db.drop_database()
         #prepare query to create records table if it doesn't exist
         query = ("CREATE TABLE IF NOT EXISTS records \
                     (uuid TEXT PRIMARY KEY, \
