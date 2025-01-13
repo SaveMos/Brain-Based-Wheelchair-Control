@@ -12,7 +12,7 @@ class TestLearningSetSplitter(unittest.TestCase):
         """
         Set up the test case with a configuration and mock data.
         """
-        SegregationSystemConfiguration.configure_parameters("../conf/segregation_system_configuration.json")
+        SegregationSystemConfiguration.configure_parameters("conf/segregation_system_configuration.json" , "conf/global_netconf.json")
 
 
         # Initialize the LearningSetSplitter with the mock configuration
@@ -36,9 +36,9 @@ class TestLearningSetSplitter(unittest.TestCase):
 
         # Check the number of sessions in each set
         total_sessions = len(self.prepared_sessions)
-        expected_training_count = int(total_sessions * 0.7)  # 70% of 100
-        expected_validation_count = int(total_sessions * 0.2)  # 20% of 100
-        expected_test_count = int(total_sessions * 0.1)  # 10% of 100
+        expected_training_count = int(total_sessions * 0.7)  # 70%
+        expected_validation_count = int(total_sessions * 0.2)  # 20%
+        expected_test_count = int(total_sessions * 0.1)  # 10%
 
         # Assert that the sets have the correct number of sessions
         self.assertEqual(len(training_set), expected_training_count,

@@ -27,11 +27,12 @@ class ServiceClassOrchestrator:
         # Load the parameters of the Service Class
         ServiceClassParameters.loadParameters(self.basedir)
 
-        self.serviceReceiver = ServiceReceiver(basedir=self.basedir)
+        self.csv_logger = CSVLogger(self.basedir, ServiceClassParameters.LOCAL_PARAMETERS["phase"])
+
+        self.serviceReceiver = ServiceReceiver(basedir=self.basedir, csv_logger=self.csv_logger)
 
         self.recordSender = RecordSender(basedir=self.basedir)
 
-        self.csv_logger = CSVLogger(self.basedir, ServiceClassParameters.LOCAL_PARAMETERS["phase"])
 
 
     def start(self):
@@ -63,6 +64,10 @@ class ServiceClassOrchestrator:
             }
 
             for phase, include_labels in phases_and_labels.items():
+
+                if ServiceClassParameters.LOCAL_PARAMETERS[f"{phase}_sessions"] == 0:
+                    print(f"Skipping {phase} phase.")
+                    continue
 
                 print("Starting " + phase + " phase.")
 
@@ -114,6 +119,8 @@ class ServiceClassOrchestrator:
 
             for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"]+1):
 
+                print(f"Developing classifier {i}.")
+
                 # Preparing the bucket for the development
                 bucket = self.recordSender.prepare_bucket(ServiceClassParameters.LOCAL_PARAMETERS["development_sessions"], include_labels=True)
 
@@ -126,17 +133,6 @@ class ServiceClassOrchestrator:
                 # Updating CSV file
                 self.csv_logger.log(f"{i},{time.time()},records_sent")
 
-                # Waiting for the production configuration message
-                configuration = self.serviceReceiver.get_configuration()
-
-                # Updating CSV file
-                self.csv_logger.log(f"{i},{time.time()},{configuration['configuration']}")
-
-                if configuration["configuration"] == "restart":
-                    # Restart the development phase
-                    print("Restart configuration received.")
-                    return
-
         elif ServiceClassParameters.LOCAL_PARAMETERS["phase"] == "production":
             print("Production phase will be tested, by considering " + str(ServiceClassParameters.LOCAL_PARAMETERS["production_sessions"]) + " sessions.")
 
@@ -144,6 +140,8 @@ class ServiceClassOrchestrator:
             self.csv_logger.write_header("sessions,timestamp,status")
 
             for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["production_sessions"]+1):
+
+                print(f"Starting production phase {i}.")
 
                 # Preparing the bucket for the production
                 bucket = self.recordSender.prepare_bucket(i, include_labels=False)
@@ -156,16 +154,6 @@ class ServiceClassOrchestrator:
 
                 # Updating CSV file
                 self.csv_logger.log(f"{i},{time.time()},records_sent")
-
-                print(f"Waiting for {i} labels.")
-
-                for _ in range(i):
-                    label = self.serviceReceiver.get_label()
-
-                # Updating CSV file
-                self.csv_logger.log(f"{i},{time.time()},labels_received")
-
-                print(f"Production phase {i} completed.")
 
             print("All production phases completed.")
 
@@ -183,3 +171,6 @@ if __name__ == "__main__":
 
     # Start the Service Class Orchestrator
     service_class_orchestrator.start()
+
+    # Wait user input to stop the program
+    input("Press Enter to stop the program...")

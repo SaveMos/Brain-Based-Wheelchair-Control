@@ -15,7 +15,6 @@ class TestJsonHandler(unittest.TestCase):
         Setup for each test case. Creates an instance of JsonHandler and
         prepares necessary test files.
         """
-        self.handler = SegregationSystemJsonHandler()
         self.test_file = "test.json"
         self.test_schema_file = "test_schema.json"
         self.sample_data = {"name": "Mario", "age": 30, "hobby": ["sport", "cooking"]}
@@ -52,7 +51,7 @@ class TestJsonHandler(unittest.TestCase):
         """
         Test the write_json_file function to ensure data is written correctly to a file.
         """
-        result = self.handler.write_json_file(self.sample_data, self.test_file)
+        result = SegregationSystemJsonHandler.write_json_file(self.sample_data, self.test_file)
         self.assertTrue(result)
 
         # Verify file content
@@ -64,34 +63,34 @@ class TestJsonHandler(unittest.TestCase):
         """
         Test the read_json_file function to ensure it reads data correctly from a file.
         """
-        self.handler.write_json_file(self.sample_data, self.test_file)
-        content = self.handler.read_json_file(self.test_file)
+        SegregationSystemJsonHandler.write_json_file(self.sample_data, self.test_file)
+        content = SegregationSystemJsonHandler.read_json_file(self.test_file)
         self.assertEqual(content, self.sample_data)
 
     def test_write_field_to_json(self):
         """
         Test the write_field_to_json function to ensure it correctly updates a field in the JSON file.
         """
-        self.handler.write_json_file(self.sample_data, self.test_file)
+        SegregationSystemJsonHandler.write_json_file(self.sample_data, self.test_file)
         updated_value = "traveling"
         field_name = "hobby"
 
         # Update the field
-        result = self.handler.write_field_to_json(self.test_file, field_name, updated_value)
+        result = SegregationSystemJsonHandler.write_field_to_json(self.test_file, field_name, updated_value)
         self.assertTrue(result)
 
         # Verify the field was updated
-        content = self.handler.read_json_file(self.test_file)
+        content = SegregationSystemJsonHandler.read_json_file(self.test_file)
         self.assertEqual(content[field_name], updated_value)
 
     def test_read_field_from_json(self):
         """
         Test the read_field_from_json function to ensure it correctly reads a specific field.
         """
-        self.handler.write_json_file(self.sample_data, self.test_file)
+        SegregationSystemJsonHandler.write_json_file(self.sample_data, self.test_file)
         field_name = "name"
 
-        value = self.handler.read_field_from_json(self.test_file, field_name)
+        value = SegregationSystemJsonHandler.read_field_from_json(self.test_file, field_name)
         self.assertEqual(value, self.sample_data[field_name])
 
     def test_get_system_address(self):
@@ -104,14 +103,14 @@ class TestJsonHandler(unittest.TestCase):
         }
 
         # Create a sample JSON with system data
-        self.handler.write_json_file(system_data, self.test_file)
+        SegregationSystemJsonHandler.write_json_file(system_data, self.test_file)
 
         # Test fetching data for an existing system
-        result = self.handler.get_system_address(self.test_file, "system1")
+        result = SegregationSystemJsonHandler.get_system_address(self.test_file, "system1")
         self.assertEqual(result, system_data["system1"])
 
         # Test fetching data for a non-existent system
-        result = self.handler.get_system_address(self.test_file, "system3")
+        result = SegregationSystemJsonHandler.get_system_address(self.test_file, "system3")
         self.assertIsNone(result)
 
     def test_validate_json(self):
@@ -122,11 +121,11 @@ class TestJsonHandler(unittest.TestCase):
         invalid_data = {"name": "Mario"}
 
         # Validate valid data
-        result = self.handler.validate_json(valid_data, self.test_schema_file)
+        result = SegregationSystemJsonHandler.validate_json(valid_data, self.test_schema_file)
         self.assertTrue(result)
 
         # Validate invalid data
-        result = self.handler.validate_json(invalid_data, self.test_schema_file)
+        result = SegregationSystemJsonHandler.validate_json(invalid_data, self.test_schema_file)
         self.assertFalse(result)
 
     def test_validate_json_from_path(self):
@@ -137,15 +136,15 @@ class TestJsonHandler(unittest.TestCase):
         invalid_data = {"name": "Mario"}
 
         # Write valid and invalid data to files
-        self.handler.write_json_file(valid_data, "valid_data.json")
-        self.handler.write_json_file(invalid_data, "invalid_data.json")
+        SegregationSystemJsonHandler.write_json_file(valid_data, "valid_data.json")
+        SegregationSystemJsonHandler.write_json_file(invalid_data, "invalid_data.json")
 
-        # Validate valid data
-        result = self.handler.validate_json_from_path("valid_data.json", self.test_schema_file)
+        # Validate valid data.
+        result = SegregationSystemJsonHandler.validate_json_from_path("valid_data.json", self.test_schema_file)
         self.assertTrue(result)
 
-        # Validate invalid data
-        result = self.handler.validate_json_from_path("invalid_data.json", self.test_schema_file)
+        # Validate invalid data.
+        result = SegregationSystemJsonHandler.validate_json_from_path("invalid_data.json", self.test_schema_file)
         self.assertFalse(result)
 
         # Cleanup the test files created
@@ -155,14 +154,14 @@ class TestJsonHandler(unittest.TestCase):
             os.remove("invalid_data.json")
 
     def test_dict_to_string(self):
-        dict_str = self.handler.dict_to_string(self.sample_data)
+        dict_str = SegregationSystemJsonHandler.dict_to_string(self.sample_data)
 
-        dict_from_str = self.handler.string_to_dict(dict_str)
+        dict_from_str = SegregationSystemJsonHandler.string_to_dict(dict_str)
 
         self.assertEqual(dict_from_str, self.sample_data)
 
     def test_string_to_dict(self):
-        dict_from_str = self.handler.string_to_dict('''{
+        dict_from_str = SegregationSystemJsonHandler.string_to_dict('''{
         "name": "Mario",
         "age": 30,
         "hobby": [

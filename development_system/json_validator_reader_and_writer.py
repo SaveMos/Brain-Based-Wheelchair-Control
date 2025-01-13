@@ -3,6 +3,7 @@ from typing import Any
 
 from jsonschema import validate, ValidationError, SchemaError
 
+
 class JsonValidatorReaderAndWriter:
     """
         A class to read and save file json
@@ -15,7 +16,8 @@ class JsonValidatorReaderAndWriter:
 
         :param json_file: Path to the JSON file to validate.
         :param schema_file: Path to the JSON schema file.
-        :return: True if the JSON is valid, False otherwise.
+        :return: True if the JSON is valid.
+        :raises ValueError: If the JSON is not valid.
         """
         try:
             # Load JSON data
@@ -30,13 +32,14 @@ class JsonValidatorReaderAndWriter:
             validate(instance=json_data, schema=json_schema)
 
             return True
+        except ValidationError as e:
+            raise ValueError(f"JSON validation failed: {e.message}")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON format: {e.msg}")
+        except FileNotFoundError as e:
+            raise ValueError(f"File not found: {e.filename}")
 
-        except ValidationError as ex:
-            print(f"Validation Error: {ex.message}")
-        except SchemaError as ex:
-            print(f"Schema Error: {ex.message}")
 
-        return False
 
     @staticmethod
     def read_configuration_parameters(filepath):

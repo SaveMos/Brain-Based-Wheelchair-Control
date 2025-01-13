@@ -1,5 +1,6 @@
 import json
 import queue
+import time
 import threading
 from typing import Optional, Dict
 
@@ -60,7 +61,7 @@ class SessionReceiverAndConfigurationSender:
         thread = threading.Thread(target=self.app.run, kwargs={'host': self.host, 'port': self.port}, daemon=True)
         thread.start()
 
-    def send_message(self, target_ip: str, target_port: int, message: str) -> Optional[Dict]:
+    def send_message(self, target_ip: str, target_port: int, message: str , dest: str = "send") -> Optional[Dict]:
         """
         Send a message to a target module.
 
@@ -69,7 +70,7 @@ class SessionReceiverAndConfigurationSender:
         :param message: The message to send (typically a JSON string).
         :return: The response from the target, if any.
         """
-        url = f"http://{target_ip}:{target_port}/send"
+        url = f"http://{target_ip}:{target_port}/{dest}"
         payload = {
             "port": self.port,
             "message": message
@@ -90,7 +91,7 @@ class SessionReceiverAndConfigurationSender:
         """
         return self.queue.get(block=True)
 
-    def send_configuration(self) -> bool:
+    def send_configuration(self , msg : str):
         """
         Send the configuration "restart" message to the Messaging System.
 
@@ -100,29 +101,28 @@ class SessionReceiverAndConfigurationSender:
         network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Messaging System"]
 
         configuration = {
-            "configuration": "restart"
+            "configuration": msg
         }
 
-        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration))
+        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(configuration) , "MessagingSystem")
 
     # Testing method
-    def send_timestamp(self, timestamp: float, status: str) -> bool:
+    def send_timestamp(self, status: str = ""):
         """
         Send the timestamp to the Service Class.
 
-        :param timestamp: The timestamp to send.
         :param status: The status of the timestamp
         :return: True if the timestamp was sent successfully, False otherwise.
         """
         network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Service Class"]
 
         timestamp_message = {
-            "timestamp": timestamp,
-            "system_name": "Evaluation System",
+            "timestamp": time.time(),
+            "system": "Segregation System",
             "status": status
         }
 
-        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(timestamp_message))
+        self.send_message(network_info.get('ip') , network_info.get('port') , json.dumps(timestamp_message) , "Timestamp")
 
 
 if __name__ == "__main__":

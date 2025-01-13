@@ -1,7 +1,7 @@
 """
     Class for managing the sending and receiving of messages
 """
-
+import queue
 import threading
 import requests
 import json
@@ -27,7 +27,7 @@ class ProductionSystemIO:
         self.app = Flask(__name__)
         self.host = host
         self.port = port
-        self.last_message = None
+        self.msg_queue = queue.Queue()
 
         # Lock and condition for blocking behavior
         self.message_condition = threading.Condition()
@@ -35,20 +35,20 @@ class ProductionSystemIO:
         # Define a route to receive messages
         @self.app.route('/send', methods=['POST'])
         def receive_message():
+            # Get the sender's IP
+
             data = request.json
             sender_ip = request.remote_addr
             sender_port = data.get('port')
-            message = data.get('message')
+            message_content = data.get('message')
 
+            message = {
+                'ip': sender_ip,
+                'port': sender_port,
+                'message': message_content
+            }
 
-            with self.message_condition:
-                self.last_message = {
-                    'ip': sender_ip,
-                    'port': sender_port,
-                    'message': message
-                }
-                # Notify any threads waiting for a message
-                self.message_condition.notify_all()
+            self.msg_queue.put(message)
 
             return jsonify({"status": "received"}), 200
 
@@ -71,10 +71,10 @@ class ProductionSystemIO:
         message = configuration.start_config()
         msg_sys_ip = configuration.global_netconf['Messaging System']['ip']
         msg_sys_port = configuration.global_netconf['Messaging System']['port']
-        url = f"http://{msg_sys_ip}:{msg_sys_port}/send"
+        url = f"http://{msg_sys_ip}:{msg_sys_port}/MessagingSystem"
         payload = {
             "port": self.port,
-            "message": message
+            "message": json.dumps(message)
         }
         try:
             response = requests.post(url, json=payload)
@@ -84,7 +84,7 @@ class ProductionSystemIO:
             print(f"Error sending message: {e}")
         return None
 
-    def send_label(self, target_ip: str, target_port: int, label: [Dict]) -> Optional[Dict]:
+    def send_label(self, target_ip: str, target_port: int, label: [Dict], rule: str) -> Optional[Dict]:
         """
         Send a message to a target module.
 
@@ -98,7 +98,10 @@ class ProductionSystemIO:
         label_dict = label.to_dictionary()
 
         label_json = json.dumps(label_dict)
-        url = f"http://{target_ip}:{target_port}/send"
+        if rule == "send":
+            url = f"http://{target_ip}:{target_port}/send"
+        elif rule == "client":
+            url = f"http://{target_ip}:{target_port}/ClientSide"
         payload = {
             "port": self.port,
             "message": label_json
@@ -117,17 +120,8 @@ class ProductionSystemIO:
 
         :return: A dictionary containing the sender's IP, port, and the message content.
         """
-        with self.message_condition:
-            # Wait until a message is received
-            while self.last_message is None:
-                self.message_condition.wait()
-
-            # Retrieve and clear the last message
-            message = self.last_message
-            self.last_message = None
-
-
-            return message
+        print("waiting new message...")
+        return self.msg_queue.get(block=True)
 
     # Testing method
     def send_timestamp(self, timestamp: float, status: str) -> bool:
@@ -140,17 +134,25 @@ class ProductionSystemIO:
         """
 
         configuration = ConfigurationParameters()
-        url = f"http://{configuration.global_netconf['Service Class']['ip']}:\
-                          {configuration.global_netconf['Service Class']['port']}/Timestamp"
+        service_ip = configuration.global_netconf['Service Class']['ip']
+        service_port = configuration.global_netconf['Service Class']['port']
+        url = f"http://{service_ip}:{service_port}/Timestamp"
 
         timestamp_message = {
             "timestamp": timestamp,
-            "system_name": "Evaluation System",
+            "system": "Production System",
             "status": status
         }
 
         try:
-            response = requests.post(url, json=timestamp_message)
+
+            # Preparing the packet to send
+            packet = {
+                "port": configuration.global_netconf["Production System"]["port"],
+                "message": json.dumps(timestamp_message)
+            }
+
+            response = requests.post(url, json=packet)
             if response.status_code == 200:
                 return True
         except requests.RequestException as e:

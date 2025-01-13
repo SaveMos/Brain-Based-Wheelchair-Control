@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
 from production_system.label import Label
-from production_system.prepared_session import PreparedSession
+
 
 
 
@@ -19,46 +19,54 @@ class Classification:
 
 
 
-    def classify(self, ps_json):
+    def classify(self, prepared_session, classifier_deployed):
         """
         Method that execute classify operation based on received prepared_session and classifier
         Args:
             prepared_session: prepared session that must be classified
+            classifier_deployed: flag that
 
         Returns:
             label: aN object of label class representing the label obtained from classify operation
 
         """
-        ps_features = [ps_json['psd_alpha_band'], ps_json['psd_beta_band'], ps_json['psd_theta_band'],
-                       ps_json['psd_delta_band'], ps_json['activity'], ps_json['environment']]
+
+        if classifier_deployed is False:
+            return None
+
         # convert prepared session json in python object
-        prepared_session = PreparedSession(ps_json['uuid'], ps_features)
         if self._classifier is None:
             self._classifier = joblib.load("model/classifier.sav")
 
+
+        environment_mapping = {"slippery":0, "plain":1, "slope":2, "house":3, "track":4}
+        activity_mapping = {"shopping":0, "sport":1, "cooking":2, "relax":3, "gaming":4}
+
         # convert features in Data Frame
         features_struct = {
-            'PSD_alpha_band': [prepared_session.features[0]],
-            'PSD_beta_band': [prepared_session.features[1]],
-            'PSD_theta_band': [prepared_session.features[2]],
-            'PSD_delta_band': [prepared_session.features[3]]
+            'psd_alpha_band': prepared_session['psd_alpha_band'],
+            'psd_beta_band': prepared_session['psd_beta_band'],
+            'psd_theta_band': prepared_session['psd_theta_band'],
+            'psd_delta_band': prepared_session['psd_delta_band'],
+            'activity': activity_mapping.get(prepared_session['activity']),
+            'environment': environment_mapping.get(prepared_session['environment'])
         }
 
-        features_DF = pd.DataFrame(features_struct)
+        features_DF = pd.DataFrame([features_struct])
 
-        movement = self._classifier.predict(features_DF)
-        label = Label(prepared_session.uuid, movement)
+        label_identified = self._classifier.predict(features_DF)
+        print(label_identified)
+        label_mapping = {
+            0: "turnRight",
+            1: "turnLeft",
+            2: "move"
+        }
+
+        # Set values for the label json
+        movement = label_mapping.get(int(round(float(label_identified.flatten()[0]))), None)
+        label = Label(prepared_session['uuid'], movement)
 
 
         return label
 
-if __name__ == "__main__":
-    data = {"uuid": "001", "PSD_alpha_band": 0.8, "PSD_beta_band": 0.7, "PSD_theta_band": 0.9, "PSD_delta_band": 0.6,
-            "activity": 4, "environment": 2}
-    features = [data["PSD_alpha_band"], data["PSD_beta_band"], data["PSD_theta_band"], data["PSD_delta_band"]]
-    ps = PreparedSession(data['uuid'], features)
 
-    instance = Classification()
-    result = instance.classify(ps)
-    print(result.uuid)
-    print(result.movements)

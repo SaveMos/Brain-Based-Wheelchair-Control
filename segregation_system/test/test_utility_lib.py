@@ -1,8 +1,9 @@
-import uuid
 import random
+import uuid
 from typing import List
 
 from segregation_system.prepared_session import PreparedSession
+
 
 def generate_random_prepared_sessions_object_list(n: int) -> List[PreparedSession]:
     """
@@ -32,7 +33,7 @@ def generate_random_prepared_sessions_object_list(n: int) -> List[PreparedSessio
                 random.choice(["gaming", "shopping", "sport", "relax"]),  # Random activity.
                 random.choice(["plain", "slippery", "slope", "house", "track"]),  # Random environment.
             ],
-            label=random.choice(["move", "turn_left", "turn_right"])  # Random label.
+            label=random.choice(["move", "turnLeft", "turnRight"])  # Random label.
         )
         for _ in range(n)
     ]
@@ -58,3 +59,8 @@ def generate_random_prepared_session_object() -> PreparedSession:
     # Use the helper function to generate a list with one PreparedSession.
     session = generate_random_prepared_sessions_object_list(1)
     return session[0]  # Return the first (and only) element in the list.
+
+
+# Example to test the class
+if __name__ == "__main__":
+    sess = generate_random_prepared_session_object()

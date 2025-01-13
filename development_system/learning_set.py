@@ -18,10 +18,7 @@ class LearningSet:
 
     """
 
-    def __init__(self,
-        training_set: List[PreparedSession],
-        validation_set: List[PreparedSession],
-        test_set: List[PreparedSession]):
+    def __init__(self, training_set: List[PreparedSession], validation_set: List[PreparedSession], test_set: List[PreparedSession]):
         """
         Initializes a new instance of the `LearningSet` class.
 
@@ -185,33 +182,6 @@ class LearningSet:
         # Crea e restituisci l'oggetto LearningSet
         return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
 
-    """
-    @staticmethod
-    def save_learning_set(learning_set):
-        #
-        #Saves the training, validation, and test sets of a LearningSet instance to JSON files.
-
-        #Args:
-            #learning_set (LearningSet): An instance containing training, validation, and test sets.
-
-        #Returns:
-            #None
-        #
-        # Converte i dati utilizzando il metodo to_dictionary
-        training_data = [session.to_dictionary() for session in learning_set.training_set]
-        validation_data = [session.to_dictionary() for session in learning_set.validation_set]
-        test_data = [session.to_dictionary() for session in learning_set.test_set]
-
-        # Salva i dati nei rispettivi file JSON
-        with open('data/training_set.json', 'w') as f:
-            json.dump({"training_set": training_data}, f, indent=4)
-
-        with open('data/validation_set.json', 'w') as f:
-            json.dump({"validation_set": validation_data}, f, indent=4)
-
-        with open('data/test_set.json', 'w') as f:
-            json.dump({"test_set": test_data}, f, indent=4)
-    """
 
     @staticmethod
     def save_learning_set(learning_set):

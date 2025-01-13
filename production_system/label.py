@@ -7,7 +7,7 @@ class Label:
     Data Object class to represent a Label created in Production System.
     """
 
-    def __init__(self, uuid: str, movements:int):
+    def __init__(self, uuid: str, movements: str):
         """
         Initialize the Label with uuid and movements fields.
 
@@ -36,7 +36,7 @@ class Label:
         self._uuid = value
 
     @property
-    def movements(self) -> int:
+    def movements(self) -> str:
         """
         Get the movements label.
 
@@ -46,7 +46,7 @@ class Label:
         return self._movements
 
     @movements.setter
-    def movements(self, value: int):
+    def movements(self, value: str):
         """
         Set the movements label.
 
@@ -54,6 +54,20 @@ class Label:
             value (int): The new movements label.
         """
         self._movements = value
+
+    def convert_movement(self):
+        """
+        Mapping int value of movement in string
+
+        Returns: string value
+
+        """
+        if self._movements == 0:
+            return "turnRight"
+        elif self._movements == 1:
+            return "turnLeft"
+        else:
+            return "move"
 
     def to_dictionary(self) -> dict:
         """
@@ -64,6 +78,7 @@ class Label:
             dict: dictionary that content label field
 
         """
+        #movement = self.convert_movement()
         result = {
             "uuid": self._uuid,
             "movements": self._movements

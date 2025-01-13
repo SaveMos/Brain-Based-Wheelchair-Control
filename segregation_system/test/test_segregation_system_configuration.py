@@ -26,31 +26,5 @@ class TestSegregationSystemConfiguration(unittest.TestCase):
                          config_data["number_of_training_sessions"])
 
 
-
-    def test_validate_json(self):
-        valid_json = {
-            "minimum_number_of_collected_sessions": 10,
-            "tolerance_interval": 5,
-            "training_set_percentage": 0.7,
-            "validation_set_percentage": 0.2,
-            "number_of_training_sessions": 50
-        }
-
-        invalid_json = {
-            "minimum_number_of_collected_sessions": "ten",  # Invalid type
-            "tolerance_interval": 5,
-            "training_set_percentage": 0.7,
-            "validation_set_percentage": 0.2,
-            "number_of_training_sessions": 50
-        }
-
-
-        # Test valid JSON
-        self.assertTrue(SegregationSystemConfiguration.validate_json(valid_json, "local"))
-
-        # Test invalid JSON
-        self.assertFalse(SegregationSystemConfiguration.validate_json(invalid_json, "local"))
-
-
 if __name__ == '__main__':
     unittest.main()

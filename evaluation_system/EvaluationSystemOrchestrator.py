@@ -50,7 +50,7 @@ class EvaluationSystemOrchestrator:
                 data = json.load(f)
 
                 # Validating the JSON content
-                with open(f"{self.basedir}/classifier_evaluation_schema.json", "r") as schema_file:
+                with open(f"{self.basedir}/schemas/classifier_evaluation_schema.json", "r") as schema_file:
                     schema = json.load(schema_file)
                     jsonschema.validate(data, schema)
 
@@ -113,7 +113,7 @@ class EvaluationSystemOrchestrator:
                 print("Testing mode, classifier evaluation automatically generated.")
 
                 # Testing mode, evaluation automatically generated
-                random_evaluation = int(random.random() <= 0.3) # 30% chance of being good
+                random_evaluation = int(random.random() <= 0.14) # 14% chance of being good
                 if random_evaluation == 1:
                     # Good classifier
                     print("Good classifier.")

@@ -7,7 +7,7 @@
       },
       "label": {
         "type": "string",
-        "enum" : ["move", "turn left", "turn right"]
+        "enum" : ["move", "turnLeft", "turnRight"]
       },
       "psd_alpha_band": {
         "type": "number"
