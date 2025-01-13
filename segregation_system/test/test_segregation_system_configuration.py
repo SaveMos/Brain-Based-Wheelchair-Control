@@ -22,8 +22,6 @@ class TestSegregationSystemConfiguration(unittest.TestCase):
                          config_data["training_set_percentage"])
         self.assertEqual(SegregationSystemConfiguration.LOCAL_PARAMETERS["validation_set_percentage"],
                          config_data["validation_set_percentage"])
-        self.assertEqual(SegregationSystemConfiguration.LOCAL_PARAMETERS["number_of_training_sessions"],
-                         config_data["number_of_training_sessions"])
 
 
 if __name__ == '__main__':

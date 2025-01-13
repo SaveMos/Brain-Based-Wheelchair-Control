@@ -26,10 +26,10 @@ def generate_random_prepared_sessions_object_list(n: int) -> List[PreparedSessio
         PreparedSession(
             uuid=str(uuid.uuid4()),  # Generate a random UUID for the session.
             features=[
-                random.uniform(0.1, 1.0),  # Random feature value for the alpha band.
-                random.uniform(0.1, 1.0),  # Random feature value for the beta band.
-                random.uniform(0.1, 1.0),  # Random feature value for the theta band.
-                random.uniform(0.1, 1.0),  # Random feature value for the delta band.
+                random.uniform(-27, 28),  # Random feature value for the alpha band.
+                random.uniform(-27, 28),  # Random feature value for the beta band.
+                random.uniform(-27, 28),  # Random feature value for the theta band.
+                random.uniform(-27, 28),  # Random feature value for the delta band.
                 random.choice(["gaming", "shopping", "sport", "relax"]),  # Random activity.
                 random.choice(["plain", "slippery", "slope", "house", "track"]),  # Random environment.
             ],

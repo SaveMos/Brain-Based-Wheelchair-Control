@@ -1,4 +1,4 @@
-
+from random import randrange
 
 from segregation_system.SegregationSystemJsonHandler import SegregationSystemJsonHandler
 from segregation_system.balancing_report_model import BalancingReportModel
@@ -33,9 +33,10 @@ class SegregationSystemOrchestrator:
         Example:
             orchestrator = SegregationSystemOrchestrator(testing=True)
         """
-        self.testing = testing  # Set the testing attribute.
+        self.set_testing(testing)  # Set the testing attribute.
         self.db = SegregationSystemDatabaseController()
         self.message_broker = SessionReceiverAndConfigurationSender()
+        self.message_broker.start_server()
 
     def run(self):
         """
@@ -46,26 +47,34 @@ class SegregationSystemOrchestrator:
         """
         SegregationSystemConfiguration.configure_parameters()
         execution_state_file_path = "user/user_responses.json"
-        number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "number_of_collected_sessions")
-        balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "balancing_report")
-        coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path, "coverage_report")
+
+        number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                     "number_of_collected_sessions")
+        balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                    "balancing_report")
+        coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                   "coverage_report")
 
         if (number_of_session_status == "-" and balancing_report_status == "-") or self.get_testing():
             # Create a Configuration object, to load the system configuration.
 
             # Configure the system parameters from the configuration file.
-            self.message_broker.start_server()
-            print("Waiting for a message")
+            print("Waiting for a message...")
 
-            while self.db.get_number_of_prepared_session_stored() < SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']:
+            session_counter = 0
+            prepared_session_stored_counter = 0
+            min_num = SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']
+
+            while True:
                 # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
                 message = self.message_broker.get_last_message()
                 self.message_broker.send_timestamp("start")
+                session_counter += 1
 
-                print("Prepared Session received!")
+                print("Prepared Session RECEIVED! [", session_counter, "].")
                 message = SegregationSystemJsonHandler.string_to_dict(message['message'])
 
-                if SegregationSystemJsonHandler.validate_json( message , "schemas/preparedSessionSchema.json"):
+                if SegregationSystemJsonHandler.validate_json(message, "schemas/preparedSessionSchema.json"):
                     print("Prepared Session Valid!")
                     try:
                         # Validation of the prepared session.
@@ -74,6 +83,12 @@ class SegregationSystemOrchestrator:
 
                         # Store the new prepared session in the database.
                         self.db.store_prepared_session(message)
+                        prepared_session_stored_counter += 1
+                        print("Prepared Session STORED! [", prepared_session_stored_counter, "].")
+
+                        if prepared_session_stored_counter % min_num == 0:
+                            break
+
                     except Exception:
                         print("Prepared Session NOT Valid!")
 
@@ -81,37 +96,75 @@ class SegregationSystemOrchestrator:
 
             print("Enough prepared session stored!")
             SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
-                                                     "OK")  # Register this, so we do not have to make the check again.
+                                                             "OK")  # Register this, so we do not have to make the check again.
 
             # Get all the prepared sessions in the database.
             all_prepared_sessions = self.db.get_all_prepared_sessions()
 
             print("Generating the balancing report...")
-            #report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
-            #report_model.generateBalancingReport()  # Generate the Balancing Report.
+
+            report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
+            report_model.generateBalancingReport()  # Generate the Balancing Report.
+
             print("Balancing report generated!")
 
-        if coverage_report_status == "-" and balancing_report_status == "NOT OK" and number_of_session_status == "OK":
-            self.db.reset_session_database()
-            self.message_broker.send_configuration("unbalanced_classes")
-            self.reset_execution_state()
+            if self.get_testing():
+                # Randomly assign an outcome, with 20% probability of it being True
+                if randrange(5) == 0:
+                    SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report",
+                                                                     "OK")
+                    print("CHECK PASSED - UNIFORM INPUT COVERAGE")
+                else:
+                    SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report",
+                                                                     "NOT OK")
+                    print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
+                    self.message_broker.send_configuration("coverage_not_satisfied")
+                    self.reset_execution_state()
+                    return
 
-        if (coverage_report_status == "-" and balancing_report_status == "OK") or self.get_testing():
+        if not self.get_testing():
+            if  SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"coverage_report") == "-" and \
+                    SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"balancing_report") == "NOT OK" and \
+                    SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"number_of_collected_sessions") == "OK":
+                #self.db.reset_session_database()
+                #print("CHECK NOT PASSED - UMBALANCED CLASSES")
+                self.message_broker.send_configuration("unbalanced_classes")
+                self.reset_execution_state()
+
+        if (coverage_report_status == "-" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # Get all the prepared sessions in the database.
             all_prepared_sessions = self.db.get_all_prepared_sessions()
 
             print("Generating the input coverage report...")
-            # Create the BalancingReportModel Object.
-            #report_model = CoverageReportModel(all_prepared_sessions)
-            # Generate the Balancing Report.
-            #report_model.generateCoverageReport()
+
+            report_model = CoverageReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
+            report_model.generateCoverageReport()  # Generate the Balancing Report.
+
             print("Input coverage report generated!")
 
+            if self.get_testing():
+                # Randomly assign an outcome, with 33% probability of it being True
+                if randrange(3) == 0:
+                    SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "coverage_report",
+                                                                     "OK")  # Register this, so we do not have to make the check again.
+                    print("CHECK PASSED - UNIFORM INPUT COVERAGE")
+                else:
+                    SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "coverage_report","NOT OK")
+                    print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
+                    self.message_broker.send_configuration("coverage_not_satisfied")
+                    self.reset_execution_state()
+                    return
 
-        if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and number_of_session_status == "OK":
-            self.db.reset_session_database()
-            self.message_broker.send_configuration("coverage_not_satisfied")
-            self.reset_execution_state()
+
+        if not self.get_testing():
+            if SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"coverage_report") == "NOT OK" and \
+                    SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"balancing_report") == "OK" and \
+                    SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"number_of_collected_sessions") == "OK":
+                #self.db.reset_session_database()
+                #print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
+                self.message_broker.send_configuration("coverage_not_satisfied")
+                self.reset_execution_state()
+
 
         if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # The final phase.
@@ -123,14 +176,13 @@ class SegregationSystemOrchestrator:
             report_model = LearningSetSplitter()
             learning_sets = report_model.generateLearningSets(all_prepared_sessions)
 
-
             network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Development System"]
 
             # Send the learning sets to the Development System.
-            self.message_broker.send_message(network_info['ip'], network_info['port'], SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
+            self.message_broker.send_message(network_info['ip'], network_info['port'],
+                                             SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
             self.db.reset_session_database()
             self.reset_execution_state()
-
 
     # Getter for testing
     def get_testing(self) -> bool:
@@ -162,7 +214,7 @@ class SegregationSystemOrchestrator:
         Reset the execution state for a fresh-new stop&go interaction.
         """
         execution_state_file_path = "user/user_responses.json"
-        SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions" , "-")
+        SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions", "-")
         SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report", "-")
         SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "coverage_report", "-")
 
@@ -170,10 +222,14 @@ class SegregationSystemOrchestrator:
 # Example to test the class
 if __name__ == "__main__":
     SegregationSystemConfiguration.configure_parameters()
+
     orchestrator = SegregationSystemOrchestrator(True)
 
-    orchestrator.reset_execution_state()
-    db = SegregationSystemDatabaseController()
-    db.reset_session_database()
-
-    orchestrator.run()
+    if orchestrator.testing:
+        orchestrator.reset_execution_state()
+        db = SegregationSystemDatabaseController()
+        db.reset_session_database()
+        while orchestrator.testing:
+            orchestrator.run()
+    else:
+        orchestrator.run()

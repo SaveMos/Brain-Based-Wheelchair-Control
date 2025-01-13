@@ -1,8 +1,3 @@
-"""
-Author: Saverio Mosti
-Creation Date: 2024-12-06
-"""
-
 import os
 from typing import List
 
@@ -10,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from segregation_system.prepared_session import PreparedSession
-
 
 class CoverageReportModel:
     """
@@ -21,23 +15,23 @@ class CoverageReportModel:
     Creation Date: 2024-12-06
     """
 
-    def __init__(self, prepared_sessions : List[PreparedSession]):
+    def __init__(self, prepared_sessions: List[PreparedSession]):
         """
         Initializes the CoverageReportModel with the provided prepared sessions.
         :param prepared_sessions: List of PreparedSession objects.
         """
         self.prepared_sessions = prepared_sessions
         self.features_names = [
-            "PSD Alpha Band", "PSD Beta Band", "PSD Delta Band" , "PSD Tetha Band",
-            "Activity + Scatter" , "Environment + Scatter"
+            "PSD Alpha Band", "PSD Beta Band", "PSD Delta Band", "PSD Tetha Band",
+            "Activity + Scatter", "Environment + Scatter"
         ]
 
-    def generateCoverageReport(self, dir_path = os.path.join('user', 'plots')):
+    def generateCoverageReport(self, dir_path=os.path.join('user', 'plots')):
         """
         Creates a radar bubble plot for the provided prepared sessions.
         Save the plot to the "plots" directory as 'CoverageReport.png'.
         """
-        num_features = len(self.features_names) # Get the number of features.
+        num_features = len(self.features_names)  # Get the number of features.
 
         # Create an array of angles for each feature (equally spaced in a circle).
         angles = np.linspace(0, 2 * np.pi, num_features, endpoint=False).tolist()
@@ -48,15 +42,12 @@ class CoverageReportModel:
         # Create the plot.
         fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
 
-        # Create a density grid for storing how many points are in each region.
-        density = np.zeros((num_features, 10))  # 10 bins for the radial dimension.
-
         # Mapping for environment and activity strings to numeric values.
         environment_mapping = {
             "slippery": 0.20,
             "plain": 0.40,
             "slope": 0.60,
-            "track" : 0.80,
+            "track": 0.80,
             "house": 1.00,
         }
 
@@ -64,19 +55,26 @@ class CoverageReportModel:
             "shopping": 0.20,
             "sport": 0.40,
             "cooking": 0.60,
-            "relax" : 0.80,
+            "relax": 0.80,
             "gaming": 1.00,
         }
 
         # Initialize density array (assuming predefined number of features and bins)
         density = np.zeros((len(self.prepared_sessions[0].features), 10))
 
+        # Define the range of features for normalization
+        feature_min, feature_max = -27.30245, 28.170070 # This is the 98° percentile.
+
+        # Function to normalize feature values to [0, 1]
+        def normalize(value):
+            return (value - feature_min) / (feature_max - feature_min)
+
         # First loop to calculate the density
         for session in self.prepared_sessions:
             for i, value in enumerate(session.features):
                 # Convert value to numeric if necessary
                 if isinstance(value, (int, float)):
-                    radius = float(value)
+                    radius = normalize(float(value))
                 elif value in environment_mapping:
                     radius = environment_mapping[value]
                 elif value in activity_mapping:
@@ -98,7 +96,7 @@ class CoverageReportModel:
             for i, value in enumerate(session.features):
                 # Convert value to numeric if necessary
                 if isinstance(value, (int, float)):
-                    radius = float(value)
+                    radius = normalize(float(value))
                 elif value in environment_mapping:
                     radius = environment_mapping[value]
                 elif value in activity_mapping:
@@ -128,14 +126,11 @@ class CoverageReportModel:
         ax.set_xticks(angles[:-1])  # Enable angular ticks at the feature angles
         ax.set_xticklabels(self.features_names, fontsize=8, color='black', weight='bold')  # Labels for the features
 
-        ax.set_title("Coverage Report", size=16, color='black', y=1.1) # Add the title to the plot.
+        ax.set_title("Coverage Report", size=16, color='black', y=1.1)  # Add the title to the plot.
 
         # Save the plot to the "plots" directory as 'CoverageReport.png'.
         if not os.path.exists(dir_path):
-            os.makedirs(dir_path) # If the directory does not exist, it will be created.
+            os.makedirs(dir_path)  # If the directory does not exist, it will be created.
 
         plot_path = os.path.join(dir_path, 'Input Coverage Report.png')
         plt.savefig(plot_path)  # Save the plot as a '.png' image
-
-
-

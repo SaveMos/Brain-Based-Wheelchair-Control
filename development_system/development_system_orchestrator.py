@@ -52,8 +52,8 @@ class DevelopmentSystemOrchestrator:
                     if self.service:
                         print("waiting for learning set")
                         message = self.dev_mess_broker.rcv_learning_set()
-                        if message:
-                            print("Learning set received:", message)
+                        #if message:
+                            #print("Learning set received:", message)
 
                         response = self.dev_mess_broker.send_timestamp(time.time(), "start")
                         print("Start timestamp sent")

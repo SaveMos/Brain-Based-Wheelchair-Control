@@ -9,7 +9,7 @@ def main():
     and generate the radar plot.
     """
     #Generate 100 random prepared sessions
-    randomized_prepared_sessions = generate_random_prepared_sessions_object_list(100)
+    randomized_prepared_sessions = generate_random_prepared_sessions_object_list(20)
 
     # Create the CoverageReportModel with the prepared sessions
     coverage_report = CoverageReportModel(randomized_prepared_sessions)

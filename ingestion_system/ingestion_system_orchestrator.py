@@ -7,11 +7,10 @@ Author: Francesco Taverna
 """
 import json
 
-from .ingestion_json_handler.json_handler import JsonHandler
-from .record_buffer_controller import RecordBufferController
-from .raw_session_preparation import RawSessionPreparation
-from .ingestion_system_parameters import Parameters
-from .SessionAndRecordExchanger import SessionAndRecordExchanger
+from ingestion_system.record_buffer_controller import RecordBufferController
+from ingestion_system.raw_session_preparation import RawSessionPreparation
+from ingestion_system.ingestion_system_parameters import Parameters
+from ingestion_system.SessionAndRecordExchanger import SessionAndRecordExchanger
 
 
 class IngestionSystemOrchestrator:
@@ -71,8 +70,12 @@ class IngestionSystemOrchestrator:
         """
         Process a record through the ingestion workflow.
         """
+        i = 1
+        j = 1
         while True:  # receive records iteratively
             try:
+                print("i-esimo record: ", i)
+                i = i+ 1
                 #boo is True if the message doesn't have the correct record schema
                 boo, new_record = self.json_io.get_message()
                 if boo:
@@ -91,13 +94,15 @@ class IngestionSystemOrchestrator:
                     #or if there are at least two None, so not only the label is missing, but others, wait for them
                     #in this way, if it is production phase and there is only one None, it means that the label is
                     #missing and given that in production is not required, the raw session is completed
-                    if self.parameters.configuration["current_phase"] != "production" or stored_records.count(None) >= 2:
+                    if self.current_phase != "production" or stored_records.count(None) >= 2:
                         continue
 
 
                 # creates raw session
                 raw_session = self.session_preparation.create_raw_session(stored_records)
                 print("sto mandando la raw session: ", raw_session.to_json())
+                print("numero di raw session inviata: ", j)
+                j = j + 1
 
                 # removes records
                 self.buffer_controller.remove_records(new_record["value"]["UUID"])
@@ -109,12 +114,13 @@ class IngestionSystemOrchestrator:
                     continue  # do not send anything
 
                 # if in evaluation phase, sends labels to evaluation system
-                if self.parameters.configuration["current_phase"] == "evaluation":
+                if self.current_phase == "evaluation":
                     label = {
                         "uuid": marked_raw_session.uuid,
-                        "label": marked_raw_session.label
+                        "movements": marked_raw_session.label
                     }
                     json_label = json.dumps(label) #json
+                    print("invio label a gio: ", json_label)
 
                     self.json_io.send_message(target_ip=self.parameters.configuration["ip_evaluation"],
                                               target_port=self.parameters.configuration["port_evaluation"], message=json_label)
@@ -134,5 +140,12 @@ class IngestionSystemOrchestrator:
 
             except Exception as e:
                 print(f"Error during ingestion: {e}")
+
+
+
+
+if __name__ == "__main__":
+    orchestrator = IngestionSystemOrchestrator()
+    orchestrator.ingestion()
 
 
