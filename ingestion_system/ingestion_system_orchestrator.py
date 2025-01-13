@@ -6,12 +6,11 @@ Author: Francesco Taverna
 
 """
 import json
-from asyncio.subprocess import Process
 
-from .record_buffer_controller import RecordBufferController
-from .raw_session_preparation import RawSessionPreparation
-from .ingestion_system_parameters import Parameters
-from .SessionAndRecordExchanger import SessionAndRecordExchanger
+from ingestion_system.record_buffer_controller import RecordBufferController
+from ingestion_system.raw_session_preparation import RawSessionPreparation
+from ingestion_system.ingestion_system_parameters import Parameters
+from ingestion_system.SessionAndRecordExchanger import SessionAndRecordExchanger
 
 
 class IngestionSystemOrchestrator:
