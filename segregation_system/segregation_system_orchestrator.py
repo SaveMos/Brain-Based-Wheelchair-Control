@@ -148,7 +148,8 @@ class SegregationSystemOrchestrator:
             self.message_broker.send_configuration("coverage_not_satisfied")
             self.reset_execution_state()
 
-        if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
+        if (
+                coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
             # The final phase.
             # Create an instance of database controller.
 
