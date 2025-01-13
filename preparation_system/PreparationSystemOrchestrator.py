@@ -64,11 +64,7 @@ class PreparationSystemOrchestrator:
                                                 self.parameters.configuration["port_production"], json_prepared_session)
 
 
-def run_preparation():
-    orchestrator = PreparationSystemOrchestrator()
-    orchestrator.run()
-
 
 if __name__ == "__main__":
-    preparation_system = Process(target=run_preparation, args=())
-    preparation_system.start()
+    orchestrator = PreparationSystemOrchestrator()
+    orchestrator.run()
