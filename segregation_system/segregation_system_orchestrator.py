@@ -105,7 +105,7 @@ class SegregationSystemOrchestrator:
             report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
             report_model.generateBalancingReport()  # Generate the Balancing Report.
 
-            if not self.testing:
+            if self.testing:
                 # Randomly assign an outcome, with 20% probability of it being True
                 if randrange(5) == 0:
                     SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report",
@@ -116,11 +116,19 @@ class SegregationSystemOrchestrator:
 
             print("Balancing report generated!")
 
-        if coverage_report_status == "-" and balancing_report_status == "NOT OK" and number_of_session_status == "OK":
+        number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                     "number_of_collected_sessions")
+        balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                    "balancing_report")
+        coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                   "coverage_report")
+
+        if coverage_report_status == "-" and balancing_report_status == "OK" and number_of_session_status == "OK":
             #self.db.reset_session_database()
             print("CHECK NOT PASSED - UMBALANCED CLASSES")
             self.message_broker.send_configuration("unbalanced_classes")
             self.reset_execution_state()
+            return
 
         if (coverage_report_status == "-" and balancing_report_status == "OK") or self.get_testing():
             # Get all the prepared sessions in the database.
@@ -142,11 +150,19 @@ class SegregationSystemOrchestrator:
 
             print("Input coverage report generated!")
 
+        number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                     "number_of_collected_sessions")
+        balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                    "balancing_report")
+        coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
+                                                                                   "coverage_report")
+
         if coverage_report_status == "NOT OK" and balancing_report_status == "OK" and number_of_session_status == "OK":
             #self.db.reset_session_database()
             print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
             self.message_broker.send_configuration("coverage_not_satisfied")
             self.reset_execution_state()
+            return
 
         if (
                 coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
