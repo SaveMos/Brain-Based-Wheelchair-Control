@@ -62,6 +62,7 @@ class SegregationSystemOrchestrator:
             print("Waiting for a message")
 
             session_counter = 0
+            prepared_session_stored_counter = 0
             min_num = SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']
 
             while True:
@@ -82,8 +83,9 @@ class SegregationSystemOrchestrator:
 
                         # Store the new prepared session in the database.
                         self.db.store_prepared_session(message)
+                        prepared_session_stored_counter += 1
 
-                        if self.db.get_number_of_prepared_session_stored() % min_num == 0:
+                        if prepared_session_stored_counter % min_num == 0:
                             break
 
                     except Exception:
