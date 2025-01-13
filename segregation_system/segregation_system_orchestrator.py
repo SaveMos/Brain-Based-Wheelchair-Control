@@ -33,7 +33,7 @@ class SegregationSystemOrchestrator:
         Example:
             orchestrator = SegregationSystemOrchestrator(testing=True)
         """
-        self.testing = testing  # Set the testing attribute.
+        self.set_testing(testing)  # Set the testing attribute.
         self.db = SegregationSystemDatabaseController()
         self.message_broker = SessionReceiverAndConfigurationSender()
         self.message_broker.start_server()
@@ -108,7 +108,7 @@ class SegregationSystemOrchestrator:
 
             print("Balancing report generated!")
 
-            if self.testing:
+            if self.get_testing():
                 # Randomly assign an outcome, with 20% probability of it being True
                 if randrange(5) == 0:
                     SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report",
@@ -122,7 +122,7 @@ class SegregationSystemOrchestrator:
                     self.reset_execution_state()
                     return
 
-        if not self.testing:
+        if not self.get_testing():
             if  SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"coverage_report") == "-" and \
                     SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"balancing_report") == "NOT OK" and \
                     SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"number_of_collected_sessions") == "OK":
@@ -142,7 +142,7 @@ class SegregationSystemOrchestrator:
 
             print("Input coverage report generated!")
 
-            if self.testing:
+            if self.get_testing():
                 # Randomly assign an outcome, with 33% probability of it being True
                 if randrange(3) == 0:
                     SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "coverage_report",
@@ -156,7 +156,7 @@ class SegregationSystemOrchestrator:
                     return
 
 
-        if not self.testing:
+        if not self.get_testing():
             if SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"coverage_report") == "NOT OK" and \
                     SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"balancing_report") == "OK" and \
                     SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,"number_of_collected_sessions") == "OK":
