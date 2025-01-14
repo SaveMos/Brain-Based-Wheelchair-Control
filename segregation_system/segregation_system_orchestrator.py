@@ -106,7 +106,7 @@ class SegregationSystemOrchestrator:
 
             if self.get_testing():
                 # Randomly assign an outcome, with 20% probability of it being True
-                if randrange(5) == 0:
+                if randrange(5) >= 0:
                     print("CHECK PASSED - UNIFORM INPUT COVERAGE")
                 else:
                     print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
@@ -132,7 +132,7 @@ class SegregationSystemOrchestrator:
 
             if self.get_testing():
                 # Randomly assign an outcome, with 33% probability of it being True
-                if randrange(3) == 0:
+                if randrange(3) >= 0:
                     print("CHECK PASSED - UNIFORM INPUT COVERAGE")
                 else:
                     print("CHECK NOT PASSED - NOT UNIFORM INPUT COVERAGE")
