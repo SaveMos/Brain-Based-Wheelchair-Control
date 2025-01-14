@@ -45,9 +45,10 @@ class SegregationSystemOrchestrator:
         This method initializes a `SegregationSystemConfiguration` object to load system parameters
         from the configuration file and sets up the required subsystems.
         """
-        SegregationSystemConfiguration.configure_parameters()
-        execution_state_file_path = "user/user_responses.json"
+        SegregationSystemConfiguration.configure_parameters() # Load the current Segregation System's parameters.
+        execution_state_file_path = "user/user_responses.json" # User responses file path.
 
+        # Retrieve the previous execution state left by the user.
         number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
                                                                                      "number_of_collected_sessions")
         balancing_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
@@ -55,17 +56,19 @@ class SegregationSystemOrchestrator:
         coverage_report_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
                                                                                    "coverage_report")
 
-        if (number_of_session_status == "-" and balancing_report_status == "-") or self.get_testing():
+        if (coverage_report_status == "-" and number_of_session_status == "-" and balancing_report_status == "-") or self.get_testing():
+            # In this phase we must gather the prepared sessions, generate the balancing report and ask the user response.
             print("Waiting for a message...")
 
             prepared_session_stored_counter = 0 # The number of stored prepared sessions.
             min_num = SegregationSystemConfiguration.LOCAL_PARAMETERS['minimum_number_of_collected_sessions']
 
             while True:
-                # Receive the prepared session from the preparation system, and cast it into a PreparedSession object.
+                # Receive a prepared session from the preparation system.
                 message = self.message_broker.get_last_message()
                 self.message_broker.send_timestamp("start")
 
+                # Convert the string into a dict object.
                 message = SegregationSystemJsonHandler.string_to_dict(message['message'])
 
                 # Validation of the prepared session.
@@ -77,35 +80,38 @@ class SegregationSystemOrchestrator:
                         #print("Prepared Session Valid! (class)")
 
                         self.db.store_prepared_session(message) # Store the new prepared session in the database.
-                        prepared_session_stored_counter += 1 # Increase the number of session stored.
+                        prepared_session_stored_counter += 1 # Increase the number of stored prepared sessions.
                         print("Prepared Session STORED! [", prepared_session_stored_counter, "].")
 
                         if prepared_session_stored_counter % min_num == 0:
-                            # if the number of session stored is a mul of the minimum, then break.
+                            # if the number of session stored is a mul of the minimum, then stop the cycle.
                             break
 
                     except Exception:
+                        # If the prepared session is not valid, just ignore it.
+                        # In case of any database error, just ignore it.
                         print("Prepared Session NOT Valid!")
                         continue
 
                 self.message_broker.send_timestamp("end")
 
             print("Enough prepared session stored!")
+
+            # The minimum number of prepared session has been reached!
             SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions",
-                                                             "OK")  # Register this, so we do not have to make the check again.
+                                                             "OK")
 
             # Get all the prepared sessions in the database.
             all_prepared_sessions = self.db.get_all_prepared_sessions()
 
             print("Generating the balancing report...")
-
             report_model = BalancingReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
             report_model.generateBalancingReport()  # Generate the Balancing Report.
-
             print("Balancing report generated!")
 
             if self.get_testing():
-                # Randomly assign an outcome, with 20% probability of it being True
+                # Simulating the user response...
+                # Randomly assign an outcome, with 20,00% probability of it being True.
                 if randrange(5) == 0:
                     print("CHECK PASSED - UNIFORM INPUT COVERAGE")
                 else:
@@ -115,23 +121,24 @@ class SegregationSystemOrchestrator:
                     return
 
         if not self.get_testing():
+            # If we are not in testing.
             if  coverage_report_status == "-" and balancing_report_status == "NOT OK" and number_of_session_status == "OK":
                 self.message_broker.send_configuration("unbalanced_classes")
-                self.reset_execution_state()
+                self.reset_execution_state()  # Reset the user responses file.
 
         if (coverage_report_status == "-" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
+            # In this phase we must generate the input coverage report and ask the user response.
             # Get all the prepared sessions in the database.
             all_prepared_sessions = self.db.get_all_prepared_sessions()
 
             print("Generating the input coverage report...")
-
             report_model = CoverageReportModel(all_prepared_sessions)  # Create the BalancingReportModel Object.
             report_model.generateCoverageReport()  # Generate the Balancing Report.
-
             print("Input coverage report generated!")
 
             if self.get_testing():
-                # Randomly assign an outcome, with 33% probability of it being True
+                # Simulating the user response...
+                # Randomly assign an outcome, with 33,33% probability of it being True.
                 if randrange(3) == 0:
                     print("CHECK PASSED - UNIFORM INPUT COVERAGE")
                 else:
@@ -141,24 +148,29 @@ class SegregationSystemOrchestrator:
                     return
 
         if not self.get_testing():
+            # If we are not in testing.
             if  coverage_report_status == "NOT OK" and balancing_report_status == "OK" and number_of_session_status == "OK":
                 self.message_broker.send_configuration("coverage_not_satisfied")
-                self.reset_execution_state()
+                self.reset_execution_state()  # Reset the user responses file.
 
         if (coverage_report_status == "OK" and balancing_report_status == "OK" and number_of_session_status == "OK") or self.get_testing():
+            # In this phase we must generate the learning sets according to the configuration and then send it to the Development system.
+
             # Get all the prepared sessions in the database.
             all_prepared_sessions = self.db.get_all_prepared_sessions()
 
+            print("Generating the learning sets...")
             report_model = LearningSetSplitter()
             learning_sets = report_model.generateLearningSets(all_prepared_sessions)
+            print("Learning sets generated!")
 
             network_info = SegregationSystemConfiguration.GLOBAL_PARAMETERS["Development System"]
 
             # Send the learning sets to the Development System.
             self.message_broker.send_message(network_info['ip'], network_info['port'],
                                              SegregationSystemJsonHandler.dict_to_string(learning_sets.to_dict()))
-            self.db.reset_session_database()
-            self.reset_execution_state()
+            self.db.reset_session_database() # Reset the prepared session database.
+            self.reset_execution_state() # Reset the user responses file.
 
     # Getter for testing
     def get_testing(self) -> bool:
