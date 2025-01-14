@@ -9,6 +9,7 @@ from segregation_system.segregation_database_manager.segregation_system_database
 from segregation_system.segregation_system_parameters import SegregationSystemConfiguration
 from segregation_system.session_receiver_and_configuration_sender import SessionReceiverAndConfigurationSender
 
+execution_state_file_path = "user/user_responses.json"
 
 class SegregationSystemOrchestrator:
     """
@@ -46,8 +47,6 @@ class SegregationSystemOrchestrator:
         from the configuration file and sets up the required subsystems.
         """
         SegregationSystemConfiguration.configure_parameters() # Load the current Segregation System's parameters.
-        execution_state_file_path = "user/user_responses.json" # User responses file path.
-
         # Retrieve the previous execution state left by the user.
         number_of_session_status = SegregationSystemJsonHandler.read_field_from_json(execution_state_file_path,
                                                                                      "number_of_collected_sessions")
@@ -201,7 +200,6 @@ class SegregationSystemOrchestrator:
         """
         Reset the execution state for a fresh-new stop&go interaction.
         """
-        execution_state_file_path = "user/user_responses.json"
         SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "number_of_collected_sessions", "-")
         SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "balancing_report", "-")
         SegregationSystemJsonHandler.write_field_to_json(execution_state_file_path, "coverage_report", "-")
@@ -209,15 +207,13 @@ class SegregationSystemOrchestrator:
 
 # Example to test the class
 if __name__ == "__main__":
-    SegregationSystemConfiguration.configure_parameters()
-
     orchestrator = SegregationSystemOrchestrator(True)
 
-    if orchestrator.testing:
+    if orchestrator.get_testing():
         orchestrator.reset_execution_state()
         db = SegregationSystemDatabaseController()
         db.reset_session_database()
-        while orchestrator.testing:
+        while orchestrator.get_testing():
             orchestrator.run()
     else:
         orchestrator.run()
