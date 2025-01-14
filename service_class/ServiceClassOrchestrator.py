@@ -117,25 +117,20 @@ class ServiceClassOrchestrator:
             # Writing headers to the CSV file
             self.csv_logger.write_header("developed_classifier,timestamp,status")
 
-            for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"]+1):
+            for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"] + 1):
+                print(f"Developing classifier {i}.")
 
-                print(f"Developing {i} classifiers.")
+                # Preparing the bucket for the development
+                bucket = self.recordSender.prepare_bucket(ServiceClassParameters.LOCAL_PARAMETERS["development_sessions"], include_labels=True)
 
-                # Updating CSV file
+                # Updating CSV file with the classifier
                 self.csv_logger.log(f"{i},{time.time()},start")
 
-                for j in range (1, i+1):
-                    
-                    print(f"Developing {j}/{i} classifier.")
+                # Sending the bucket
+                self.recordSender.send_bucket(bucket)
 
-                    # Preparing the bucket for the development
-                    bucket = self.recordSender.prepare_bucket(ServiceClassParameters.LOCAL_PARAMETERS["development_sessions"], include_labels=True)
-
-                    # Sending the bucket
-                    self.recordSender.send_bucket(bucket)
-
-                    # Updating CSV file
-                    self.csv_logger.log(f"{i},{time.time()},records_sent")
+                # Updating CSV file
+                self.csv_logger.log(f"{i},{time.time()},records_sent")
 
         elif ServiceClassParameters.LOCAL_PARAMETERS["phase"] == "production":
             print("Production phase will be tested, by considering " + str(ServiceClassParameters.LOCAL_PARAMETERS["production_sessions"]) + " sessions.")
