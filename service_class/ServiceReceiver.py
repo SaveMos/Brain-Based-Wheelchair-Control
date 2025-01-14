@@ -56,8 +56,9 @@ class ServiceReceiver:
         # Path of the timestamp log
         self.timestamp_log_path = f"{basedir}/log/timestamp_log.txt"
 
-        # Developed Classifiers counter, used only when the phase is "development"
-        self.developed_classifiers = 1
+        # Developed classifiers tracker and production messages are used only when the phase is "development"
+        self.developed_classifiers_tracker = 1
+        self.production_messages = 0
 
         # Sessions tracker and labels counter are used only when the phase is "production"
         self.sessions_tracker = 1
@@ -80,7 +81,7 @@ class ServiceReceiver:
 
                 # Write the timestamp to the log
                 with open(self.timestamp_log_path, "a") as log_file:
-                    log_file.write(f"{json_timestamp['timestamp']},{json_timestamp["system"]},{json_timestamp["status"]}\n")
+                    log_file.write(f"{json_timestamp['timestamp']},{json_timestamp['system']},{json_timestamp['status']}\n")
 
                 return jsonify({"status": "received"}), 200
 
@@ -107,10 +108,22 @@ class ServiceReceiver:
                     log_file.write(f"{time.time()},Service Class,{json_configuration['configuration']}\n")
 
                 if ServiceClassParameters.LOCAL_PARAMETERS["phase"] == "development":
+                    
                     if json_configuration["configuration"] == "production":
-                        if self.csv_logger is not None:
-                            self.csv_logger.log(f"{self.developed_classifiers},{time.time()},{json_configuration['configuration']}")
-                            self.developed_classifiers += 1
+
+                        self.production_messages += 1
+
+                        if self.production_messages == self.developed_classifiers_tracker:
+                            
+                            print(f"Development phase {self.developed_classifiers_tracker} completed. Produced {self.developed_classifiers_tracker} classifiers.")
+
+                            self.production_messages = 0
+
+                            if self.csv_logger is not None:
+                                # Update the CSV file
+                                self.csv_logger.log(f"{self.developed_classifiers_tracker},{time.time()},{json_configuration['configuration']}")
+                                self.developed_classifiers_tracker += 1
+                            
                 else:
                     # Add the configuration to the queue
                     self.configuration_queue.put(json_configuration)
