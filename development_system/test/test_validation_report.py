@@ -1,17 +1,26 @@
+"""
+Module: test_validation_report
+Tests the creation of the validation report.
+
+Author: Gabriele Pianigiani
+
+"""
 from unittest import TestCase
 
 from development_system.validation_orchestrator import ValidationOrchestrator
 from development_system.validation_report import ValidationReport
-
+from development_system.configuration_parameters import ConfigurationParameters
 
 class TestValidationReport(TestCase):
 
+
     def test_validation_report(self):
+        """Test the validity of a ValidationReport object."""
+        ConfigurationParameters.load_configuration()
         # Create a validation_report instance
         validation_orchestrator = ValidationOrchestrator()
         validation_report: ValidationReport = validation_orchestrator.validation()
 
-        """Test the validity of a ValidationReport object."""
         # Test if 'report' is a list
         assert isinstance(validation_report.get_validation_report(), list), "The report should be a list."
 

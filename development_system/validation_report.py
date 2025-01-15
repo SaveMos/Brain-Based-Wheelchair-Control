@@ -1,3 +1,10 @@
+""""
+Module: validation_report
+Represents the validation report.
+
+Author: Gabriele Pianigiani
+
+"""
 class ValidationReport:
     """Class representing the validation report."""
 

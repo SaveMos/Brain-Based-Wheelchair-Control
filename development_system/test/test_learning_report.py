@@ -1,3 +1,10 @@
+"""
+Module: test_learning_report
+Tests the creation of the learning report.
+
+Author: Gabriele Pianigiani
+
+"""
 from unittest import TestCase
 
 import joblib
@@ -8,8 +15,8 @@ from development_system.learning_plot_view import LearningPlotView
 
 class TestTraining(TestCase):
     def test_generate_learning_report(self):
+        """Tests the learning report."""
         # Create a classifier instance
-
         classifier: Classifier = joblib.load("data/classifier.sav")
 
         # Generate the learning report using LearningPlotModel

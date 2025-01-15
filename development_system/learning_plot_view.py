@@ -1,3 +1,10 @@
+"""
+Module: learning_plot_view
+Creates the learning plot.
+
+Author: Gabriele Pianigiani
+
+"""
 import matplotlib.pyplot as plt
 
 from development_system.learning_plot import LearningPlot
@@ -6,7 +13,7 @@ class LearningPlotView:
     """Shows the learning plot"""
 
     def __init__(self):
-        """ """
+        """Initialize the learning plot view"""
 
     # Generate a plot with the #iterations on the x-axis and the training error for each iteration on the y-axis
     # It takes as input an object of type LearningError, which stores the training error for each iteration

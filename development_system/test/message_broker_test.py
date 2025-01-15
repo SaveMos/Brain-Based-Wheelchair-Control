@@ -1,3 +1,10 @@
+"""
+Module: message_broker_test
+Tests the function to send and receive data from other modules.
+
+Author: Gabriele Pianigiani
+
+"""
 import threading
 
 from development_system.learning_set_receiver_and_classifier_sender import LearningSetReceiverAndClassifierSender
@@ -6,6 +13,7 @@ from development_system.learning_set_receiver_and_classifier_sender import Learn
 class TestMessageBroker:
     @staticmethod
     def receive_message():
+        """Receive messages using a broker instance."""
         # Create the main broker instance on port 5001
         broker_5001 = LearningSetReceiverAndClassifierSender(port=5001)
         broker_5001.start_server()
@@ -22,6 +30,7 @@ class TestMessageBroker:
 
     @staticmethod
     def send_classifier():
+        """Send a classifier to a specific host and port."""
         # Create the first sender instance on port 5002
         classifier_sender = LearningSetReceiverAndClassifierSender(host='127.0.0.1', port=5002)
         classifier_sender.start_server()
@@ -36,6 +45,7 @@ class TestMessageBroker:
 
     @staticmethod
     def send_configuration():
+        """Send a configuration to a specific host and port."""
         # Create the second sender instance on port 5003
         configuration_sender = LearningSetReceiverAndClassifierSender(host='127.0.0.1', port=5003)
         configuration_sender.start_server()

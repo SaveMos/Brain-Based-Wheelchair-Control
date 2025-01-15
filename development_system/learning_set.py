@@ -1,3 +1,10 @@
+"""
+Module: learning_set
+Represents the learning set.
+
+Author: Gabriele Pianigiani
+
+"""
 import json
 from typing import List
 
@@ -54,7 +61,6 @@ class LearningSet:
 
         label_mapping = {"turnRight": 0, "turnLeft": 1, "move": 2}
 
-       # current_set = data_set[set_type]
 
         current_data = pd.DataFrame([
             {
@@ -161,11 +167,23 @@ class LearningSet:
             raise ValueError("test_set must be a list of PreparedSession objects.")
         self._test_set = value
 
-
     @staticmethod
     def create_learning_set_from_json(json_file_path: str):
+        """
+        Creates a LearningSet object by loading data from a JSON file.
+
+        Args:
+            json_file_path (str): Path to the JSON file containing the learning set data.
+
+        Returns:
+            LearningSet: An object containing the training, validation, and test sets.
+
+        Raises:
+            FileNotFoundError: If the specified JSON file is not found.
+            ValueError: If the JSON file cannot be decoded properly.
+        """
         try:
-            # Carica i dati dal file JSON
+            # Load data from the JSON file
             with open(json_file_path, 'r') as file:
                 current_data = json.load(file)
         except FileNotFoundError as ex:
@@ -173,13 +191,13 @@ class LearningSet:
         except json.JSONDecodeError as ex:
             raise ValueError(f"Error decoding JSON: {ex}")
 
-        # Converti ciascun set nel JSON in una lista di oggetti PreparedSession
+        # Convert each set in the JSON into a list of PreparedSession objects
         training_set = [PreparedSession.from_dictionary(session) for session in current_data.get('training_set', [])]
         validation_set = [PreparedSession.from_dictionary(session) for session in
                           current_data.get('validation_set', [])]
         test_set = [PreparedSession.from_dictionary(session) for session in current_data.get('test_set', [])]
 
-        # Crea e restituisci l'oggetto LearningSet
+        # Create and return the LearningSet object
         return LearningSet(training_set=training_set, validation_set=validation_set, test_set=test_set)
 
 
@@ -194,12 +212,12 @@ class LearningSet:
         Returns:
             None
         """
-        # Converte i dati utilizzando il metodo to_dictionary
+        # Converts data using the to_dictionary method
         training_data = [session.to_dictionary() for session in learning_set.training_set]
         validation_data = [session.to_dictionary() for session in learning_set.validation_set]
         test_data = [session.to_dictionary() for session in learning_set.test_set]
 
-        # Salva i dati nei rispettivi file .sav usando joblib
+        # Save data in the respective file .sav using joblib
         joblib.dump(training_data, 'data/training_set.sav')
         joblib.dump(validation_data, 'data/validation_set.sav')
         joblib.dump(test_data, 'data/test_set.sav')

@@ -1,3 +1,10 @@
+"""
+Module: test_report
+Represents the test report generated after the testing phase.
+
+Author: Gabriele Pianigiani
+
+"""
 class TestReport:
     """Class representing the test report."""
 
@@ -72,7 +79,7 @@ class TestReport:
         Sets the difference value.
 
         Args:
-            difference (float): A calculated difference, between validation and test error.
+            difference (float): A calculated difference, between test and validation error.
         """
         self.difference = difference
 

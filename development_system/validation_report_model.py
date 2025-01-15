@@ -1,3 +1,10 @@
+""""
+Module: validation_report_model
+Creates the validation report model.
+
+Author: Gabriele Pianigiani
+
+"""
 from typing import List
 
 import joblib
@@ -11,7 +18,7 @@ class ValidationReportModel:
     """Generates the report for the validation report"""
 
     def __init__(self):
-        """ """
+        """Initialize the validation report model."""
         self.top_5_classifiers = []
 
     def generate_validation_report(self, classifiers: List[Classifier]):
@@ -45,5 +52,4 @@ class ValidationReportModel:
 
         validation_report.set_validation_report(self.top_5_classifiers)
         validation_report.set_overfitting_tolerance(ConfigurationParameters.params['overfitting_tolerance'])
-        #validation_report = {'report': self.top_5_classifiers, 'overfitting_tolerance': ConfigurationParameters.overfitting_tolerance,}
         return validation_report

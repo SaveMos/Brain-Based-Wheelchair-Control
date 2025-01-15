@@ -1,3 +1,10 @@
+"""
+Module: test_training
+Tests the training and validation phase.
+
+Author: Gabriele Pianigiani
+
+"""
 from unittest import TestCase
 
 import joblib

@@ -1,3 +1,10 @@
+""""
+Module: validation_orchestrator
+Orchestrates the validation workflow.
+
+Author: Gabriele Pianigiani
+
+"""
 import copy
 import itertools
 import random
@@ -14,14 +21,14 @@ class ValidationOrchestrator:
     """Orchestrator of the validation"""
 
     def __init__(self):
-        """ """
+        """Initialize the orchestrator."""
         self.classifiers = []
         self.validation_report = None
         self.validation_report_model = ValidationReportModel()
         self.validation_report_view = ValidationReportView()
         self.service_flag = None
 
-    def validation(self):    # It performs the grid search and generates the validation report
+    def validation(self):
         """
             Perform a grid search for hyperparameters and generate the validation report.
 
@@ -33,10 +40,11 @@ class ValidationOrchestrator:
         self.service_flag = ConfigurationParameters.params['service_flag']
         # Grid Search
         classifier_trainer = Trainer()
+        # reads the iterations from the classifier saved
         if self.service_flag:
             classifier = joblib.load("data/classifier_trainer.sav")
             iterations = classifier.get_num_iterations()
-
+        # reads the iterations from the json
         else:
             iterations = classifier_trainer.read_number_iterations()
 
