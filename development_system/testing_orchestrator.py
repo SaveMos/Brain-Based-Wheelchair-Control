@@ -1,3 +1,10 @@
+""""
+Module: testing_orchestrator
+Orchestrates the testing workflow.
+
+Author: Gabriele Pianigiani
+
+"""
 import glob
 import os
 import random
@@ -19,7 +26,7 @@ class TestingOrchestrator:
     """Orchestrator of the testing"""
 
     def __init__(self):
-        """ """
+        """Initialize the orchestrator."""
         self.json_handler = JsonValidatorReaderAndWriter()
         self.winner_network = Classifier()
         self.test_report = None
@@ -30,6 +37,9 @@ class TestingOrchestrator:
 
     @staticmethod
     def _delete_files_pattern(pattern):
+        """Deletes a specific file.
+            Attributes: pattern indicates the file to delete
+         """
         for file_path in glob.glob(pattern):
             if os.path.isfile(file_path):
                 os.remove(file_path)
@@ -39,18 +49,6 @@ class TestingOrchestrator:
     def test(self):
         """
             Executes the testing phase for the classifier and generates a test report.
-
-            This method performs several tasks in the testing phase:
-            - Validates and reads necessary JSON files to determine the classifier index
-              or selects one randomly.
-            - Loads the classifier model and validates the test dataset schema.
-            - Extracts features and labels from the test data, processes them for evaluation,
-              and calculates the test error using the log loss function.
-            - Generates and displays a test report.
-            - Removes all saved classifiers and re-saves the winning network with the
-              updated test error.
-            - Depending on the `service_flag`, either returns the test report or a boolean
-              indicating whether the test passed.
 
             Returns:
                 Union[TestReport, bool]: The test report (if `service_flag` is True) or
@@ -64,14 +62,9 @@ class TestingOrchestrator:
             self.json_handler.validate_json("intermediate_results/winner_network.json","schemas/winner_network_schema.json")
             data = self.json_handler.read_json_file("intermediate_results/winner_network.json")
             classifier_index = data["index"]
-
+        # retrieve the winner network from the file
         self.winner_network = joblib.load("data/classifier" + str(classifier_index ) + ".sav")
-
-        #self.json_handler.validate_json("data/test_set.json","schemas/generic_set_schema.json")
-        #test_data = self.json_handler.read_json_file("data/test_set.json")
-
-        #result = self.learning_set.extract_features_and_labels(test_data, "test_set")
-
+        # extract the test set and the features and labels
         test_data = joblib.load("data/test_set.sav")
         result = self.learning_set.extract_features_and_labels(test_data)
 

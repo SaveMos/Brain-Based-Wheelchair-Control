@@ -1,3 +1,10 @@
+"""
+Module: development_system_orchestrator
+Orchestrates the development system workflow.
+
+Author: Gabriele Pianigiani
+
+"""
 import time
 
 from development_system.configuration_parameters import ConfigurationParameters
@@ -24,23 +31,20 @@ class DevelopmentSystemOrchestrator:
         self.testing_orchestrator = TestingOrchestrator()
 
 
-
     def develop(self):
         """Handle development logic."""
 
         # Read the responses of the user for the stop and go and the value to start the continuous execution
         self.json_handler.validate_json("responses/user_responses.json", "schemas/user_responses_schema.json")
         user_responses = self.json_handler.read_json_file("responses/user_responses.json")
-        #assign the value of the service flag to testing
 
-        #orchestrator.set_testing(ConfigurationParameters.params['service_flag'])
         print("Service Flag: ", self.service)
 
-        #loop for the non-stop-and-go execution
         if self.service:
             # start the server
             self.dev_mess_broker.start_server()
 
+        # loop for the non-stop-and-go execution
         while True:
             # Definition of the stop&go structure
             # The user must insert only a value equal to 1 in the JSON file, the only considered value 0 is the testNotOK
@@ -52,13 +56,11 @@ class DevelopmentSystemOrchestrator:
                     if self.service:
                         print("waiting for learning set")
                         message = self.dev_mess_broker.rcv_learning_set()
-                        #if message:
-                            #print("Learning set received:", message)
 
                         response = self.dev_mess_broker.send_timestamp(time.time(), "start")
                         print("Start timestamp sent")
                         print("Response from Module Service System:", response)
-
+                        #convert the received string into a dictionary and the dictionary to a learning set object
                         learning_set = LearningSet.from_dict(JsonValidatorReaderAndWriter.string_to_dict(message['message']))
 
                         # save the three type of sets in a different Json file
@@ -100,8 +102,8 @@ class DevelopmentSystemOrchestrator:
                     # CHECK VALIDATION RESULT
                 result = self.validation_orchestrator.validation()
                 print("Validation phase done")
-                # if the testing is false and the validation is correct, go to the test phase.
-                # if the testing is false and the validation is not correct, go at the beginning.
+                # if the validation is correct, go to the test phase.
+                # if the validation is not correct, go at the beginning.
                 if self.service:
                     for key in user_responses.keys():
                         user_responses[key] = 0
@@ -116,8 +118,8 @@ class DevelopmentSystemOrchestrator:
                 # CHECK TEST RESULT
                 result = self.testing_orchestrator.test()
                 print("Test phase done")
-                # if the testing is false and the test is correct, send the classifier to production system.
-                # if the testing is false and the test is not correct, send the configuration to messaging system.
+                # if the test is correct, send the classifier to production system.
+                # if the test is not correct, send the configuration to messaging system.
                 if self.service:
                     for key in user_responses.keys():
                         user_responses[key] = 0
@@ -131,8 +133,7 @@ class DevelopmentSystemOrchestrator:
                     print("send configuration")
                     response = self.dev_mess_broker.send_configuration()
                     print("Response from Module Messaging System:", response)
-                    user_responses["TestOK"] = 2
-                # exit the loop
+                    user_responses["TestOK"] = 2    #2 for sending timestamp
 
             elif user_responses["TestOK"] == 1:
                 print("TestOK")
@@ -141,19 +142,17 @@ class DevelopmentSystemOrchestrator:
                     print("send classifier:")
                     response = self.dev_mess_broker.send_classifier()
                     print("Response from Module Production System:", response)
-                    user_responses["TestOK"] = 2
-                # exit the loop
+                    user_responses["TestOK"] = 2    #2 for sending timestamp
 
-
-            # if testing is false, the loop must end
+            # if service is false, the loop must end
             if not self.service:
                 break
 
             if user_responses["TestOK"] == 2:
                 print("End timestamp sent")
-                # Create a MessageBroker instance and start the server
                 response = self.dev_mess_broker.send_timestamp(time.time(), "end")
                 print("Response from Module Service System:", response)
+                # restart from the beginning
                 for key in user_responses.keys():
                     user_responses[key] = 0
                 user_responses["Start"] = 1

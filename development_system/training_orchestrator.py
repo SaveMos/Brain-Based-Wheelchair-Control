@@ -1,3 +1,10 @@
+""""
+Module: training_orchestrator
+Orchestrates the training workflow.
+
+Author: Gabriele Pianigiani
+
+"""
 import math
 import random
 
@@ -15,7 +22,7 @@ class TrainingOrchestrator:
     """Orchestrator of the training"""
 
     def __init__(self):
-        """ """
+        """Initialize the orchestrator."""
         self.trainer = Trainer()
         self.classifier = Classifier()
         self.plot_model = LearningPlotModel()
@@ -26,11 +33,6 @@ class TrainingOrchestrator:
     def train_classifier(self, set_average_hyperparams):
         """
             Train the classifier with specified or dynamically determined hyperparameters.
-
-            This function trains the classifier based on whether average hyperparameters
-            should be set or iterations should be dynamically adjusted. It handles both
-            the service and testing phases, and supports generating and checking learning reports.
-
             Args:
                 set_average_hyperparams (bool):
                     If True, sets average hyperparameters (neurons and layers)

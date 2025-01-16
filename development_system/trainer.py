@@ -1,3 +1,10 @@
+""""
+Module: trainer
+Trains the classifier.
+
+Author: Gabriele Pianigiani
+
+"""
 import math
 import joblib
 
@@ -19,10 +26,7 @@ class Trainer:
 
     def read_number_iterations(self):
         """
-            Set the number of iterations.
-            This function validates the JSON file containing the iteration details
-            using a predefined schema and then reads the data to extract and return
-            the number of iterations.
+            Read the number of iterations from the json file.
 
             Returns:
                 int: The number of iterations.
@@ -62,16 +66,13 @@ class Trainer:
             Returns:
                 object: The trained classifier.
         """
-        #self.json_handler.validate_json("data/training_set.json","schemas/generic_set_schema.json")
-        #training_data = self.json_handler.read_json_file("data/training_set.json")
-
-        #result = self.learning_set.extract_features_and_labels(training_data, "training_set")
+        # extract the training set and the features and labels
         training_data = joblib.load("data/training_set.sav")
         result = self.learning_set.extract_features_and_labels(training_data)
 
         training_features = result[0]
         training_labels = result[1]
-
+        #if we have to find the number of iterations use the saved classifier
         if not validation:
             self.classifier =  joblib.load("data/classifier_trainer.sav")
 
@@ -93,10 +94,7 @@ class Trainer:
             and computes the validation error using log loss. The validation error
             is then set for the classifier.
         """
-        #self.json_handler.validate_json("data/validation_set.json", "schemas/generic_set_schema.json")
-        #validation_data = self.json_handler.read_json_file("data/validation_set.json")
-
-        #result = self.learning_set.extract_features_and_labels(validation_data, "validation_set")
+        # extract the validation set and the features and labels
         validation_data = joblib.load("data/validation_set.sav")
         result = self.learning_set.extract_features_and_labels(validation_data)
 

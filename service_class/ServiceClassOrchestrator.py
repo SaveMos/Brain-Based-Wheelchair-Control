@@ -92,9 +92,9 @@ class ServiceClassOrchestrator:
                     # Updating CSV file
                     self.csv_logger.log(f"{phase},{time.time()},{configuration['configuration']}")
 
-                    if configuration["configuration"] == "restart":
+                    if configuration["configuration"] != "production":
                         # Restart the development phase
-                        print("Restart configuration received.")
+                        print("Production configuration not received. Received " + configuration["configuration"] + " configuration.")
                         return
 
                 else:
@@ -117,8 +117,7 @@ class ServiceClassOrchestrator:
             # Writing headers to the CSV file
             self.csv_logger.write_header("developed_classifier,timestamp,status")
 
-            for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"]+1):
-
+            for i in range(1, ServiceClassParameters.LOCAL_PARAMETERS["classifiers_to_develop"] + 1):
                 print(f"Developing classifier {i}.")
 
                 # Preparing the bucket for the development

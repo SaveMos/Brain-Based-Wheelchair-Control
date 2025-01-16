@@ -1,3 +1,10 @@
+"""
+Module: prepared_session
+Represents the prepared session for data.
+
+Author: Gabriele Pianigiani
+
+"""
 from typing import List, Tuple
 
 class PreparedSession:

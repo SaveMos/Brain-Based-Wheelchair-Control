@@ -7,7 +7,7 @@
   "properties": {
     "configuration": {
       "type": "string",
-      "enum": ["production", "restart"]
+      "enum": ["production", "restart", "unbalanced_classes", "coverage_not_satisfied"]
     }
   }
 }

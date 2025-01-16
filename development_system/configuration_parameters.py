@@ -1,10 +1,15 @@
+"""
+Module: configuration_parameters
+Represents the configuration parameters of the development system.
+
+Author: Gabriele Pianigiani
+
+"""
 from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 
 
 class ConfigurationParameters:
     """Class representing configuration parameters of the development system."""
-    #def __init__(self):
-        #self.params = None
     params = {}
 
     @staticmethod
@@ -14,5 +19,4 @@ class ConfigurationParameters:
         read_conf.validate_json("conf/development_parameters.json", "schemas/development_parameters_schema.json")
         filepath = "conf/development_parameters.json"
 
-        #self.params = read_conf.read_configuration_parameters(filepath)
         ConfigurationParameters.params = read_conf.read_configuration_parameters(filepath)

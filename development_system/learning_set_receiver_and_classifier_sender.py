@@ -1,3 +1,10 @@
+"""
+Module: learning_set_receiver_and_classifier_sender
+Represents the class to send and receive data.
+
+Author: Gabriele Pianigiani
+
+"""
 import json
 
 from flask import Flask, request, jsonify
@@ -10,9 +17,7 @@ from development_system.json_validator_reader_and_writer import JsonValidatorRea
 
 
 class LearningSetReceiverAndClassifierSender:
-    """The messaging broker of the development system"""
-
-    #A utility class to enable inter-module communication using Flask.
+    """A utility class to enable inter-module communication using Flask."""
 
     #This class supports sending and receiving messages in a blocking manner.
 
@@ -27,7 +32,6 @@ class LearningSetReceiverAndClassifierSender:
         self.host = host
         self.port = port
         self.json_handler = JsonValidatorReaderAndWriter()
-
         # Queue to hold received messages
         self.message_queue = Queue()
 

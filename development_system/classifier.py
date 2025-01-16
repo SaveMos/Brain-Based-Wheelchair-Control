@@ -1,3 +1,10 @@
+"""
+Module: classifier
+Represents the classifier to develop.
+
+Author: Gabriele Pianigiani
+
+"""
 import numpy as np
 from sklearn.neural_network import MLPClassifier
 
@@ -38,7 +45,10 @@ class Classifier(MLPClassifier):
         self.max_iter = num_iterations      # #iterations of MLPClassifier
 
     def get_num_iterations(self):
-        """Get the number of iterations."""
+        """Get the number of iterations.
+         Returns:
+             the number of iterations
+        """
         return self.max_iter                # #iterations of MLPClassifier
 
     def set_num_layers(self, value):
@@ -51,7 +61,10 @@ class Classifier(MLPClassifier):
         self.num_layers = value
 
     def get_num_layers(self):
-        """Get the number of layers."""
+        """Get the number of layers.
+        Returns:
+             the number of layers
+        """
         return self.num_layers
 
     def set_num_neurons(self, value):
@@ -64,7 +77,10 @@ class Classifier(MLPClassifier):
         self.num_neurons = value
 
     def get_num_neurons(self):
-        """Get the number of neurons."""
+        """Get the number of neurons.
+        Returns:
+             the number of neurons
+        """
         return self.num_neurons
 
     def set_training_error(self, training_error = 0):
@@ -81,7 +97,10 @@ class Classifier(MLPClassifier):
 
 
     def get_training_error(self):
-        """Get the training error."""
+        """Get the training error.
+        Returns:
+             the training error
+        """
         return self.loss_       # training error of MLPClassifier
 
     def set_validation_error(self, value):
@@ -94,7 +113,10 @@ class Classifier(MLPClassifier):
         self.validation_error = value
 
     def get_validation_error(self):
-        """Get the validation error."""
+        """Get the validation error.
+        Returns:
+             the validation error
+        """
         return self.validation_error
 
     def set_test_error(self, value):
@@ -107,7 +129,10 @@ class Classifier(MLPClassifier):
         self.test_error = value
 
     def get_test_error(self):
-        """Get the test error."""
+        """Get the test error.
+        Returns:
+             the test error
+        """
         return self.test_error
 
     def classifier_report(self):
@@ -137,6 +162,8 @@ class Classifier(MLPClassifier):
 
     #curve to show in the learning report view
     def get_loss_curve(self):
-        """Get the MSE vector."""
-
+        """Get the MSE vector.
+        Returns:
+             the loss_curve
+        """
         return self.loss_curve_

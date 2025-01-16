@@ -1,16 +1,25 @@
+"""
+Module: test_testing_report
+Tests the creation of the testing report.
+
+Author: Gabriele Pianigiani
+
+"""
 from unittest import TestCase
 
 from development_system.test_report import TestReport
 from development_system.testing_orchestrator import TestingOrchestrator
+from development_system.configuration_parameters import ConfigurationParameters
 
 class TestTestingReport(TestCase):
 
     def test_testing_report(self):
+        """Test the validity of a TestReport object."""
+        ConfigurationParameters.load_configuration()
         # Create a validation_report instance
         testing_orchestrator = TestingOrchestrator()
         test_report: TestReport = testing_orchestrator.test()
 
-        """Test the validity of a TestReport object."""
         # Validate 'generalization_tolerance'
         generalization_tolerance = test_report.get_generalization_tolerance()
         assert generalization_tolerance is not None, "The generalization tolerance should not be None."

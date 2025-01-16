@@ -1,3 +1,10 @@
+"""
+Module: json_validator_reader_and_writer
+Represents some function to handle json files.
+
+Author: Gabriele Pianigiani
+
+"""
 import json
 from typing import Any
 
@@ -6,7 +13,7 @@ from jsonschema import validate, ValidationError, SchemaError
 
 class JsonValidatorReaderAndWriter:
     """
-        A class to read and save file json
+        A class to validate, read and save file json
     """
 
     @staticmethod
@@ -40,7 +47,6 @@ class JsonValidatorReaderAndWriter:
             raise ValueError(f"File not found: {e.filename}")
 
 
-
     @staticmethod
     def read_configuration_parameters(filepath):
         """
@@ -50,7 +56,6 @@ class JsonValidatorReaderAndWriter:
             file_content: content of json file.
 
         """
-
         params = {}
         try:
             with open(filepath, "r") as f:
@@ -78,7 +83,13 @@ class JsonValidatorReaderAndWriter:
 
     @staticmethod
     def read_json_file(filepath):
-       
+        """
+            Read a generic json file.
+
+            Returns:
+                file_content: content of json file.
+
+        """
         try:
             with open(filepath, "r") as f:
                 file_content = json.load(f)
@@ -87,7 +98,6 @@ class JsonValidatorReaderAndWriter:
         except Exception as e:
             print("Error to read file at path " + filepath + ": " + str(e))
             return None
-
 
     @staticmethod
     def write_json_file(data, filepath):

@@ -1,3 +1,10 @@
+"""
+Module: test_report_view
+Writes the test report in a json file.
+
+Author: Gabriele Pianigiani
+
+"""
 from development_system.configuration_parameters import ConfigurationParameters
 from development_system.json_validator_reader_and_writer import JsonValidatorReaderAndWriter
 from development_system.test_report import TestReport
@@ -7,17 +14,12 @@ class TestReportView:
     """Shows the test report"""
 
     def __init__(self):
-        """ """
+        """Initialize the test report view."""
         self.json_handler = JsonValidatorReaderAndWriter()
 
     def show_test_report(self, test_report: TestReport):
         """
         Displays and saves the test report.
-
-        This method creates a dictionary containing key metrics from the provided
-        `TestReport` instance, such as generalization tolerance, validation error,
-        test error, and the difference between validation and test errors. It then
-        saves this dictionary as a JSON file.
 
         Args:
             test_report (TestReport): An instance of `TestReport` containing the
