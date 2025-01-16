@@ -13,6 +13,8 @@ class JsonHandler:
     def read_json_file(self, filepath):
         """
         Read a json file.
+        Args:
+                filepath: path where is placed file json to read.
 
         Returns the content of the json file.
 
@@ -48,9 +50,11 @@ class JsonHandler:
     def validate_json(self ,json_data: dict, schema_path: str) -> bool:
         """
             Validate a json object against a json schema in a file.
-            :param json_data: json object
-            :param schema_path: path to the json schema relative to the data folder
-            :return: True if json object is valid, False otherwise
+            Args:
+                json_data: json object
+                schema_path: path to the json schema relative to the data folder
+            Return:
+                bool: True if json object is valid, False otherwise
             """
         with open(schema_path, "r", encoding="UTF-8") as file:
             json_schema = json.load(file)

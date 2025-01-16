@@ -29,7 +29,7 @@ class ConfigurationParameters:
     def start_config(self):
         """
 
-        Returns:
+        Returns: dictionary with a field "configuration" that assume a string: "production"
 
         """
 

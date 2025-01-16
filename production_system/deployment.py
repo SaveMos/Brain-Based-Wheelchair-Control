@@ -12,7 +12,7 @@ class Deployment:
         """
         Saves the provided classifier in a .sav file
         Args:
-            classifier_json: file json of classifier to save
+            classifier: file with classifier in binary format to save
         """
         try:
             binary_content = classifier.encode('latin1')

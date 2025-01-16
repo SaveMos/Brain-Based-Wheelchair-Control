@@ -24,10 +24,10 @@ class Classification:
         Method that execute classify operation based on received prepared_session and classifier
         Args:
             prepared_session: prepared session that must be classified
-            classifier_deployed: flag that
+            classifier_deployed: flag that say if a classifier was deployed in a previous deployment session
 
         Returns:
-            label: aN object of label class representing the label obtained from classify operation
+            label: an object of label class representing the label obtained from classify operation
 
         """
 
