@@ -6,3 +6,4 @@
 /utility/database/test_database.db
 /data/augmented_data/
 /segregation_system/test/schemas/
+service_class/MassiveTests/*/raw_logs/
